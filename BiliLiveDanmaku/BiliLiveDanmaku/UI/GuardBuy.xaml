@@ -1,0 +1,39 @@
+﻿<UserControl x:Class="BiliLiveDanmaku.UI.GuardBuy"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:BiliLiveDanmaku.UI"
+             mc:Ignorable="d" 
+             d:DesignHeight="64" d:DesignWidth="300">
+    <Grid x:Name="MainGrid" Margin="8" Height="48">
+        <Grid.OpacityMask>
+            <VisualBrush>
+                <VisualBrush.Visual>
+                    <Border Background="White" Height="{Binding ElementName=MainGrid, Path=ActualHeight}" Width="{Binding ElementName=MainGrid, Path=ActualWidth}" CornerRadius="4"/>
+                </VisualBrush.Visual>
+            </VisualBrush>
+        </Grid.OpacityMask>
+        <Grid x:Name="InfoGrid" Background="#FF64D2F0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="32"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Image x:Name="FaceImage" Grid.Column="0" Height="24" Width="24" VerticalAlignment="Center" Stretch="Fill" Source="http://i2.hdslb.com/bfs/face/ad21ee2add7f10bddb3a584129473dc46c694459.jpg" RenderOptions.BitmapScalingMode="Fant">
+                <Image.OpacityMask>
+                    <VisualBrush>
+                        <VisualBrush.Visual>
+                            <Border Height="1" Width="1" CornerRadius="0.5" Background="White"/>
+                        </VisualBrush.Visual>
+                    </VisualBrush>
+                </Image.OpacityMask>
+            </Image>
+            <TextBlock Grid.Column="1" FontSize="16" TextWrapping="Wrap" VerticalAlignment="Center">
+                <Run Text="恭喜" Foreground="#FFFFFFFF"/>
+                <Run x:Name="UserBox" Text="User" Foreground="#FFFFFFFF"/>
+                <Run Text="上任" Foreground="#FFFFFFFF"/>
+                <Run x:Name="TitleBox" Text="Title" Foreground="#FFFFFFFF"/>
+            </TextBlock>
+        </Grid>
+    </Grid>
+</UserControl>
