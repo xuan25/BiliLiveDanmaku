@@ -68,6 +68,7 @@ namespace BiliLiveDanmaku.UI
         public Gift()
         {
             InitializeComponent();
+            FaceImage.Source = new BitmapImage(new Uri("http://i2.hdslb.com/bfs/face/ad21ee2add7f10bddb3a584129473dc46c694459.jpg"));
         }
 
         private static SolidColorBrush SilverBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xCB, 0xDA, 0xF7));

@@ -11,7 +11,7 @@
             <ColumnDefinition Width="32"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Image x:Name="FaceImage" Grid.Column="0" Height="24" Width="24" VerticalAlignment="Top" Stretch="Fill" Source="http://i2.hdslb.com/bfs/face/ad21ee2add7f10bddb3a584129473dc46c694459.jpg" RenderOptions.BitmapScalingMode="Fant">
+        <Image x:Name="FaceImage" Grid.Column="0" Height="24" Width="24" VerticalAlignment="Top" Stretch="Fill" RenderOptions.BitmapScalingMode="Fant">
             <Image.OpacityMask>
                 <VisualBrush>
                     <VisualBrush.Visual>

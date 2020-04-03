@@ -68,7 +68,7 @@ namespace BiliLiveDanmaku.UI
 
             private void FaceImage_DownloadCompleted(object sender, EventArgs e)
             {
-                FaceImage.Freeze();
+                //FaceImage.Freeze();
                 IsDownloading = false;
                 DownloadCompleted?.Invoke(sender, e);
             }

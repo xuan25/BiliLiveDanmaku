@@ -41,6 +41,8 @@ namespace BiliLiveDanmaku.UI
         {
             InitializeComponent();
             MessageBox.Text = Guid.NewGuid().ToString();
+
+            FaceImage.Source = new BitmapImage(new Uri("http://i2.hdslb.com/bfs/face/ad21ee2add7f10bddb3a584129473dc46c694459.jpg"));
         }
 
         public Danmaku(BiliLiveJsonParser.Danmaku danmaku)

@@ -32,8 +32,9 @@ namespace BiliLiveDanmaku.UI
         public SuperChat()
         {
             InitializeComponent();
-            
-            if(new Random((int)DateTime.Now.Ticks).NextDouble() < 0.5)
+            FaceImage.Source = new BitmapImage(new Uri("http://i2.hdslb.com/bfs/face/ad21ee2add7f10bddb3a584129473dc46c694459.jpg"));
+
+            if (new Random((int)DateTime.Now.Ticks).NextDouble() < 0.5)
             {
                 MessageBox.Text = Guid.NewGuid().ToString();
                 MessageTransBorder.Visibility = Visibility.Collapsed;

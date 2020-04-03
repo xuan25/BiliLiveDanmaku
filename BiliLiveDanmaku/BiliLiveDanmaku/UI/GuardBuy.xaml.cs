@@ -37,6 +37,7 @@ namespace BiliLiveDanmaku.UI
         public GuardBuy()
         {
             InitializeComponent();
+            FaceImage.Source = new BitmapImage(new Uri("http://i2.hdslb.com/bfs/face/ad21ee2add7f10bddb3a584129473dc46c694459.jpg"));
         }
 
         public GuardBuy(BiliLiveJsonParser.GuardBuy guardBuy)
