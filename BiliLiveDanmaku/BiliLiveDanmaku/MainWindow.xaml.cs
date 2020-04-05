@@ -121,6 +121,7 @@ namespace BiliLiveDanmaku
                 uint roomId = uint.Parse(RoomIdBox.Text);
                 LiveListener = new BiliLiveListener(roomId);
                 LiveListener.ItemsRecieved += BiliLiveListener_ItemsRecieved;
+                LiveListener.PopularityRecieved += LiveListener_PopularityRecieved;
                 LiveListener.Connected += BiliLiveListener_Connected;
                 LiveListener.Disconnected += BiliLiveListener_Disconnected;
                 LiveListener.Connect();
@@ -130,6 +131,14 @@ namespace BiliLiveDanmaku
             {
                 Console.WriteLine(ex);
             }
+        }
+
+        private void LiveListener_PopularityRecieved(uint popularity)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                PopularityBox.Text = string.Format("{0}", popularity.ToString());
+            });
         }
 
         private void DisconnectBtn_Click(object sender, RoutedEventArgs e)
@@ -148,6 +157,10 @@ namespace BiliLiveDanmaku
         {
             ConnectBtn.IsEnabled = true;
             IsConnected = false;
+            Dispatcher.Invoke(() =>
+            {
+                PopularityBox.Text = string.Empty;
+            });
         }
 
         private void BiliLiveListener_ItemsRecieved(BiliLiveJsonParser.IItem[] items)
@@ -489,7 +502,7 @@ namespace BiliLiveDanmaku
 
         private void DanmakuScrollViewer_MouseLeave(object sender, MouseEventArgs e)
         {
-            DanmakuScrollViewer.ScrollToEnd();
+            //DanmakuScrollViewer.ScrollToEnd();
         }
     }
 }
