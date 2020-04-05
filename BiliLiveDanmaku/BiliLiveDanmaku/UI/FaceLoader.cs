@@ -33,23 +33,36 @@ namespace BiliLiveDanmaku.UI
                 IsDownloading = true;
                 Expire = DateTime.UtcNow.AddSeconds(300);
 
-                HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
-                HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                Stream stream = httpWebResponse.GetResponseStream();
-                
-                owner.Dispatcher.Invoke(() =>
+                Task.Factory.StartNew(() =>
                 {
-                    BitmapImage bitmapImage = new BitmapImage();
-                    FaceImage = bitmapImage;
+                    try
+                    {
+                        HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
+                        HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                        Stream stream = httpWebResponse.GetResponseStream();
 
-                    bitmapImage.DownloadCompleted += FaceImage_DownloadCompleted;
-                    bitmapImage.BeginInit();
-                    bitmapImage.StreamSource = stream;
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapImage.EndInit();
+                        owner.Dispatcher.Invoke(() =>
+                        {
+                            BitmapImage bitmapImage = new BitmapImage();
+                            FaceImage = bitmapImage;
 
-                    owner.SetFace(bitmapImage);
+                            bitmapImage.DownloadCompleted += FaceImage_DownloadCompleted;
+                            bitmapImage.BeginInit();
+                            bitmapImage.StreamSource = stream;
+                            bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+                            bitmapImage.EndInit();
+
+                            owner.SetFace(bitmapImage);
+                        });
+                    }
+                    catch (WebException)
+                    {
+
+                    }
+                    
                 });
+
+                
             }
 
             public void ApplyTo(ILoadFace loadFace)
