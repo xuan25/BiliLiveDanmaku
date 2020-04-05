@@ -41,6 +41,8 @@ namespace BiliLiveDanmaku.UI
                     bitmapImage.BeginInit();
                     bitmapImage.UriSource = uri;
                     bitmapImage.EndInit();
+                    //if (!IsDownloading)
+                    //    IsDownloading = true;
                     owner.SetFace(bitmapImage);
                 });
             }
@@ -49,6 +51,18 @@ namespace BiliLiveDanmaku.UI
             {
                 if (IsDownloading)
                 {
+                    // DownloadCompleted not always raise
+                    try
+                    {
+                        loadFace.Dispatcher.Invoke(() =>
+                        {
+                            loadFace.SetFace(FaceImage);
+                        });
+                    }
+                    catch (InvalidOperationException ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
                     DownloadCompleted += (object sender, EventArgs e) =>
                     {
                         loadFace.Dispatcher.Invoke(() =>
