@@ -32,17 +32,22 @@ namespace BiliLiveDanmaku.UI
             {
                 IsDownloading = true;
                 Expire = DateTime.UtcNow.AddSeconds(300);
+
+                HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
+                HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                Stream stream = httpWebResponse.GetResponseStream();
+                
                 owner.Dispatcher.Invoke(() =>
                 {
                     BitmapImage bitmapImage = new BitmapImage();
                     FaceImage = bitmapImage;
-                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
+
                     bitmapImage.DownloadCompleted += FaceImage_DownloadCompleted;
                     bitmapImage.BeginInit();
-                    bitmapImage.UriSource = uri;
+                    bitmapImage.StreamSource = stream;
+                    bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                     bitmapImage.EndInit();
-                    //if (!IsDownloading)
-                    //    IsDownloading = true;
+
                     owner.SetFace(bitmapImage);
                 });
             }
@@ -51,18 +56,6 @@ namespace BiliLiveDanmaku.UI
             {
                 if (IsDownloading)
                 {
-                    // DownloadCompleted not always raise
-                    try
-                    {
-                        loadFace.Dispatcher.Invoke(() =>
-                        {
-                            loadFace.SetFace(FaceImage);
-                        });
-                    }
-                    catch (InvalidOperationException ex)
-                    {
-                        Console.WriteLine(ex);
-                    }
                     DownloadCompleted += (object sender, EventArgs e) =>
                     {
                         loadFace.Dispatcher.Invoke(() =>
@@ -82,7 +75,9 @@ namespace BiliLiveDanmaku.UI
 
             private void FaceImage_DownloadCompleted(object sender, EventArgs e)
             {
-                //FaceImage.Freeze();
+                FaceImage.Freeze();
+                FaceImage.StreamSource.Close();
+
                 IsDownloading = false;
                 DownloadCompleted?.Invoke(sender, e);
             }
@@ -120,11 +115,12 @@ namespace BiliLiveDanmaku.UI
                 return;
 
             Uri uri = new Uri(backupUri);
-            FaceCache newFaceCache = new FaceCache(uri, loadFace);
-            //newFaceCache.ApplyTo(loadFace);
-
+            
+            
             Task.Factory.StartNew(() =>
             {
+                FaceCache newFaceCache = new FaceCache(uri, loadFace);
+                //newFaceCache.ApplyTo(loadFace);
                 lock (FaceCacheDict)
                 {
                     if (!FaceCacheDict.ContainsKey(loadFace.UserId))
