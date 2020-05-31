@@ -83,6 +83,9 @@ namespace BiliLiveHelper.Bili
             DanmakuTcpClient = GetTcpConnection(danmakuServer);
             Stream stream = DanmakuTcpClient.GetStream();
 
+            stream.ReadTimeout =  30 * 1000 + 1000;
+            stream.WriteTimeout = 30 * 1000 + 1000;
+
             PackReader = new BiliPackReader(stream);
             PackWriter = new BiliPackWriter(stream);
 

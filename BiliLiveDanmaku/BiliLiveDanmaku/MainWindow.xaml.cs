@@ -124,6 +124,7 @@ namespace BiliLiveDanmaku
                 LiveListener.PopularityRecieved += LiveListener_PopularityRecieved;
                 LiveListener.Connected += BiliLiveListener_Connected;
                 LiveListener.Disconnected += BiliLiveListener_Disconnected;
+                LiveListener.ConnectionFailed += LiveListener_ConnectionFailed;
                 LiveListener.Connect();
                 ConnectBtn.IsEnabled = false;
             }
@@ -131,6 +132,22 @@ namespace BiliLiveDanmaku
             {
                 Console.WriteLine(ex);
             }
+        }
+
+        private void LiveListener_ConnectionFailed(string message)
+        {
+            Console.WriteLine("Reconnecting");
+            Task.Factory.StartNew(() =>
+            {
+                Task.Delay(1000);
+                if (IsConnected)
+                {
+                    Dispatcher.Invoke(() =>
+                    {
+                        LiveListener.Connect();
+                    });
+                }
+            });
         }
 
         private void LiveListener_PopularityRecieved(uint popularity)
