@@ -5,6 +5,7 @@ using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,6 +14,10 @@ namespace BiliLiveHelper.Bili
 {
     class BiliLiveListener
     {
+
+        public enum Protocols { Tcp, Ws, Wss };
+        public Protocols Protocol { get; set; }
+
         public delegate void ConnectionEventHandler();
         public event ConnectionEventHandler Connected;
         public event ConnectionEventHandler Disconnected;
@@ -33,6 +38,7 @@ namespace BiliLiveHelper.Bili
         public event ItemsRecievedHandler ItemsRecieved;
 
         private TcpClient DanmakuTcpClient { get; set; }
+        private ClientWebSocket DanmakuWebSocket { get; set; }
         private uint RoomId { get; set; }
 
         private BiliPackReader PackReader { get; set; }
@@ -48,11 +54,12 @@ namespace BiliLiveHelper.Bili
         /// Constructor 
         /// </summary>
         /// <param name="roomId"></param>
-        public BiliLiveListener(uint roomId)
+        public BiliLiveListener(uint roomId, Protocols protocol)
         {
             IsHeartbeatSenderRunning = false;
             IsEventListenerRunning = false;
             RoomId = roomId;
+            Protocol = protocol;
         }
 
         #region Public methods
@@ -80,14 +87,29 @@ namespace BiliLiveHelper.Bili
             if (danmakuServer == null)
                 return false;
 
-            DanmakuTcpClient = GetTcpConnection(danmakuServer);
-            Stream stream = DanmakuTcpClient.GetStream();
+            switch (Protocol)
+            {
+                case Protocols.Tcp:
+                    DanmakuTcpClient = GetTcpConnection(danmakuServer);
+                    Stream stream = DanmakuTcpClient.GetStream();
 
-            stream.ReadTimeout =  30 * 1000 + 1000;
-            stream.WriteTimeout = 30 * 1000 + 1000;
+                    stream.ReadTimeout = 30 * 1000 + 1000;
+                    stream.WriteTimeout = 30 * 1000 + 1000;
 
-            PackReader = new BiliPackReader(stream);
-            PackWriter = new BiliPackWriter(stream);
+                    PackReader = new BiliPackReader(stream);
+                    PackWriter = new BiliPackWriter(stream);
+                    break;
+                case Protocols.Ws:
+                    DanmakuWebSocket = GetWsConnection(danmakuServer);
+                    PackReader = new BiliPackReader(DanmakuWebSocket);
+                    PackWriter = new BiliPackWriter(DanmakuWebSocket);
+                    break;
+                case Protocols.Wss:
+                    DanmakuWebSocket = GetWssConnection(danmakuServer);
+                    PackReader = new BiliPackReader(DanmakuWebSocket);
+                    PackWriter = new BiliPackWriter(DanmakuWebSocket);
+                    break;
+            }
 
             if (!InitConnection(danmakuServer))
             {
@@ -110,6 +132,12 @@ namespace BiliLiveHelper.Bili
             StopHeartbeatSender();
             if (DanmakuTcpClient != null)
                 DanmakuTcpClient.Close();
+            if (DanmakuWebSocket != null)
+            {
+                DanmakuWebSocket.CloseAsync(WebSocketCloseStatus.EndpointUnavailable, string.Empty, CancellationToken.None);
+                DanmakuWebSocket.Abort();
+                DanmakuWebSocket.Dispose();
+            }
             Disconnected?.Invoke();
         }
 
@@ -134,6 +162,20 @@ namespace BiliLiveHelper.Bili
             return tcpClient;
         }
 
+        private ClientWebSocket GetWsConnection(DanmakuServer danmakuServer)
+        {
+            ClientWebSocket clientWebSocket = new ClientWebSocket();
+            clientWebSocket.ConnectAsync(new Uri($"ws://{danmakuServer.Server}:{danmakuServer.WsPort}/sub"), CancellationToken.None).GetAwaiter().GetResult();
+            return clientWebSocket;
+        }
+
+        private ClientWebSocket GetWssConnection(DanmakuServer danmakuServer)
+        {
+            ClientWebSocket clientWebSocket = new ClientWebSocket();
+            clientWebSocket.ConnectAsync(new Uri($"wss://{danmakuServer.Server}:{danmakuServer.WssPort}/sub"), CancellationToken.None).GetAwaiter().GetResult();
+            return clientWebSocket;
+        }
+
         private bool InitConnection(DanmakuServer danmakuServer)
         {
             Json.Value initMsg = new Json.Value.Object
@@ -142,7 +184,7 @@ namespace BiliLiveHelper.Bili
                 ["roomid"] = danmakuServer.RoomId,
                 ["protover"] = 2,
                 ["platform"] = "web",
-                ["clientver"] = "1.9.3",
+                ["clientver"] = "1.12.0",
                 ["type"] = 2,
                 ["key"] = danmakuServer.Token
             };
@@ -258,7 +300,7 @@ namespace BiliLiveHelper.Bili
                 {
                     try
                     {
-                        PackWriter.SendMessage((int)BiliPackWriter.MessageType.HEARTBEAT, "");
+                        PackWriter.SendMessage((int)BiliPackWriter.MessageType.HEARTBEAT, "[object Object]");
                     }
                     catch (SocketException)
                     {
@@ -301,7 +343,7 @@ namespace BiliLiveHelper.Bili
                 {
                     try
                     {
-                        BiliPackReader.IPack[] packs = PackReader.ReadPacks();
+                        BiliPackReader.IPack[] packs = PackReader.ReadPacksAsync();
 
                         List<Json.Value> jsons = new List<Json.Value>();
                         List<BiliLiveJsonParser.IItem> items = new List<BiliLiveJsonParser.IItem>();

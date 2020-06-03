@@ -119,7 +119,7 @@ namespace BiliLiveDanmaku
             try
             {
                 uint roomId = uint.Parse(RoomIdBox.Text);
-                LiveListener = new BiliLiveListener(roomId);
+                LiveListener = new BiliLiveListener(roomId, BiliLiveListener.Protocols.Tcp);
                 LiveListener.ItemsRecieved += BiliLiveListener_ItemsRecieved;
                 LiveListener.PopularityRecieved += LiveListener_PopularityRecieved;
                 LiveListener.Connected += BiliLiveListener_Connected;

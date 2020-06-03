@@ -1,16 +1,25 @@
 ﻿using System;
 using System.IO;
+using System.Net.WebSockets;
 using System.Text;
+using System.Threading;
 
 namespace BiliLiveHelper.Bili
 {
     class BiliPackWriter
     {
         public Stream BaseStream { get; private set; }
+        public ClientWebSocket BaseWebSocket { get; private set; }
 
         public BiliPackWriter(Stream stream)
         {
             BaseStream = stream;
+        }
+
+        public BiliPackWriter(ClientWebSocket webSocket)
+        {
+            BaseWebSocket = webSocket;
+            BaseStream = new MemoryStream();
         }
 
         public enum MessageType { CONNECT = 7, HEARTBEAT = 2 };
@@ -34,6 +43,15 @@ namespace BiliLiveHelper.Bili
 
             BaseStream.Write(buffer.GetBuffer(), 0, dataLength);
             BaseStream.Flush();
+
+            if(BaseWebSocket != null)
+            {
+                byte[] b = new byte[dataLength];
+                BaseStream.Position = 0;
+                BaseStream.Read(b, 0, dataLength);
+                BaseWebSocket.SendAsync(new ArraySegment<byte>(b), WebSocketMessageType.Binary, true, CancellationToken.None).GetAwaiter().GetResult();
+                BaseStream.Position = 0;
+            }
         }
 
         private static byte[] ToBE(byte[] b)

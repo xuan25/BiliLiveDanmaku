@@ -5,7 +5,9 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Net;
+using System.Net.WebSockets;
 using System.Text;
+using System.Threading;
 
 namespace BiliLiveHelper.Bili
 {
@@ -66,14 +68,30 @@ namespace BiliLiveHelper.Bili
         }
 
         public Stream BaseStream { get; private set; }
+        public ClientWebSocket BaseWebSocket { get; private set; }
 
         public BiliPackReader(Stream stream)
         {
             BaseStream = stream;
         }
 
-        public IPack[] ReadPacks()
+        public BiliPackReader(ClientWebSocket webSocket)
         {
+            BaseWebSocket = webSocket;
+            BaseStream = new MemoryStream();
+        }
+
+        public IPack[] ReadPacksAsync()
+        {
+            if (BaseWebSocket != null)
+            {
+                ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[4096]);
+                WebSocketReceiveResult webSocketReceiveResult = BaseWebSocket.ReceiveAsync(buffer, CancellationToken.None).GetAwaiter().GetResult();
+                BaseStream.Position = 0;
+                BaseStream.Write(buffer.Array, 0, webSocketReceiveResult.Count);
+                BaseStream.Position = 0;
+            }
+
             // Pack length (4)
             byte[] packLengthBuffer = ReadTcpStream(BaseStream, 4);
             int packLength = IPAddress.NetworkToHostOrder(BitConverter.ToInt32(packLengthBuffer, 0));
@@ -164,7 +182,7 @@ namespace BiliLiveHelper.Bili
 
                                 while (decompressedStream.Position != decompressedStream.Length)
                                 {
-                                    IPack[] innerPackes = new BiliPackReader(decompressedStream).ReadPacks();
+                                    IPack[] innerPackes = new BiliPackReader(decompressedStream).ReadPacksAsync();
                                     packs.AddRange(innerPackes);
                                 }
 
