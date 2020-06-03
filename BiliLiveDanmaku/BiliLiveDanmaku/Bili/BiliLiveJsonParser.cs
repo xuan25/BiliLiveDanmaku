@@ -259,9 +259,11 @@ namespace BiliLiveHelper.Bili
 
         public static IItem Parse(Json.Value json)
         {
+            Console.WriteLine(json.ToString());
             try
             {
-                switch ((string)json["cmd"])
+                string[] cmd = ((string)json["cmd"]).Split(':');
+                switch (cmd[0])
                 {
                     case "DANMU_MSG":
                         return new Danmaku(json);
