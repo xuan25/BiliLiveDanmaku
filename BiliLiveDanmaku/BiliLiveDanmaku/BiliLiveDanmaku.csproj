@@ -64,6 +64,8 @@
     <Compile Include="Bili\BiliPackReader.cs" />
     <Compile Include="Bili\BiliPackWriter.cs" />
     <Compile Include="JsonUtil.cs" />
+    <Compile Include="Speech\TTSClient.cs" />
+    <Compile Include="Speech\TTSUtil.cs" />
     <Compile Include="UI\Danmaku.xaml.cs">
       <DependentUpon>Danmaku.xaml</DependentUpon>
     </Compile>
@@ -95,6 +97,10 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Speech\AccessKey.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\Danmaku.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

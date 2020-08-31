@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:BiliLiveDanmaku" xmlns:ui="clr-namespace:BiliLiveDanmaku.UI"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors" x:Class="BiliLiveDanmaku.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1000" Width="500" Background="#9947494F" WindowStyle="SingleBorderWindow" AllowsTransparency="False" Topmost="True">
+        Title="MainWindow" Height="1000" Width="500" Background="#9947494F" WindowStyle="SingleBorderWindow" AllowsTransparency="False" Topmost="False">
     <Grid>
         <Grid x:Name="DisplayGrid">
             <ScrollViewer x:Name="DanmakuScrollViewer" VerticalScrollBarVisibility="Auto" MouseLeave="DanmakuScrollViewer_MouseLeave">

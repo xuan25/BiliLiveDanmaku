@@ -1,4 +1,5 @@
-﻿using BiliLiveDanmaku.UI;
+﻿using BiliLiveDanmaku.Speech;
+using BiliLiveDanmaku.UI;
 using BiliLiveHelper.Bili;
 using JsonUtil;
 using System;
@@ -92,7 +93,8 @@ namespace BiliLiveDanmaku
             GuardBuy,
             WelcomeGuard,
             Welcome,
-            RoomBlock
+            RoomBlock,
+            DanmakuSpeech
         }
         private Dictionary<FilterOptions, bool> OptionsDict = new Dictionary<FilterOptions, bool>();
 
@@ -214,7 +216,10 @@ namespace BiliLiveDanmaku
                         case BiliLiveJsonParser.Cmds.DANMU_MSG:
                             BiliLiveJsonParser.Danmaku danmaku = (BiliLiveJsonParser.Danmaku)item;
                             if (danmaku.Type == 0)
+                            {
                                 AppendDanmaku(danmaku);
+                                SpeakDanmaku(danmaku);
+                            }
                             else
                                 AppendRythmStorm(danmaku);
                             break;
@@ -303,6 +308,15 @@ namespace BiliLiveDanmaku
             {
                 CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
             }
+        }
+
+        private void SpeakDanmaku(BiliLiveJsonParser.Danmaku item)
+        {
+            if (!OptionsDict[FilterOptions.DanmakuSpeech])
+                return;
+
+            if (TTSUtil.IsAvalable)
+                TTSUtil.Speak(item.Sender.Name + " 说 " + item.Message);
         }
 
         private void AppendSuperChat(BiliLiveJsonParser.SuperChat item)
