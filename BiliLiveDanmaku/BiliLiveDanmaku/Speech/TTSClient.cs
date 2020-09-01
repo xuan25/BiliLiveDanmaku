@@ -275,26 +275,6 @@ namespace CognitiveServicesTTS
     /// </summary>
     public class Synthesize
     {
-        /// <summary>
-        /// Generates SSML.
-        /// </summary>
-        /// <param name="locale">The locale.</param>
-        /// <param name="gender">The gender.</param>
-        /// <param name="name">The voice name.</param>
-        /// <param name="text">The text input.</param>
-        private string GenerateSsml(string locale, string gender, string name, string text)
-        {
-            var ssmlDoc = new XDocument(
-                              new XElement("speak",
-                                  new XAttribute("version", "1.0"),
-                                  new XAttribute(XNamespace.Xml + "lang", locale),
-                                  new XElement("voice",
-                                      new XAttribute(XNamespace.Xml + "lang", locale),
-                                      new XAttribute(XNamespace.Xml + "gender", gender),
-                                      new XAttribute("name", name),
-                                      text)));
-            return ssmlDoc.ToString();
-        }
 
         private HttpClient client;
         private HttpClientHandler handler;
@@ -325,35 +305,97 @@ namespace CognitiveServicesTTS
         /// </summary>
         public event EventHandler<GenericEventArgs<Exception>> OnError;
 
-        /// <summary>
-        /// Sends the specified text to be spoken to the TTS service and saves the response audio to a file.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns>A Task</returns>
-        public Task Speak(CancellationToken cancellationToken, InputOptions inputOptions)
+        
+        private IEnumerable<KeyValuePair<string, string>> GenHeaders(AudioOutputFormat outputFormat, string authorizationToken)
+        {
+            List<KeyValuePair<string, string>> toReturn = new List<KeyValuePair<string, string>>();
+            toReturn.Add(new KeyValuePair<string, string>("Content-Type", "application/ssml+xml"));
+
+            string outputFormatStr;
+
+            switch (outputFormat)
+            {
+                case AudioOutputFormat.Raw16Khz16BitMonoPcm:
+                    outputFormatStr = "raw-16khz-16bit-mono-pcm";
+                    break;
+                case AudioOutputFormat.Raw8Khz8BitMonoMULaw:
+                    outputFormatStr = "raw-8khz-8bit-mono-mulaw";
+                    break;
+                case AudioOutputFormat.Riff16Khz16BitMonoPcm:
+                    outputFormatStr = "riff-16khz-16bit-mono-pcm";
+                    break;
+                case AudioOutputFormat.Riff8Khz8BitMonoMULaw:
+                    outputFormatStr = "riff-8khz-8bit-mono-mulaw";
+                    break;
+                case AudioOutputFormat.Ssml16Khz16BitMonoSilk:
+                    outputFormatStr = "ssml-16khz-16bit-mono-silk";
+                    break;
+                case AudioOutputFormat.Raw16Khz16BitMonoTrueSilk:
+                    outputFormatStr = "raw-16khz-16bit-mono-truesilk";
+                    break;
+                case AudioOutputFormat.Ssml16Khz16BitMonoTts:
+                    outputFormatStr = "ssml-16khz-16bit-mono-tts";
+                    break;
+                case AudioOutputFormat.Audio16Khz128KBitRateMonoMp3:
+                    outputFormatStr = "audio-16khz-128kbitrate-mono-mp3";
+                    break;
+                case AudioOutputFormat.Audio16Khz64KBitRateMonoMp3:
+                    outputFormatStr = "audio-16khz-64kbitrate-mono-mp3";
+                    break;
+                case AudioOutputFormat.Audio16Khz32KBitRateMonoMp3:
+                    outputFormatStr = "audio-16khz-32kbitrate-mono-mp3";
+                    break;
+                case AudioOutputFormat.Audio16Khz16KbpsMonoSiren:
+                    outputFormatStr = "audio-16khz-16kbps-mono-siren";
+                    break;
+                case AudioOutputFormat.Riff16Khz16KbpsMonoSiren:
+                    outputFormatStr = "riff-16khz-16kbps-mono-siren";
+                    break;
+                case AudioOutputFormat.Raw24Khz16BitMonoPcm:
+                    outputFormatStr = "raw-24khz-16bit-mono-pcm";
+                    break;
+                case AudioOutputFormat.Riff24Khz16BitMonoPcm:
+                    outputFormatStr = "riff-24khz-16bit-mono-pcm";
+                    break;
+                case AudioOutputFormat.Audio24Khz48KBitRateMonoMp3:
+                    outputFormatStr = "audio-24khz-48kbitrate-mono-mp3";
+                    break;
+                case AudioOutputFormat.Audio24Khz96KBitRateMonoMp3:
+                    outputFormatStr = "audio-24khz-96kbitrate-mono-mp3";
+                    break;
+                case AudioOutputFormat.Audio24Khz160KBitRateMonoMp3:
+                    outputFormatStr = "audio-24khz-160kbitrate-mono-mp3";
+                    break;
+                default:
+                    outputFormatStr = "riff-16khz-16bit-mono-pcm";
+                    break;
+            }
+
+            toReturn.Add(new KeyValuePair<string, string>("X-Microsoft-OutputFormat", outputFormatStr));
+            // authorization Header
+            toReturn.Add(new KeyValuePair<string, string>("Authorization", authorizationToken));
+            // Refer to the doc
+            toReturn.Add(new KeyValuePair<string, string>("X-Search-AppId", "07D3234E49CE426DAA29772419F436CA"));
+            // Refer to the doc
+            toReturn.Add(new KeyValuePair<string, string>("X-Search-ClientID", "1ECFAE91408841A480F00935DC390960"));
+            // The software originating the request
+            toReturn.Add(new KeyValuePair<string, string>("User-Agent", "TTSClient"));
+
+            return toReturn;
+        }
+
+        public Task Speak(CancellationToken cancellationToken, Uri requestUri, AudioOutputFormat outputFormat, string authorizationToken, string ssmlDoc)
         {
             client.DefaultRequestHeaders.Clear();
-            foreach (var header in inputOptions.Headers)
+            IEnumerable<KeyValuePair<string, string>> headers = GenHeaders(outputFormat, authorizationToken);
+            foreach (var header in headers)
             {
                 client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
             }
 
-            var genderValue = "";
-            switch (inputOptions.VoiceType)
+            var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
             {
-                case Gender.Male:
-                    genderValue = "Male";
-                    break;
-
-                case Gender.Female:
-                default:
-                    genderValue = "Female";
-                    break;
-            }
-
-            var request = new HttpRequestMessage(HttpMethod.Post, inputOptions.RequestUri)
-            {
-                Content = new StringContent(GenerateSsml(inputOptions.Locale, genderValue, inputOptions.VoiceName, inputOptions.Text))
+                Content = new StringContent(ssmlDoc)
             };
 
             var httpTask = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
@@ -413,157 +455,6 @@ namespace CognitiveServicesTTS
             {
                 handler(this, e);
             }
-        }
-
-        /// <summary>
-        /// Inputs Options for the TTS Service.
-        /// </summary>
-        public class InputOptions
-        {
-            /// <summary>
-            /// Initializes a new instance of the <see cref="Input"/> class.
-            /// </summary>
-            public InputOptions()
-            {
-                this.Locale = "en-us";
-                this.VoiceName = "Microsoft Server Speech Text to Speech Voice (en-US, ZiraRUS)";
-                // Default to Riff16Khz16BitMonoPcm output format.
-                this.OutputFormat = AudioOutputFormat.Riff16Khz16BitMonoPcm;
-            }
-
-            /// <summary>
-            /// Gets or sets the request URI.
-            /// </summary>
-            public Uri RequestUri { get; set; }
-
-            /// <summary>
-            /// Gets or sets the audio output format.
-            /// </summary>
-            public AudioOutputFormat OutputFormat { get; set; }
-
-            /// <summary>
-            /// Gets or sets the headers.
-            /// </summary>
-            public IEnumerable<KeyValuePair<string, string>> Headers
-            {
-                get
-                {
-                    List<KeyValuePair<string, string>> toReturn = new List<KeyValuePair<string, string>>();
-                    toReturn.Add(new KeyValuePair<string, string>("Content-Type", "application/ssml+xml"));
-
-                    string outputFormat;
-
-                    switch (this.OutputFormat)
-                    {
-                        case AudioOutputFormat.Raw16Khz16BitMonoPcm:
-                            outputFormat = "raw-16khz-16bit-mono-pcm";
-                            break;
-
-                        case AudioOutputFormat.Raw8Khz8BitMonoMULaw:
-                            outputFormat = "raw-8khz-8bit-mono-mulaw";
-                            break;
-
-                        case AudioOutputFormat.Riff16Khz16BitMonoPcm:
-                            outputFormat = "riff-16khz-16bit-mono-pcm";
-                            break;
-
-                        case AudioOutputFormat.Riff8Khz8BitMonoMULaw:
-                            outputFormat = "riff-8khz-8bit-mono-mulaw";
-                            break;
-
-                        case AudioOutputFormat.Ssml16Khz16BitMonoSilk:
-                            outputFormat = "ssml-16khz-16bit-mono-silk";
-                            break;
-
-                        case AudioOutputFormat.Raw16Khz16BitMonoTrueSilk:
-                            outputFormat = "raw-16khz-16bit-mono-truesilk";
-                            break;
-
-                        case AudioOutputFormat.Ssml16Khz16BitMonoTts:
-                            outputFormat = "ssml-16khz-16bit-mono-tts";
-                            break;
-
-                        case AudioOutputFormat.Audio16Khz128KBitRateMonoMp3:
-                            outputFormat = "audio-16khz-128kbitrate-mono-mp3";
-                            break;
-
-                        case AudioOutputFormat.Audio16Khz64KBitRateMonoMp3:
-                            outputFormat = "audio-16khz-64kbitrate-mono-mp3";
-                            break;
-
-                        case AudioOutputFormat.Audio16Khz32KBitRateMonoMp3:
-                            outputFormat = "audio-16khz-32kbitrate-mono-mp3";
-                            break;
-
-                        case AudioOutputFormat.Audio16Khz16KbpsMonoSiren:
-                            outputFormat = "audio-16khz-16kbps-mono-siren";
-                            break;
-
-                        case AudioOutputFormat.Riff16Khz16KbpsMonoSiren:
-                            outputFormat = "riff-16khz-16kbps-mono-siren";
-                            break;
-                        case AudioOutputFormat.Raw24Khz16BitMonoPcm:
-                            outputFormat = "raw-24khz-16bit-mono-pcm";
-                            break;
-                        case AudioOutputFormat.Riff24Khz16BitMonoPcm:
-                            outputFormat = "riff-24khz-16bit-mono-pcm";
-                            break;
-                        case AudioOutputFormat.Audio24Khz48KBitRateMonoMp3:
-                            outputFormat = "audio-24khz-48kbitrate-mono-mp3";
-                            break;
-                        case AudioOutputFormat.Audio24Khz96KBitRateMonoMp3:
-                            outputFormat = "audio-24khz-96kbitrate-mono-mp3";
-                            break;
-                        case AudioOutputFormat.Audio24Khz160KBitRateMonoMp3:
-                            outputFormat = "audio-24khz-160kbitrate-mono-mp3";
-                            break;
-                        default:
-                            outputFormat = "riff-16khz-16bit-mono-pcm";
-                            break;
-                    }
-
-                    toReturn.Add(new KeyValuePair<string, string>("X-Microsoft-OutputFormat", outputFormat));
-                    // authorization Header
-                    toReturn.Add(new KeyValuePair<string, string>("Authorization", this.AuthorizationToken));
-                    // Refer to the doc
-                    toReturn.Add(new KeyValuePair<string, string>("X-Search-AppId", "07D3234E49CE426DAA29772419F436CA"));
-                    // Refer to the doc
-                    toReturn.Add(new KeyValuePair<string, string>("X-Search-ClientID", "1ECFAE91408841A480F00935DC390960"));
-                    // The software originating the request
-                    toReturn.Add(new KeyValuePair<string, string>("User-Agent", "TTSClient"));
-
-                    return toReturn;
-                }
-                set
-                {
-                    Headers = value;
-                }
-            }
-
-            /// <summary>
-            /// Gets or sets the locale.
-            /// </summary>
-            public String Locale { get; set; }
-
-            /// <summary>
-            /// Gets or sets the type of the voice; male/female.
-            /// </summary>
-            public Gender VoiceType { get; set; }
-
-            /// <summary>
-            /// Gets or sets the name of the voice.
-            /// </summary>
-            public string VoiceName { get; set; }
-
-            /// <summary>
-            /// Authorization Token.
-            /// </summary>
-            public string AuthorizationToken { get; set; }
-
-            /// <summary>
-            /// Gets or sets the text.
-            /// </summary>
-            public string Text { get; set; }
         }
     }
 }

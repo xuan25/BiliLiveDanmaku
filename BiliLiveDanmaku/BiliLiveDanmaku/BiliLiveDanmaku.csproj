@@ -64,6 +64,8 @@
     <Compile Include="Bili\BiliPackReader.cs" />
     <Compile Include="Bili\BiliPackWriter.cs" />
     <Compile Include="JsonUtil.cs" />
+    <Compile Include="Speech\LexiconUtil.cs" />
+    <Compile Include="Speech\TemplateManager.cs" />
     <Compile Include="Speech\TTSClient.cs" />
     <Compile Include="Speech\TTSUtil.cs" />
     <Compile Include="UI\Danmaku.xaml.cs">
@@ -152,6 +154,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\Danmaku.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Lexicon.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\SuperChat.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\Gift.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

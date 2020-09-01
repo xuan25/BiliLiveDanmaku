@@ -1,0 +1,11 @@
+﻿<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="zh-CN">
+  <voice name="zh-CN-XiaoxiaoNeural">
+    <lexicon uri="https://bililexicon.blob.core.chinacloudapi.cn/default/202009016.xml"/>
+    <mstts:express-as style="assistant" styledegree="2.0">
+      <prosody rate="0%" pitch="0%">感谢 {User} 的留言:</prosody>
+    </mstts:express-as>
+    <mstts:express-as style="chat" styledegree="2.0">
+      <prosody rate="0%" pitch="0%">{Message}</prosody>
+    </mstts:express-as>
+  </voice>
+</speak>

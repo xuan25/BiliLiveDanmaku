@@ -25,7 +25,6 @@ namespace BiliLiveHelper.Bili
             SYS_MSG,
             ROOM_BLOCK_MSG,
             COMBO_SEND,
-            COMBO_END,
             ROOM_RANK,
             TV_START,
             NOTICE_MSG,
@@ -169,23 +168,20 @@ namespace BiliLiveHelper.Bili
             }
         }
 
-        // TODO : Unused
         [Serializable]
-        public class GiftCombo : ITimeStampedItem
+        public class ComboSend : IItem
         {
-            public Cmds Cmd => Cmds.COMBO_END;
-            public DateTime TimeStamp { get; private set; }
+            public Cmds Cmd => Cmds.COMBO_SEND;
 
             public User Sender { get; private set; }
             public string GiftName { get; private set; }
             public uint Number { get; private set; }
 
-            public GiftCombo(Json.Value json)
-             {
-                Sender = new User(0, Regex.Unescape(json["data"]["uname"]));
+            public ComboSend(Json.Value json)
+            {
+                Sender = new User(json["data"]["uid"], Regex.Unescape(json["data"]["uname"]));
                 GiftName = Regex.Unescape(json["data"]["gift_name"]);
-                Number = (uint)json["data"]["combo_num"];
-                TimeStamp = new DateTime(1970, 01, 01).AddSeconds(json["data"]["end_time"]);
+                Number = (uint)json["data"]["total_num"];
             }
         }
 
@@ -204,7 +200,6 @@ namespace BiliLiveHelper.Bili
             }
         }
 
-        // TODO : Unused
         [Serializable]
         public class WelcomeGuard : IItem
         {
@@ -220,7 +215,6 @@ namespace BiliLiveHelper.Bili
             }
         }
 
-        // TODO : Unused
         [Serializable]
         public class RoomBlock : IItem
         {
@@ -236,7 +230,6 @@ namespace BiliLiveHelper.Bili
             }
         }
 
-        // TODO : Unused
         [Serializable]
         public class GuardBuy : ITimeStampedItem
         {
@@ -269,8 +262,8 @@ namespace BiliLiveHelper.Bili
                         return new Danmaku(json);
                     case "SEND_GIFT":
                         return new Gift(json);
-                    case "COMBO_END":
-                        return new GiftCombo(json);
+                    case "COMBO_SEND":
+                        return new ComboSend(json);
                     case "WELCOME":
                         return new Welcome(json);
                     case "WELCOME_GUARD":
@@ -289,7 +282,6 @@ namespace BiliLiveHelper.Bili
                     case "GUARD_LOTTERY_START":
                     case "ENTRY_EFFECT":
                     case "SYS_MSG":
-                    case "COMBO_SEND":
                     case "ROOM_RANK":
                     case "TV_START":
                     case "NOTICE_MSG":

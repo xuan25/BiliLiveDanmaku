@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Effects;
+using System.Xml.Linq;
 
 namespace BiliLiveDanmaku.Speech
 {
@@ -26,9 +27,9 @@ namespace BiliLiveDanmaku.Speech
             } 
         }
 
-        public static void Speak(string text = "你好， 我是晓晓!")
+        public static void Speak(string ssmlDoc)
         {
-            SpeakWithVoice("zh-CN", "Microsoft Server Speech Text to Speech Voice (zh-CN, XiaoxiaoNeural)", AudioOutputFormat.Riff16Khz16BitMonoPcm, text);
+            SpeakWithVoice(AudioOutputFormat.Riff24Khz16BitMonoPcm, ssmlDoc);
         }
 
         static TTSUtil()
@@ -60,7 +61,7 @@ namespace BiliLiveDanmaku.Speech
             Console.WriteLine("Unable to complete the TTS request: [{0}]", e.ToString());
         }
 
-        private static void SpeakWithVoice(string locale, string voiceName, AudioOutputFormat format, string text = "Hello, how are you doing?")
+        private static void SpeakWithVoice(AudioOutputFormat format, string ssmlDoc)
         {
             if (!IsAvalable)
                 throw new InvalidOperationException("TTS not avaliable");
@@ -82,16 +83,7 @@ namespace BiliLiveDanmaku.Speech
                 }
             }
 
-            synthesize.Speak(CancellationToken.None, new Synthesize.InputOptions()
-            {
-                RequestUri = new Uri(endpointUri),
-                Text = text,
-                VoiceType = Gender.Female,
-                Locale = locale,
-                VoiceName = voiceName,
-                OutputFormat = format,
-                AuthorizationToken = "Bearer " + accessToken,
-            }).Wait();
+            synthesize.Speak(CancellationToken.None, new Uri(endpointUri), format, accessToken, ssmlDoc).Wait();
         }
     }
 }

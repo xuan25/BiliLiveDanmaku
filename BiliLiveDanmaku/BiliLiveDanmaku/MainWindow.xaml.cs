@@ -4,7 +4,9 @@ using BiliLiveHelper.Bili;
 using JsonUtil;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -17,7 +19,9 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
+using System.Windows.Resources;
 using System.Windows.Shapes;
+using System.Xml.Linq;
 
 namespace BiliLiveDanmaku
 {
@@ -94,7 +98,11 @@ namespace BiliLiveDanmaku
             WelcomeGuard,
             Welcome,
             RoomBlock,
-            DanmakuSpeech
+            DanmakuSpeech,
+            SuperChatSpeech,
+            GoldenGiftSpeech,
+            SilverGiftSpeech,
+            ComboSendSpeech,
         }
         private Dictionary<FilterOptions, bool> OptionsDict = new Dictionary<FilterOptions, bool>();
 
@@ -226,10 +234,16 @@ namespace BiliLiveDanmaku
                         case BiliLiveJsonParser.Cmds.SUPER_CHAT_MESSAGE:
                             BiliLiveJsonParser.SuperChat superChat = (BiliLiveJsonParser.SuperChat)item;
                             AppendSuperChat(superChat);
+                            SpeakSuperChat(superChat);
                             break;
                         case BiliLiveJsonParser.Cmds.SEND_GIFT:
                             BiliLiveJsonParser.Gift gift = (BiliLiveJsonParser.Gift)item;
                             AppendGift(gift);
+                            SpeakGift(gift);
+                            break;
+                        case BiliLiveJsonParser.Cmds.COMBO_SEND:
+                            BiliLiveJsonParser.ComboSend giftcombo = (BiliLiveJsonParser.ComboSend)item;
+                            SpeakGiftCombo(giftcombo);
                             break;
                         case BiliLiveJsonParser.Cmds.WELCOME:
                             BiliLiveJsonParser.Welcome welcome = (BiliLiveJsonParser.Welcome)item;
@@ -316,7 +330,11 @@ namespace BiliLiveDanmaku
                 return;
 
             if (TTSUtil.IsAvalable)
-                TTSUtil.Speak(item.Sender.Name + " 说 " + item.Message);
+            {
+                string template = TemplateManager.DanmakuSpeechTemplate;
+                string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.Sender.Name)).Replace("{Message}", LexiconUtil.MakeText(SecurityElement.Escape(item.Message)));
+                TTSUtil.Speak(ssmlDoc);
+            }
         }
 
         private void AppendSuperChat(BiliLiveJsonParser.SuperChat item)
@@ -335,6 +353,19 @@ namespace BiliLiveDanmaku
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
                 CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+            }
+        }
+
+        private void SpeakSuperChat(BiliLiveJsonParser.SuperChat item)
+        {
+            if (!OptionsDict[FilterOptions.SuperChatSpeech])
+                return;
+
+            if (TTSUtil.IsAvalable)
+            {
+                string template = TemplateManager.SuperChatTemplate;
+                string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.User.Name)).Replace("{Message}", LexiconUtil.MakeText(SecurityElement.Escape(item.Message)));
+                TTSUtil.Speak(ssmlDoc);
             }
         }
 
@@ -358,6 +389,34 @@ namespace BiliLiveDanmaku
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
                 CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+            }
+        }
+
+        private void SpeakGift(BiliLiveJsonParser.Gift item)
+        {
+            if (item.CoinType == "gold" && !OptionsDict[FilterOptions.GoldenGiftSpeech])
+                return;
+            if (item.CoinType == "silver" && !OptionsDict[FilterOptions.SilverGiftSpeech])
+                return;
+
+            if (TTSUtil.IsAvalable)
+            {
+                string template = TemplateManager.GiftSpeechTemplate;
+                string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.Sender.Name)).Replace("{Count}", SecurityElement.Escape(item.Number.ToString())).Replace("{Gift}", SecurityElement.Escape(item.GiftName));
+                TTSUtil.Speak(ssmlDoc);
+            }
+        }
+
+        private void SpeakGiftCombo(BiliLiveJsonParser.ComboSend item)
+        {
+            if (!OptionsDict[FilterOptions.ComboSendSpeech])
+                return;
+
+            if (TTSUtil.IsAvalable)
+            {
+                string template = TemplateManager.GiftSpeechTemplate;
+                string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.Sender.Name)).Replace("{Count}", SecurityElement.Escape(item.Number.ToString())).Replace("{Gift}", SecurityElement.Escape(item.GiftName));
+                TTSUtil.Speak(ssmlDoc);
             }
         }
 
