@@ -176,12 +176,16 @@ namespace BiliLiveHelper.Bili
             public User Sender { get; private set; }
             public string GiftName { get; private set; }
             public uint Number { get; private set; }
+            public uint GiftId { get; private set; }
+            public string Action { get; private set; }
 
             public ComboSend(Json.Value json)
             {
                 Sender = new User(json["data"]["uid"], Regex.Unescape(json["data"]["uname"]));
                 GiftName = Regex.Unescape(json["data"]["gift_name"]);
                 Number = (uint)json["data"]["total_num"];
+                GiftId = json["data"]["gift_id"];
+                Action = json["data"]["action"];
             }
         }
 

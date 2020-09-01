@@ -84,7 +84,7 @@ namespace BiliLiveDanmaku.UI
             set
             {
                 _CountNumber = value;
-                Numbox.Text = value.ToString();
+                NumBox.Text = value.ToString();
             }
         }
 

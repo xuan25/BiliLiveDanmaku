@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="BiliLiveDanmaku.UI.Gift"
+﻿<UserControl x:Class="BiliLiveDanmaku.UI.ComboSend"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -23,9 +23,10 @@
         <TextBlock Grid.Column="1" FontSize="16" TextWrapping="Wrap">
             <Run x:Name="SenderBox" Text="Sender" Foreground="#FFADBCD9"/>
             <Run x:Name="ActionBox" Text="Action" Foreground="#FF818181"/>
-            <Run x:Name="GiftBox" Text="Gift" Foreground="#FFCBDAF7"/>
-            <Run Text="x" Foreground="#FF64D2F0"/>
-            <Run x:Name="NumBox" Text="100" Foreground="#FF64D2F0"/>
+            <Run x:Name="GiftBox" Text="Gift" Foreground="#FFDC8C32"/>
+            <Run Text="总" Foreground="#FFDC8C32"/>
+            <Run x:Name="NumBox" Text="100" Foreground="#FFDC8C32"/>
+            <Run Text="个" Foreground="#FFDC8C32"/>
         </TextBlock>
     </Grid>
 </UserControl>

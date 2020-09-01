@@ -93,6 +93,7 @@ namespace BiliLiveDanmaku
             SuperChat,
             GoldenGift,
             SilverGift,
+            ComboSend,
             RythmStorm,
             GuardBuy,
             WelcomeGuard,
@@ -242,8 +243,9 @@ namespace BiliLiveDanmaku
                             SpeakGift(gift);
                             break;
                         case BiliLiveJsonParser.Cmds.COMBO_SEND:
-                            BiliLiveJsonParser.ComboSend giftcombo = (BiliLiveJsonParser.ComboSend)item;
-                            SpeakGiftCombo(giftcombo);
+                            BiliLiveJsonParser.ComboSend comboSend = (BiliLiveJsonParser.ComboSend)item;
+                            AppendComboSend(comboSend);
+                            SpeakComboSend(comboSend);
                             break;
                         case BiliLiveJsonParser.Cmds.WELCOME:
                             BiliLiveJsonParser.Welcome welcome = (BiliLiveJsonParser.Welcome)item;
@@ -407,7 +409,25 @@ namespace BiliLiveDanmaku
             }
         }
 
-        private void SpeakGiftCombo(BiliLiveJsonParser.ComboSend item)
+        private void AppendComboSend(BiliLiveJsonParser.ComboSend item)
+        {
+            if (!OptionsDict[FilterOptions.ComboSend])
+                return;
+            Dispatcher.Invoke(() =>
+            {
+                DanmakuPanel.Children.Add(new ComboSend(item));
+                if (!DanmakuScrollViewer.IsMouseOver)
+                    DanmakuScrollViewer.ScrollToBottom();
+                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
+            });
+
+            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
+            {
+                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+            }
+        }
+
+        private void SpeakComboSend(BiliLiveJsonParser.ComboSend item)
         {
             if (!OptionsDict[FilterOptions.ComboSendSpeech])
                 return;

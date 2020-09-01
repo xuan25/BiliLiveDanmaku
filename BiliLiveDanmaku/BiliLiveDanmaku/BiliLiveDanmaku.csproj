@@ -68,6 +68,9 @@
     <Compile Include="Speech\TemplateManager.cs" />
     <Compile Include="Speech\TTSClient.cs" />
     <Compile Include="Speech\TTSUtil.cs" />
+    <Compile Include="UI\ComboSend.xaml.cs">
+      <DependentUpon>ComboSend.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\Danmaku.xaml.cs">
       <DependentUpon>Danmaku.xaml</DependentUpon>
     </Compile>
@@ -100,6 +103,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Speech\AccessKey.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\ComboSend.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
