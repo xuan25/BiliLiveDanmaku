@@ -13,15 +13,16 @@ namespace BiliLiveDanmaku.Speech
     public static class LexiconUtil
     {
         public static string Alphabet;
-        public static Dictionary<string, AliasAndPhoneme> LexemeDict;
+        public static List<Lexeme> Lexemes;
 
-        public struct AliasAndPhoneme
+        public struct Lexeme
         {
+            public string Grapheme;
             public string Alias;
             public string Phoneme;
-
-            public AliasAndPhoneme(string alias, string phoneme)
+            public Lexeme(string grapheme, string alias, string phoneme)
             {
+                Grapheme = grapheme;
                 Alias = alias;
                 Phoneme = phoneme;
             }
@@ -29,47 +30,47 @@ namespace BiliLiveDanmaku.Speech
 
         static LexiconUtil()
         {
-            LexemeDict = new Dictionary<string, AliasAndPhoneme>();
+            Lexemes = new List<Lexeme>();
 
             Uri uri = new Uri("/Speech/Lexicon.xml", UriKind.Relative);
             StreamResourceInfo info = Application.GetResourceStream(uri);
             XDocument xDocument = XDocument.Load(info.Stream);
             Alphabet = (string)xDocument.Root.Attribute("alphabet");
 
-            IEnumerable<XElement> lexemes = xDocument.Root.Elements("{http://www.w3.org/2005/01/pronunciation-lexicon}lexeme");
-            foreach (XElement lexeme in lexemes)
+            IEnumerable<XElement> lexemeEles = xDocument.Root.Elements("{http://www.w3.org/2005/01/pronunciation-lexicon}lexeme");
+            foreach (XElement lexemeEle in lexemeEles)
             {
-                XElement aliasEle = lexeme.Element("{http://www.w3.org/2005/01/pronunciation-lexicon}alias");
+                XElement aliasEle = lexemeEle.Element("{http://www.w3.org/2005/01/pronunciation-lexicon}alias");
                 string alias = aliasEle != null ? aliasEle.Value : null;
-                XElement phonemeEle = lexeme.Element("{http://www.w3.org/2005/01/pronunciation-lexicon}phoneme");
+                XElement phonemeEle = lexemeEle.Element("{http://www.w3.org/2005/01/pronunciation-lexicon}phoneme");
                 string phoneme = phonemeEle != null ? phonemeEle.Value : null;
-                AliasAndPhoneme aliasAndPhoneme = new AliasAndPhoneme(alias, phoneme);
 
-                IEnumerable<XElement> graphemes = lexeme.Elements("{http://www.w3.org/2005/01/pronunciation-lexicon}grapheme");
+                IEnumerable<XElement> graphemes = lexemeEle.Elements("{http://www.w3.org/2005/01/pronunciation-lexicon}grapheme");
                 foreach (XElement graphemeEle in graphemes)
                 {
                     string grapheme = graphemeEle.Value;
-                    LexemeDict.Add(grapheme, aliasAndPhoneme);
+                    Lexeme lexeme = new Lexeme(grapheme, alias, phoneme);
+                    Lexemes.Add(lexeme);
                 }
             }
         }
 
         public static string MakeText(string text)
         {
-            foreach(KeyValuePair<string, AliasAndPhoneme> lexeme in LexemeDict)
+            foreach(Lexeme lexeme in Lexemes)
             {
-                Regex.IsMatch(text, lexeme.Key);
-                if (lexeme.Value.Alias != null && lexeme.Value.Phoneme != null)
+                Regex.IsMatch(text, lexeme.Grapheme);
+                if (lexeme.Alias != null && lexeme.Phoneme != null)
                 {
-                    text = Regex.Replace(text, lexeme.Key, $"<phoneme alphabet=\"{Alphabet}\" ph=\"{lexeme.Value.Phoneme}\">{lexeme.Value.Alias}</phoneme>");
+                    text = Regex.Replace(text, lexeme.Grapheme, $"<phoneme alphabet=\"{Alphabet}\" ph=\"{lexeme.Phoneme}\">{lexeme.Alias}</phoneme>");
                 }
-                else if (lexeme.Value.Phoneme != null)
+                else if (lexeme.Phoneme != null)
                 {
-                    text = Regex.Replace(text, lexeme.Key, $"<phoneme alphabet=\"{Alphabet}\" ph=\"{lexeme.Value.Phoneme}\">$0</phoneme>");
+                    text = Regex.Replace(text, lexeme.Grapheme, $"<phoneme alphabet=\"{Alphabet}\" ph=\"{lexeme.Phoneme}\">$0</phoneme>");
                 }
-                else if (lexeme.Value.Alias != null)
+                else if (lexeme.Alias != null)
                 {
-                    text = Regex.Replace(text, lexeme.Key, lexeme.Value.Alias);
+                    text = Regex.Replace(text, lexeme.Grapheme, lexeme.Alias);
                 }
             }
             return text;

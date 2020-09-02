@@ -19,10 +19,9 @@
   </lexeme>
   <lexeme>
     <grapheme>hh</grapheme>
-    <alias>哈哈</alias>
-  </lexeme>
-  <lexeme>
     <grapheme>哈h</grapheme>
+    <grapheme>ww</grapheme>
+    <grapheme>哈w</grapheme>
     <alias>哈哈</alias>
   </lexeme>
 </lexicon>
