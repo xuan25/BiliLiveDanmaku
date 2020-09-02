@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:BiliLiveDanmaku" xmlns:ui="clr-namespace:BiliLiveDanmaku.UI"
         xmlns:b="http://schemas.microsoft.com/xaml/behaviors" x:Class="BiliLiveDanmaku.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="1000" Width="500" Background="#9947494F" WindowStyle="SingleBorderWindow" AllowsTransparency="False" Topmost="False">
+        Title="BiliDanmaku" Height="1000" Width="500" Background="#9947494F" WindowStyle="SingleBorderWindow" AllowsTransparency="False" Topmost="True">
     <Grid>
         <Grid x:Name="DisplayGrid">
             <ScrollViewer x:Name="DanmakuScrollViewer" VerticalScrollBarVisibility="Auto" MouseLeave="DanmakuScrollViewer_MouseLeave">
@@ -89,19 +89,19 @@
             <StackPanel Orientation="Vertical" Margin="4,4">
                 <WrapPanel>
                     <TextBox x:Name="RoomIdBox" Margin="4" HorizontalAlignment="Left" Height="23" Text="" TextWrapping="Wrap" VerticalAlignment="Center" Width="120"/>
-                    <Button x:Name="ConnectBtn" Margin="4" Content="Connect" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="ConnectBtn_Click"/>
-                    <Button x:Name="DisconnectBtn" Margin="4" Content="Disconnect" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="DisconnectBtn_Click" IsEnabled="False"/>
+                    <Button x:Name="ConnectBtn" Margin="4" Content="连接" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="ConnectBtn_Click"/>
+                    <Button x:Name="DisconnectBtn" Margin="4" Content="断开" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="DisconnectBtn_Click" IsEnabled="False"/>
                     <TextBlock x:Name="PopularityBox" Margin="4" Foreground="White" VerticalAlignment="Center"/>
                 </WrapPanel>
                 <WrapPanel x:Name="OptionPanel"/>
                 <WrapPanel>
-                    <Button x:Name="TestBtn" Margin="4.4" Content="Test" HorizontalAlignment="Left" VerticalAlignment="Center" Width="32" Click="TestBtn_Click"/>
+                    <Button x:Name="TestBtn" Margin="4.4" Content="压测" HorizontalAlignment="Left" VerticalAlignment="Center" Width="32" Click="TestBtn_Click"/>
                     <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White">
-                        <Run Text="Cached count : "/>
+                        <Run Text="头像缓存计数: "/>
                         <Run x:Name="CachedCountBox"/>
                     </TextBlock>
                     <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White">
-                        <Run Text="Cache queue : "/>
+                        <Run Text="头像缓存队列: "/>
                         <Run x:Name="CachedQueueCountBox"/>
                     </TextBlock>
                 </WrapPanel>

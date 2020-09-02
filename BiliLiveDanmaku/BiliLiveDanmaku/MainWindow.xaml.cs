@@ -4,6 +4,7 @@ using BiliLiveHelper.Bili;
 using JsonUtil;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Security;
@@ -59,9 +60,15 @@ namespace BiliLiveDanmaku
             {
                 OptionsDict.Add(filterOption, true);
 
+                DescriptionAttribute[] attributes = (DescriptionAttribute[])filterOption
+                   .GetType()
+                   .GetField(filterOption.ToString())
+                   .GetCustomAttributes(typeof(DescriptionAttribute), false);
+                string description = attributes.Length > 0 ? attributes[0].Description : string.Empty;
+
                 CheckBox checkBox = new CheckBox
                 {
-                    Content = filterOption.ToString(),
+                    Content = description,
                     IsChecked = true,
                     Foreground = Brushes.White,
                     Margin = new Thickness(4),
@@ -87,22 +94,43 @@ namespace BiliLiveDanmaku
             }
         }
 
-        private enum FilterOptions
+        public enum FilterOptions
         {
+            [Description("弹幕显示")]
             Danmaku,
+            [Description("醒目留言显示")]
             SuperChat,
+            [Description("金瓜子礼物显示")]
             GoldenGift,
+            [Description("银瓜子礼物显示")]
             SilverGift,
+            [Description("礼物连击显示")]
             ComboSend,
+            [Description("节奏风暴显示")]
             RythmStorm,
+            [Description("上舰显示")]
             GuardBuy,
+            [Description("舰长欢迎显示")]
             WelcomeGuard,
+            [Description("老爷欢迎显示")]
             Welcome,
+            [Description("进入直播间显示")]
+            InteractEnter,
+            [Description("关注直播间显示")]
+            InteractFollow,
+            [Description("分享直播间显示")]
+            InteractShare,
+            [Description("直播间禁言显示")]
             RoomBlock,
+            [Description("弹幕播报")]
             DanmakuSpeech,
+            [Description("醒目留言播报")]
             SuperChatSpeech,
+            [Description("金瓜子礼物播报")]
             GoldenGiftSpeech,
+            [Description("银瓜子礼物播报")]
             SilverGiftSpeech,
+            [Description("礼物连击播报")]
             ComboSendSpeech,
         }
         private Dictionary<FilterOptions, bool> OptionsDict = new Dictionary<FilterOptions, bool>();
@@ -258,6 +286,10 @@ namespace BiliLiveDanmaku
                         case BiliLiveJsonParser.Cmds.GUARD_BUY:
                             BiliLiveJsonParser.GuardBuy guardBuy = (BiliLiveJsonParser.GuardBuy)item;
                             AppendGuardBuy(guardBuy);
+                            break;
+                        case BiliLiveJsonParser.Cmds.INTERACT_WORD:
+                            BiliLiveJsonParser.InteractWord interactWord = (BiliLiveJsonParser.InteractWord)item;
+                            AppendInteractWord(interactWord);
                             break;
                         case BiliLiveJsonParser.Cmds.ROOM_BLOCK_MSG:
                             BiliLiveJsonParser.RoomBlock roomBlock = (BiliLiveJsonParser.RoomBlock)item;
@@ -486,6 +518,29 @@ namespace BiliLiveDanmaku
             Dispatcher.Invoke(() =>
             {
                 DanmakuPanel.Children.Add(new GuardBuy(item));
+                if (!DanmakuScrollViewer.IsMouseOver)
+                    DanmakuScrollViewer.ScrollToBottom();
+                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
+            });
+
+            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
+            {
+                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+            }
+        }
+
+        private void AppendInteractWord(BiliLiveJsonParser.InteractWord item)
+        {
+            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Enter && !OptionsDict[FilterOptions.InteractEnter])
+                return;
+            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Follow && !OptionsDict[FilterOptions.InteractFollow])
+                return;
+            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Share && !OptionsDict[FilterOptions.InteractShare])
+                return;
+
+            Dispatcher.Invoke(() =>
+            {
+                DanmakuPanel.Children.Add(new InteractWord(item));
                 if (!DanmakuScrollViewer.IsMouseOver)
                     DanmakuScrollViewer.ScrollToBottom();
                 CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);

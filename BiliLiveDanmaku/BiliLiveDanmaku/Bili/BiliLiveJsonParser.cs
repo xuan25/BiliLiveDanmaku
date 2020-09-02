@@ -32,7 +32,8 @@ namespace BiliLiveHelper.Bili
             ROOM_REAL_TIME_MESSAGE_UPDATE,
             SUPER_CHAT_ENTRANCE,
             SUPER_CHAT_MESSAGE,
-            SUPER_CHAT_MESSAGE_DELETE
+            SUPER_CHAT_MESSAGE_DELETE,
+            INTERACT_WORD
         }
 
         [Serializable]
@@ -139,7 +140,6 @@ namespace BiliLiveHelper.Bili
             }
         }
 
-
         [Serializable]
         public class Gift : ITimeStampedItem
         {
@@ -220,6 +220,48 @@ namespace BiliLiveHelper.Bili
         }
 
         [Serializable]
+        public class InteractWord : ITimeStampedItem
+        {
+            public enum MessageTypes
+            {
+                Enter,
+                Follow,
+                Share,
+                Unknown
+            }
+
+            public Cmds Cmd => Cmds.INTERACT_WORD;
+            public DateTime TimeStamp { get; private set; }
+
+            public User User { get; private set; }
+            public MessageTypes MessageType { get; private set; }
+
+            public InteractWord(Json.Value json)
+            {
+                User = new User(json["data"]["uid"], Regex.Unescape(json["data"]["uname"]));
+
+                int msgTypeId = json["data"]["msg_type"];
+                switch (msgTypeId)
+                {
+                    case 1:
+                        MessageType = MessageTypes.Enter;
+                        break;
+                    case 2:
+                        MessageType = MessageTypes.Follow;
+                        break;
+                    case 3:
+                        MessageType = MessageTypes.Share;
+                        break;
+                    default:
+                        MessageType = MessageTypes.Unknown;
+                        break;
+                }
+
+                TimeStamp = new DateTime(1970, 01, 01).AddSeconds(json["data"]["timestamp"]);
+            }
+        }
+
+        [Serializable]
         public class RoomBlock : IItem
         {
             public Cmds Cmd => Cmds.ROOM_BLOCK_MSG;
@@ -264,6 +306,8 @@ namespace BiliLiveHelper.Bili
                 {
                     case "DANMU_MSG":
                         return new Danmaku(json);
+                    case "SUPER_CHAT_MESSAGE":
+                        return new SuperChat(json);
                     case "SEND_GIFT":
                         return new Gift(json);
                     case "COMBO_SEND":
@@ -272,12 +316,12 @@ namespace BiliLiveHelper.Bili
                         return new Welcome(json);
                     case "WELCOME_GUARD":
                         return new WelcomeGuard(json);
-                    case "ROOM_BLOCK_MSG":
-                        return new RoomBlock(json);
                     case "GUARD_BUY":
                         return new GuardBuy(json);
-                    case "SUPER_CHAT_MESSAGE":
-                        return new SuperChat(json);
+                    case "INTERACT_WORD":
+                        return new InteractWord(json);
+                    case "ROOM_BLOCK_MSG":
+                        return new RoomBlock(json);
                     case "LIVE":
                     case "PREPARING":
                     case "SPECIAL_GIFT":

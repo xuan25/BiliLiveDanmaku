@@ -81,6 +81,9 @@
     <Compile Include="UI\GuardBuy.xaml.cs">
       <DependentUpon>GuardBuy.xaml</DependentUpon>
     </Compile>
+    <Compile Include="UI\InteractWord.xaml.cs">
+      <DependentUpon>InteractWord.xaml</DependentUpon>
+    </Compile>
     <Compile Include="UI\RoomBlock.xaml.cs">
       <DependentUpon>RoomBlock.xaml</DependentUpon>
     </Compile>
@@ -119,6 +122,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UI\GuardBuy.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="UI\InteractWord.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
