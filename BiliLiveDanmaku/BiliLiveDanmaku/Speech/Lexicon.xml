@@ -6,15 +6,27 @@
         http://www.w3.org/TR/2007/CR-pronunciation-lexicon-20071212/pls.xsd"
       alphabet="ipa" xml:lang="zh-CN">
   <lexeme>
+    <grapheme>wtf</grapheme>
+    <grapheme>WTF</grapheme>
+    <alias>What the fuck</alias>
+  </lexeme>
+  <lexeme>
+    <grapheme>debu</grapheme>
+    <alias>爹不</alias>
+  </lexeme>
+  <lexeme>
     <grapheme>awsl</grapheme>
+    <grapheme>AWSL</grapheme>
     <alias>阿伟死了</alias>
   </lexeme>
   <lexeme>
     <grapheme>tql</grapheme>
+    <grapheme>TQL</grapheme>
     <alias>太强了</alias>
   </lexeme>
   <lexeme>
     <grapheme>rua</grapheme>
+    <grapheme>RUA</grapheme>
     <phoneme>ra</phoneme>
   </lexeme>
   <lexeme>
