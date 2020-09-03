@@ -33,6 +33,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Net;
 using System.Net.Http;
@@ -46,73 +47,39 @@ namespace CognitiveServicesTTS
     /// <summary>
     /// This class demonstrates how to get a valid O-auth token
     /// </summary>
-    public class Authentication
+    public class AuthenticationClient
     {
-        private string AccessUri;
-        private string apiKey;
-        private string accessToken;
-        private Timer accessTokenRenewer;
 
-        //Access token expires every 10 minutes. Renew it every 9 minutes only.
-        private const int RefreshTokenDuration = 9;
+        private const int TokenValidDuration = 9;   //Access token expires every 10 minutes. Renew it every 9 minutes only.
+        private string TokenUri { get; set; }
+        private string ApiKey { get; set; }
+        private string LastToken { get; set; }
+        
+        private DateTime TokenValidTo { get; set; }
 
-        public Authentication(string issueTokenUri, string apiKey)
+        public string Token
         {
-            this.AccessUri = issueTokenUri;
-            this.apiKey = apiKey;
-
-            this.accessToken = HttpPost(issueTokenUri, this.apiKey);
-
-            // renew the token every specfied minutes
-            accessTokenRenewer = new Timer(new TimerCallback(OnTokenExpiredCallback),
-                                           this,
-                                           TimeSpan.FromMinutes(RefreshTokenDuration),
-                                           TimeSpan.FromMilliseconds(-1));
-        }
-
-        public string GetAccessToken()
-        {
-            return this.accessToken;
-        }
-
-        private void RenewAccessToken()
-        {
-            string newAccessToken = HttpPost(AccessUri, this.apiKey);
-            //swap the new token with old one
-            //Note: the swap is thread unsafe
-            this.accessToken = newAccessToken;
-            Console.WriteLine(string.Format("Renewed token for user: {0} is: {1}",
-                              this.apiKey,
-                              this.accessToken));
-        }
-
-        private void OnTokenExpiredCallback(object stateInfo)
-        {
-            try
+            get
             {
-                RenewAccessToken();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(string.Format("Failed renewing access token. Details: {0}", ex.Message));
-            }
-            finally
-            {
-                try
+                if (DateTime.Now > TokenValidTo)
                 {
-                    accessTokenRenewer.Change(TimeSpan.FromMinutes(RefreshTokenDuration), TimeSpan.FromMilliseconds(-1));
+                    LastToken = RequestToken(TokenUri, this.ApiKey);
+                    TokenValidTo = DateTime.Now.AddMinutes(TokenValidDuration);
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(string.Format("Failed to reschedule the timer to renew access token. Details: {0}", ex.Message));
-                }
+                return LastToken;
             }
         }
 
-        private string HttpPost(string accessUri, string apiKey)
+        public AuthenticationClient(string tokenUri, string apiKey)
         {
-            // Prepare OAuth request
-            WebRequest webRequest = WebRequest.Create(accessUri);
+            TokenUri = tokenUri;
+            ApiKey = apiKey;
+            TokenValidTo = new DateTime();
+        }
+
+        private string RequestToken(string tokenUri, string apiKey)
+        {
+            WebRequest webRequest = WebRequest.Create(tokenUri);
             webRequest.Method = "POST";
             webRequest.ContentLength = 0;
             webRequest.Headers["Ocp-Apim-Subscription-Key"] = apiKey;
@@ -121,340 +88,181 @@ namespace CognitiveServicesTTS
             {
                 using (Stream stream = webResponse.GetResponseStream())
                 {
-                    using (MemoryStream ms = new MemoryStream())
+                    using(StreamReader streamReader = new StreamReader(stream))
                     {
-                        byte[] waveBytes = null;
-                        int count = 0;
-                        do
-                        {
-                            byte[] buf = new byte[1024];
-                            count = stream.Read(buf, 0, 1024);
-                            ms.Write(buf, 0, count);
-                        } while (stream.CanRead && count > 0);
-
-                        waveBytes = ms.ToArray();
-
-                        return Encoding.UTF8.GetString(waveBytes);
+                        string token = streamReader.ReadToEnd();
+                        return token;
                     }
                 }
             }
         }
     }
 
-    /// <summary>
-    /// Generic event args
-    /// </summary>
-    /// <typeparam name="T">Any type T</typeparam>
-    public class GenericEventArgs<T> : EventArgs
+
+    public class Synthesizer
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="GenericEventArgs{T}" /> class.
-        /// </summary>
-        /// <param name="eventData">The event data.</param>
-        public GenericEventArgs(T eventData)
+        Thread SynthesizeThread;
+        Queue<string> SsmlDocQueue;
+
+        Uri EndpointUri;
+        string OutputFormat;
+        AuthenticationClient AuthorizationClient;
+
+        public event EventHandler<Stream> OnAudioAvailable;
+        public event EventHandler<Exception> OnError;
+        public event EventHandler<int> QueueChanged;
+
+        public enum OutputFormats
         {
-            this.EventData = eventData;
+            [Description("raw-8khz-8bit-mono-mulaw")]
+            Raw8Khz8BitMonoMULaw,
+
+            [Description("raw-16khz-16bit-mono-pcm")]
+            Raw16Khz16BitMonoPcm,
+
+            [Description("riff-8khz-8bit-mono-mulaw")]
+            Riff8Khz8BitMonoMULaw,
+
+            [Description("riff-16khz-16bit-mono-pcm")]
+            Riff16Khz16BitMonoPcm,
+
+            [Description("ssml-16khz-16bit-mono-silk")]
+            Ssml16Khz16BitMonoSilk,
+
+            [Description("raw-16khz-16bit-mono-truesilk")]
+            Raw16Khz16BitMonoTrueSilk,
+
+            [Description("ssml-16khz-16bit-mono-tts")]
+            Ssml16Khz16BitMonoTts,
+
+            [Description("audio-16khz-128kbitrate-mono-mp3")]
+            Audio16Khz128KBitRateMonoMp3,
+
+            [Description("audio-16khz-64kbitrate-mono-mp3")]
+            Audio16Khz64KBitRateMonoMp3,
+
+            [Description("audio-16khz-32kbitrate-mono-mp3")]
+            Audio16Khz32KBitRateMonoMp3,
+
+            [Description("audio-16khz-16kbps-mono-siren")]
+            Audio16Khz16KbpsMonoSiren,
+
+            [Description("riff-16khz-16kbps-mono-siren")]
+            Riff16Khz16KbpsMonoSiren,
+
+            [Description("raw-24khz-16bit-mono-truesilk")]
+            Raw24Khz16BitMonoTrueSilk,
+
+            [Description("raw-24khz-16bit-mono-pcm")]
+            Raw24Khz16BitMonoPcm,
+
+            [Description("riff-24khz-16bit-mono-pcm")]
+            Riff24Khz16BitMonoPcm,
+
+            [Description("audio-24khz-48kbitrate-mono-mp3")]
+            Audio24Khz48KBitRateMonoMp3,
+
+            [Description("audio-24khz-96kbitrate-mono-mp3")]
+            Audio24Khz96KBitRateMonoMp3,
+
+            [Description("audio-24khz-160kbitrate-mono-mp3")]
+            Audio24Khz160KBitRateMonoMp3
         }
 
-        /// <summary>
-        /// Gets the event data.
-        /// </summary>
-        public T EventData { get; private set; }
-    }
-
-    /// <summary>
-    /// Gender of the voice.
-    /// </summary>
-    public enum Gender
-    {
-        Female,
-        Male
-    }
-
-    /// <summary>
-    /// Voice output formats.
-    /// </summary>
-    public enum AudioOutputFormat
-    {
-        /// <summary>
-        /// raw-8khz-8bit-mono-mulaw request output audio format type.
-        /// </summary>
-        Raw8Khz8BitMonoMULaw,
-
-        /// <summary>
-        /// raw-16khz-16bit-mono-pcm request output audio format type.
-        /// </summary>
-        Raw16Khz16BitMonoPcm,
-
-        /// <summary>
-        /// riff-8khz-8bit-mono-mulaw request output audio format type.
-        /// </summary>
-        Riff8Khz8BitMonoMULaw,
-
-        /// <summary>
-        /// riff-16khz-16bit-mono-pcm request output audio format type.
-        /// </summary>
-        Riff16Khz16BitMonoPcm,
-
-        // <summary>
-        /// ssml-16khz-16bit-mono-silk request output audio format type.
-        /// It is a SSML with audio segment, with audio compressed by SILK codec
-        /// </summary>
-        Ssml16Khz16BitMonoSilk,
-
-        /// <summary>
-        /// raw-16khz-16bit-mono-truesilk request output audio format type.
-        /// Audio compressed by SILK codec
-        /// </summary>
-        Raw16Khz16BitMonoTrueSilk,
-
-        /// <summary>
-        /// ssml-16khz-16bit-mono-tts request output audio format type.
-        /// It is a SSML with audio segment, and it needs tts engine to play out
-        /// </summary>
-        Ssml16Khz16BitMonoTts,
-
-        /// <summary>
-        /// audio-16khz-128kbitrate-mono-mp3 request output audio format type.
-        /// </summary>
-        Audio16Khz128KBitRateMonoMp3,
-
-        /// <summary>
-        /// audio-16khz-64kbitrate-mono-mp3 request output audio format type.
-        /// </summary>
-        Audio16Khz64KBitRateMonoMp3,
-
-        /// <summary>
-        /// audio-16khz-32kbitrate-mono-mp3 request output audio format type.
-        /// </summary>
-        Audio16Khz32KBitRateMonoMp3,
-
-        /// <summary>
-        /// audio-16khz-16kbps-mono-siren request output audio format type.
-        /// </summary>
-        Audio16Khz16KbpsMonoSiren,
-
-        /// <summary>
-        /// riff-16khz-16kbps-mono-siren request output audio format type.
-        /// </summary>
-        Riff16Khz16KbpsMonoSiren,
-
-        /// <summary>
-        /// raw-24khz-16bit-mono-truesilk request output audio format type.
-        /// </summary>
-        Raw24Khz16BitMonoTrueSilk,
-
-        /// <summary>
-        /// raw-24khz-16bit-mono-pcm request output audio format type.
-        /// </summary>
-        Raw24Khz16BitMonoPcm,
-
-        /// <summary>
-        /// riff-24khz-16bit-mono-pcm request output audio format type.
-        /// </summary>
-        Riff24Khz16BitMonoPcm,
-
-        /// <summary>
-        /// audio-24khz-48kbitrate-mono-mp3 request output audio format type.
-        /// </summary>
-        Audio24Khz48KBitRateMonoMp3,
-
-        /// <summary>
-        /// audio-24khz-96kbitrate-mono-mp3 request output audio format type.
-        /// </summary>
-        Audio24Khz96KBitRateMonoMp3,
-
-        /// <summary>
-        /// audio-24khz-160kbitrate-mono-mp3 request output audio format type.
-        /// </summary>
-        Audio24Khz160KBitRateMonoMp3
-    }
-
-    /// <summary>
-    /// Sample synthesize request
-    /// </summary>
-    public class Synthesize
-    {
-
-        private HttpClient client;
-        private HttpClientHandler handler;
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Synthesize"/> class.
-        /// </summary>
-        public Synthesize()
+        public Synthesizer(Uri endpointUri, OutputFormats outputFormats, AuthenticationClient authorization)
         {
-            var cookieContainer = new CookieContainer();
-            handler = new HttpClientHandler() { CookieContainer = new CookieContainer(), UseProxy = false };
-            client = new HttpClient(handler);
+            SsmlDocQueue = new Queue<string>();
+
+            EndpointUri = endpointUri;
+
+            DescriptionAttribute[] attributes = (DescriptionAttribute[])outputFormats.GetType().GetField(outputFormats.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false);
+            string description = attributes.Length > 0 ? attributes[0].Description : string.Empty;
+            OutputFormat = description;
+
+            AuthorizationClient = authorization;
         }
 
-        ~Synthesize()
+        public void Speak(string ssmlDoc)
         {
-            client.Dispose();
-            handler.Dispose();
-        }
+            SsmlDocQueue.Enqueue(ssmlDoc);
+            QueueChanged?.Invoke(this, SsmlDocQueue.Count);
 
-        /// <summary>
-        /// Called when a TTS request has been completed and audio is available.
-        /// </summary>
-        public event EventHandler<GenericEventArgs<Stream>> OnAudioAvailable;
-
-        /// <summary>
-        /// Called when an error has occured. e.g this could be an HTTP error.
-        /// </summary>
-        public event EventHandler<GenericEventArgs<Exception>> OnError;
-
-        
-        private IEnumerable<KeyValuePair<string, string>> GenHeaders(AudioOutputFormat outputFormat, string authorizationToken)
-        {
-            List<KeyValuePair<string, string>> toReturn = new List<KeyValuePair<string, string>>();
-            toReturn.Add(new KeyValuePair<string, string>("Content-Type", "application/ssml+xml"));
-
-            string outputFormatStr;
-
-            switch (outputFormat)
+            if (SynthesizeThread == null)
             {
-                case AudioOutputFormat.Raw16Khz16BitMonoPcm:
-                    outputFormatStr = "raw-16khz-16bit-mono-pcm";
-                    break;
-                case AudioOutputFormat.Raw8Khz8BitMonoMULaw:
-                    outputFormatStr = "raw-8khz-8bit-mono-mulaw";
-                    break;
-                case AudioOutputFormat.Riff16Khz16BitMonoPcm:
-                    outputFormatStr = "riff-16khz-16bit-mono-pcm";
-                    break;
-                case AudioOutputFormat.Riff8Khz8BitMonoMULaw:
-                    outputFormatStr = "riff-8khz-8bit-mono-mulaw";
-                    break;
-                case AudioOutputFormat.Ssml16Khz16BitMonoSilk:
-                    outputFormatStr = "ssml-16khz-16bit-mono-silk";
-                    break;
-                case AudioOutputFormat.Raw16Khz16BitMonoTrueSilk:
-                    outputFormatStr = "raw-16khz-16bit-mono-truesilk";
-                    break;
-                case AudioOutputFormat.Ssml16Khz16BitMonoTts:
-                    outputFormatStr = "ssml-16khz-16bit-mono-tts";
-                    break;
-                case AudioOutputFormat.Audio16Khz128KBitRateMonoMp3:
-                    outputFormatStr = "audio-16khz-128kbitrate-mono-mp3";
-                    break;
-                case AudioOutputFormat.Audio16Khz64KBitRateMonoMp3:
-                    outputFormatStr = "audio-16khz-64kbitrate-mono-mp3";
-                    break;
-                case AudioOutputFormat.Audio16Khz32KBitRateMonoMp3:
-                    outputFormatStr = "audio-16khz-32kbitrate-mono-mp3";
-                    break;
-                case AudioOutputFormat.Audio16Khz16KbpsMonoSiren:
-                    outputFormatStr = "audio-16khz-16kbps-mono-siren";
-                    break;
-                case AudioOutputFormat.Riff16Khz16KbpsMonoSiren:
-                    outputFormatStr = "riff-16khz-16kbps-mono-siren";
-                    break;
-                case AudioOutputFormat.Raw24Khz16BitMonoPcm:
-                    outputFormatStr = "raw-24khz-16bit-mono-pcm";
-                    break;
-                case AudioOutputFormat.Riff24Khz16BitMonoPcm:
-                    outputFormatStr = "riff-24khz-16bit-mono-pcm";
-                    break;
-                case AudioOutputFormat.Audio24Khz48KBitRateMonoMp3:
-                    outputFormatStr = "audio-24khz-48kbitrate-mono-mp3";
-                    break;
-                case AudioOutputFormat.Audio24Khz96KBitRateMonoMp3:
-                    outputFormatStr = "audio-24khz-96kbitrate-mono-mp3";
-                    break;
-                case AudioOutputFormat.Audio24Khz160KBitRateMonoMp3:
-                    outputFormatStr = "audio-24khz-160kbitrate-mono-mp3";
-                    break;
-                default:
-                    outputFormatStr = "riff-16khz-16bit-mono-pcm";
-                    break;
-            }
-
-            toReturn.Add(new KeyValuePair<string, string>("X-Microsoft-OutputFormat", outputFormatStr));
-            // authorization Header
-            toReturn.Add(new KeyValuePair<string, string>("Authorization", authorizationToken));
-            // Refer to the doc
-            toReturn.Add(new KeyValuePair<string, string>("X-Search-AppId", "07D3234E49CE426DAA29772419F436CA"));
-            // Refer to the doc
-            toReturn.Add(new KeyValuePair<string, string>("X-Search-ClientID", "1ECFAE91408841A480F00935DC390960"));
-            // The software originating the request
-            toReturn.Add(new KeyValuePair<string, string>("User-Agent", "TTSClient"));
-
-            return toReturn;
-        }
-
-        public Task Speak(CancellationToken cancellationToken, Uri requestUri, AudioOutputFormat outputFormat, string authorizationToken, string ssmlDoc)
-        {
-            client.DefaultRequestHeaders.Clear();
-            IEnumerable<KeyValuePair<string, string>> headers = GenHeaders(outputFormat, authorizationToken);
-            foreach (var header in headers)
-            {
-                client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-            }
-
-            var request = new HttpRequestMessage(HttpMethod.Post, requestUri)
-            {
-                Content = new StringContent(ssmlDoc)
-            };
-
-            var httpTask = client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
-            Console.WriteLine("Response status code: [{0}]", httpTask.Result.StatusCode);
-
-            var saveTask = httpTask.ContinueWith(
-                async (responseMessage, token) =>
+                SynthesizeThread = new Thread(() =>
                 {
-                    try
+                    Stream speechStream = null;
+                    while (true)
                     {
-                        if (responseMessage.IsCompleted && responseMessage.Result != null && responseMessage.Result.IsSuccessStatusCode)
+                        int i = 0;
+                        while (SsmlDocQueue.Count == 0)
                         {
-                            var httpStream = await responseMessage.Result.Content.ReadAsStreamAsync().ConfigureAwait(false);
-                            this.AudioAvailable(new GenericEventArgs<Stream>(httpStream));
+                            Thread.Sleep(10);
+                            i++;
+                            if (i == 30 * 1000 / 10)
+                                break;
                         }
-                        else
+                        if (SsmlDocQueue.Count == 0)
+                            break;
+                        ssmlDoc = SsmlDocQueue.Peek();
+                        try
                         {
-                            this.Error(new GenericEventArgs<Exception>(new Exception(String.Format("Service returned {0}", responseMessage.Result.StatusCode))));
+                            speechStream = RequestSpeech(ssmlDoc);
+                        }
+                        catch (Exception ex)
+                        {
+                            OnError?.Invoke(this, ex);
+                        }
+                        if (speechStream != null)
+                        {
+                            OnAudioAvailable?.Invoke(this, speechStream);
+                        }
+                        if (SsmlDocQueue.Count > 0)
+                        {
+                            SsmlDocQueue.Dequeue();
+                            QueueChanged?.Invoke(this, SsmlDocQueue.Count);
                         }
                     }
-                    catch (Exception e)
-                    {
-                        this.Error(new GenericEventArgs<Exception>(e.GetBaseException()));
-                    }
-                    finally
-                    {
-                        responseMessage.Dispose();
-                        request.Dispose();
-                    }
-                },
-                TaskContinuationOptions.AttachedToParent,
-                cancellationToken);
-
-            return saveTask;
-        }
-
-        /// <summary>
-        /// Called when a TTS requst has been successfully completed and audio is available.
-        /// </summary>
-        private void AudioAvailable(GenericEventArgs<Stream> e)
-        {
-            EventHandler<GenericEventArgs<Stream>> handler = this.OnAudioAvailable;
-            if (handler != null)
-            {
-                handler(this, e);
+                })
+                {
+                    IsBackground = true,
+                    Name = "TTSClient.SynthesizeThread"
+                };
+                SynthesizeThread.Start();
             }
         }
 
-        /// <summary>
-        /// Error handler function
-        /// </summary>
-        /// <param name="e">The exception</param>
-        private void Error(GenericEventArgs<Exception> e)
+        public Stream RequestSpeech(string ssmlDoc)
         {
-            EventHandler<GenericEventArgs<Exception>> handler = this.OnError;
-            if (handler != null)
+            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(EndpointUri);
+            httpWebRequest.Method = "POST";
+            httpWebRequest.ContentType = "application/ssml+xml";
+            httpWebRequest.UserAgent = "TTSClient";
+            httpWebRequest.Headers.Add("X-Microsoft-OutputFormat", OutputFormat);
+            if (AuthorizationClient != null)
             {
-                handler(this, e);
+                string authorizationToken = AuthorizationClient.Token;
+                httpWebRequest.Headers.Add("Authorization", authorizationToken);
             }
+            httpWebRequest.Headers.Add("X-Search-AppId", "07D3234E49CE426DAA29772419F436CA");
+            httpWebRequest.Headers.Add("X-Search-ClientID", "1ECFAE91408841A480F00935DC390960");
+
+            using (Stream stream = httpWebRequest.GetRequestStream())
+            {
+                byte[] buffer = Encoding.UTF8.GetBytes(ssmlDoc);
+                stream.Write(buffer, 0, buffer.Length);
+            }
+
+            HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+            Stream responseStream = httpWebResponse.GetResponseStream();
+            return responseStream;
+        }
+    
+        public void ClearQueue()
+        {
+            SsmlDocQueue.Clear();
+            QueueChanged?.Invoke(this, SsmlDocQueue.Count);
         }
     }
+
 }

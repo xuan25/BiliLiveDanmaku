@@ -15,75 +15,53 @@ namespace BiliLiveDanmaku.Speech
 {
     class TTSUtil
     {
-        static readonly bool ttsEnable;
-        static readonly string endpointUri;
-        static readonly Authentication auth = null;
-        static readonly Synthesize synthesize = new Synthesize();
+        public static readonly Synthesizer Synthesizer;
 
         public static bool IsAvalable { 
             get 
             { 
-                return ttsEnable && endpointUri != null;
+                return Synthesizer != null;
             } 
         }
 
         public static void Speak(string ssmlDoc)
         {
-            SpeakWithVoice(AudioOutputFormat.Riff24Khz16BitMonoPcm, ssmlDoc);
+            Synthesizer.Speak(ssmlDoc);
         }
 
         static TTSUtil()
         {
-            ttsEnable = (bool)Application.Current.FindResource("TTSEnable");
-            endpointUri = (string)Application.Current.FindResource("TTSEndpointUri");
+            bool ttsEnable = (bool)Application.Current.FindResource("TTSEnable");
+            if (!ttsEnable)
+                return;
+
+            string endpointUri = (string)Application.Current.FindResource("TTSEndpointUri");
+            if (endpointUri == null)
+                return;
 
             string tokenUri = (string)Application.Current.FindResource("TTSTokenUri");
             string key = (string)Application.Current.FindResource("TTSKey");
+            AuthenticationClient authenticationClient = null;
             if (tokenUri != null)
             {
-                auth = new Authentication(tokenUri, key);
+                authenticationClient = new AuthenticationClient(tokenUri, key);
             }
 
-            synthesize.OnAudioAvailable += PlayAudio;
-            synthesize.OnError += ErrorHandler;
+            Synthesizer = new Synthesizer(new Uri(endpointUri), Synthesizer.OutputFormats.Riff24Khz16BitMonoPcm, authenticationClient);
+            Synthesizer.OnAudioAvailable += Synthesizer_OnAudioAvailable;
+            Synthesizer.OnError += Synthesizer_OnError;
         }
 
-        private static void PlayAudio(object sender, GenericEventArgs<Stream> args)
-        {
-            Console.WriteLine(args.EventData);
-            SoundPlayer player = new SoundPlayer(args.EventData);
-            player.PlaySync();
-            args.EventData.Dispose();
-        }
-
-        private static void ErrorHandler(object sender, GenericEventArgs<Exception> e)
+        private static void Synthesizer_OnError(object sender, Exception e)
         {
             Console.WriteLine("Unable to complete the TTS request: [{0}]", e.ToString());
         }
 
-        private static void SpeakWithVoice(AudioOutputFormat format, string ssmlDoc)
+        private static void Synthesizer_OnAudioAvailable(object sender, Stream stream)
         {
-            if (!IsAvalable)
-                throw new InvalidOperationException("TTS not avaliable");
-
-            string accessToken = string.Empty;
-
-            if (auth != null)
-            {
-                try
-                {
-                    accessToken = auth.GetAccessToken();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine("Failed authentication.");
-                    Console.WriteLine(ex.ToString());
-                    Console.WriteLine(ex.Message);
-                    return;
-                }
-            }
-
-            synthesize.Speak(CancellationToken.None, new Uri(endpointUri), format, accessToken, ssmlDoc).Wait();
+            SoundPlayer player = new SoundPlayer(stream);
+            player.PlaySync();
+            stream.Dispose();
         }
     }
 }

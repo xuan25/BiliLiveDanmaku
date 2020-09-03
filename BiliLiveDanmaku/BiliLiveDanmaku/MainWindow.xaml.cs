@@ -80,7 +80,22 @@ namespace BiliLiveDanmaku
                 OptionPanel.Children.Add(checkBox);
             }
 
+            TTSUtil.Synthesizer.QueueChanged += Synthesizer_QueueChanged;
+
             this.Closing += MainWindow_Closing;
+        }
+
+        private void Synthesizer_QueueChanged(object sender, int e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                SynthesizeQueueCountBox.Text = e.ToString();
+            });
+        }
+
+        private void ClearSpeechQueueBtn_Click(object sender, RoutedEventArgs e)
+        {
+            TTSUtil.Synthesizer.ClearQueue();
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
