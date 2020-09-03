@@ -241,6 +241,11 @@ namespace BiliLiveDanmaku.UI
             AppendFaceUriRequest(action);
         }
 
+        // https://github.com/3Shain/BiliChat/issues/6
+        const int requestInterval = 250;
+        const int blockMinutes = 15;
+        static DateTime bolckUntil = new DateTime();
+
         private static void LoadFaceAndWait(ILoadFace loadFace)
         {
             if (FaceCacheDict.ContainsKey(loadFace.UserId))
@@ -251,8 +256,29 @@ namespace BiliLiveDanmaku.UI
             }
             else
             {
+                if (DateTime.Now < bolckUntil)
+                    return;
+
                 DateTime startTime = DateTime.UtcNow;
-                Uri uri = LoadFaceUriFromApi(loadFace.UserId);
+                Uri uri;
+                try
+                {
+                    uri = LoadFaceUriFromApi(loadFace.UserId);
+                }
+                catch (WebException ex)
+                {
+                    if (((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.PreconditionFailed)
+                    {
+                        bolckUntil = DateTime.Now.AddMinutes(blockMinutes);
+                        Console.WriteLine($"Face API has been blocked, expected until {bolckUntil}");
+                    }
+                    else
+                    {
+                        Console.WriteLine(ex);
+                    }
+                    return;
+                }
+                
                 if (uri != null)
                 {
                     FaceCache faceCache = new FaceCache(uri, loadFace);
@@ -266,7 +292,7 @@ namespace BiliLiveDanmaku.UI
                 }
                 DateTime endTime = DateTime.UtcNow;
                 TimeSpan timeSpan = endTime - startTime;
-                int waitTime = 200 - (int)timeSpan.TotalMilliseconds;
+                int waitTime = requestInterval - (int)timeSpan.TotalMilliseconds;
                 if (waitTime < 0)
                     waitTime = 0;
                 Thread.Sleep(waitTime);
@@ -276,16 +302,7 @@ namespace BiliLiveDanmaku.UI
         private static Uri LoadFaceUriFromApi(uint uid)
         {
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(string.Format("https://api.bilibili.com/x/space/acc/info?mid={0}&jsonp=jsonp", uid));
-            HttpWebResponse httpWebResponse;
-            try
-            {
-                httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-            }
-            catch (InvalidOperationException ex)
-            {
-                Console.WriteLine(ex);
-                return null;
-            }
+            HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
             string responseText;
             using (StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream()))
             {
