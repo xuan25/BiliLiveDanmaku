@@ -58,7 +58,7 @@
                 </ScrollViewer>
             </Border>
         </Grid>
-        
+
         <Grid x:Name="SettingGrid" Height="Auto" Background="#9947494F" VerticalAlignment="Top">
             <Grid.Triggers>
                 <EventTrigger RoutedEvent="MouseEnter">
@@ -92,6 +92,7 @@
                     <Button x:Name="ConnectBtn" Margin="4" Content="连接" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="ConnectBtn_Click"/>
                     <Button x:Name="DisconnectBtn" Margin="4" Content="断开" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="DisconnectBtn_Click" IsEnabled="False"/>
                     <Button x:Name="ClearSpeechQueueBtn" Margin="4" Content="清空语音队列" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="ClearSpeechQueueBtn_Click"/>
+                    <Slider x:Name="VolumeSlider" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Value="1" ValueChanged="VolumeSlider_ValueChanged" Maximum="1" LargeChange="0.1" SmallChange="0.01"/>
                     <TextBlock x:Name="PopularityBox" Margin="4" Foreground="White" VerticalAlignment="Center"/>
                 </WrapPanel>
                 <WrapPanel x:Name="OptionPanel"/>

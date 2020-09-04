@@ -4,6 +4,8 @@ using System.Diagnostics;
 using System.Threading;
 using System.IO;
 using Wave.MmeInterop;
+using System.Collections.Generic;
+using Wave.Filters;
 
 namespace Wave
 {
@@ -20,6 +22,26 @@ namespace Wave
         private readonly object waveOutLock;
         private int queuedBuffers;
         private readonly SynchronizationContext syncContext;
+
+        private List<IWaveFilter> waveFilters;
+        public List<IWaveFilter> WaveFilters
+        {
+            get
+            {
+                return waveFilters;
+            }
+            set
+            {
+                waveFilters = value;
+                if (buffers != null)
+                {
+                    for (int i = 0; i < buffers.Length; i++)
+                    {
+                        buffers[i].WaveFilters = waveFilters;
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Indicates playback has stopped automatically
@@ -70,6 +92,7 @@ namespace Wave
         public WaveOut()
         {
             syncContext = SynchronizationContext.Current;
+            WaveFilters = new List<IWaveFilter>();
             // set default values up
             DesiredLatency = 300;
             NumberOfBuffers = 2;
@@ -100,7 +123,9 @@ namespace Wave
             playbackState = PlaybackState.Stopped;
             for (int n = 0; n < NumberOfBuffers; n++)
             {
-                buffers[n] = new WaveOutBuffer(hWaveOut, bufferSize, waveStream, waveOutLock);
+                WaveOutBuffer waveOutBuffer = new WaveOutBuffer(hWaveOut, bufferSize, waveStream, waveOutLock);
+                waveOutBuffer.WaveFilters = WaveFilters;
+                buffers[n] = waveOutBuffer;
             }
         }
 

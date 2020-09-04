@@ -684,5 +684,10 @@ namespace BiliLiveDanmaku
         {
             //DanmakuScrollViewer.ScrollToEnd();
         }
+
+        private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            TTSUtil.Volume = (float)e.NewValue;
+        }
     }
 }

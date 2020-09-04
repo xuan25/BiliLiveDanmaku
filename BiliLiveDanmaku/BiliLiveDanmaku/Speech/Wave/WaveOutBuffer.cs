@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using Wave.Filters;
 using Wave.MmeInterop;
 
 namespace Wave
@@ -19,6 +21,8 @@ namespace Wave
         private IntPtr hWaveOut;
         private GCHandle hHeader; // we need to pin the header structure
         private GCHandle hThis; // for the user callback
+
+        public List<IWaveFilter> WaveFilters;
 
         /// <summary>
         /// creates a new wavebuffer
@@ -112,6 +116,13 @@ namespace Wave
             for (int n = bytes; n < buffer.Length; n++)
             {
                 buffer[n] = 0;
+            }
+            if(WaveFilters != null && WaveFilters.Count > 0)
+            {
+                for (int i = 0; i < WaveFilters.Count; i++)
+                {
+                    WaveFilters[i].ProcessBlock(buffer);
+                }
             }
             WriteToWaveOut();
             return true;

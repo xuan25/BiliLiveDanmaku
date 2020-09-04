@@ -65,6 +65,8 @@
     <Compile Include="Bili\BiliPackWriter.cs" />
     <Compile Include="JsonUtil.cs" />
     <Compile Include="Speech\LexiconUtil.cs" />
+    <Compile Include="Speech\Wave\Filters\IWaveFilter.cs" />
+    <Compile Include="Speech\Wave\Filters\VolumeFilter.cs" />
     <Compile Include="Speech\Wave\MmeInterop\MmException.cs" />
     <Compile Include="Speech\Wave\MmeInterop\MmResult.cs" />
     <Compile Include="Speech\Wave\MmeInterop\MmTime.cs" />
