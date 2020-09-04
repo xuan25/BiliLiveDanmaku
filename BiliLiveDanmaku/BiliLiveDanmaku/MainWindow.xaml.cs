@@ -82,6 +82,15 @@ namespace BiliLiveDanmaku
 
             TTSUtil.Synthesizer.QueueChanged += Synthesizer_QueueChanged;
 
+            OutputDeviceCombo.Items.Add(new ComboBoxItem() { Content = "默认输出设备", Tag = -1 });
+            int deviceCount = Wave.WaveOut.DeviceCount;
+            for (int i = 0; i < deviceCount; i++)
+            {
+                Wave.MmeInterop.WaveOutCapabilities waveOutCapabilities = Wave.WaveOut.GetCapabilities(i);
+                OutputDeviceCombo.Items.Add(new ComboBoxItem() { Content = waveOutCapabilities.ProductName, Tag = i });
+            }
+            OutputDeviceCombo.SelectedIndex = 0;
+
             this.Closing += MainWindow_Closing;
         }
 
@@ -688,6 +697,20 @@ namespace BiliLiveDanmaku
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             TTSUtil.Volume = (float)e.NewValue;
+        }
+
+        private void OutputDeviceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            ComboBoxItem comboBoxItem = (ComboBoxItem)((ComboBox)sender).SelectedItem;
+            if (comboBoxItem != null)
+            {
+                TTSUtil.OutputDeviceId = (int)comboBoxItem.Tag;
+            }
+            else
+            {
+                TTSUtil.OutputDeviceId = -1;
+            }
+            
         }
     }
 }

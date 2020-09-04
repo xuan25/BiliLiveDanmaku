@@ -29,7 +29,7 @@ namespace BiliLiveDanmaku.Speech
             }
         }
 
-        private static WaveOut currentWaveOut = null;
+        public static int OutputDeviceId;
 
         public static float Volume
         {
@@ -89,7 +89,7 @@ namespace BiliLiveDanmaku.Speech
                 memoryStream.Position = 0;
                 using(WaveOut waveOut = new WaveOut())
                 {
-                    currentWaveOut = waveOut;
+                    waveOut.DeviceNumber = OutputDeviceId;
                     waveOut.WaveFilters = WaveFilters;
                     ManualResetEvent playCompletedEvent = new ManualResetEvent(false);
                     waveOut.PlaybackStopped += (object s, StoppedEventArgs e) =>
@@ -99,7 +99,6 @@ namespace BiliLiveDanmaku.Speech
                     waveOut.Init(memoryStream, new WaveFormat(24000, 16, 1));
                     waveOut.Play();
                     playCompletedEvent.WaitOne();
-                    currentWaveOut = null;
                 }
             }
         }
