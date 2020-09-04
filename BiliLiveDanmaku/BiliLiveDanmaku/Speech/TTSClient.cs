@@ -172,6 +172,7 @@ namespace CognitiveServicesTTS
                         if (SsmlDocQueue.Count == 0)
                             break;
                         ssmlDoc = SsmlDocQueue.Peek();
+                        speechStream = null;
                         try
                         {
                             speechStream = RequestSpeech(ssmlDoc);
