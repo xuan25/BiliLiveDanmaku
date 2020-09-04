@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media.Effects;
 using System.Xml.Linq;
+using Wave;
 
 namespace BiliLiveDanmaku.Speech
 {
@@ -47,7 +48,7 @@ namespace BiliLiveDanmaku.Speech
                 authenticationClient = new AuthenticationClient(tokenUri, key);
             }
 
-            Synthesizer = new Synthesizer(new Uri(endpointUri), Synthesizer.OutputFormats.Riff24Khz16BitMonoPcm, authenticationClient);
+            Synthesizer = new Synthesizer(new Uri(endpointUri), Synthesizer.OutputFormats.Raw24Khz16BitMonoPcm, authenticationClient);
             Synthesizer.OnAudioAvailable += Synthesizer_OnAudioAvailable;
             Synthesizer.OnError += Synthesizer_OnError;
         }
@@ -59,9 +60,23 @@ namespace BiliLiveDanmaku.Speech
 
         private static void Synthesizer_OnAudioAvailable(object sender, Stream stream)
         {
-            SoundPlayer player = new SoundPlayer(stream);
-            player.PlaySync();
-            stream.Dispose();
+            using(MemoryStream memoryStream = new MemoryStream())
+            {
+                stream.CopyTo(memoryStream);
+                stream.Dispose();
+                memoryStream.Position = 0;
+                using(WaveOut waveOut = new WaveOut())
+                {
+                    ManualResetEvent playCompletedEvent = new ManualResetEvent(false);
+                    waveOut.PlaybackStopped += (object s, StoppedEventArgs e) =>
+                    {
+                        playCompletedEvent.Set();
+                    };
+                    waveOut.Init(memoryStream, new WaveFormat(24000, 16, 1));
+                    waveOut.Play();
+                    playCompletedEvent.WaitOne();
+                }
+            }
         }
     }
 }
