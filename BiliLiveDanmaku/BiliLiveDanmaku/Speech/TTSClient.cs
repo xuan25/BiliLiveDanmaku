@@ -191,6 +191,7 @@ namespace CognitiveServicesTTS
                             QueueChanged?.Invoke(this, SsmlDocQueue.Count);
                         }
                     }
+                    SynthesizeThread = null;
                 })
                 {
                     IsBackground = true,
@@ -212,8 +213,8 @@ namespace CognitiveServicesTTS
                 string authorizationToken = AuthorizationClient.Token;
                 httpWebRequest.Headers.Add("Authorization", authorizationToken);
             }
-            httpWebRequest.Headers.Add("X-Search-AppId", "07D3234E49CE426DAA29772419F436CA");
-            httpWebRequest.Headers.Add("X-Search-ClientID", "1ECFAE91408841A480F00935DC390960");
+            //httpWebRequest.Headers.Add("X-Search-AppId", "07D3234E49CE426DAA29772419F436CA");
+            //httpWebRequest.Headers.Add("X-Search-ClientID", "1ECFAE91408841A480F00935DC390960");
 
             using (Stream stream = httpWebRequest.GetRequestStream())
             {
