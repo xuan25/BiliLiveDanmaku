@@ -1,7 +1,9 @@
-﻿using BiliLiveDanmaku.Speech;
-using BiliLiveDanmaku.UI;
+﻿using BiliLiveDanmaku.UI;
 using BiliLiveHelper.Bili;
 using JsonUtil;
+using Speech;
+using Speech.Lexicon;
+using Speech.Template;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -80,7 +82,7 @@ namespace BiliLiveDanmaku
                 OptionPanel.Children.Add(checkBox);
             }
 
-            TTSUtil.Synthesizer.QueueChanged += Synthesizer_QueueChanged;
+            SpeechUtil.Synthesizer.QueueChanged += Synthesizer_QueueChanged;
 
             OutputDeviceCombo.Items.Add(new ComboBoxItem() { Content = "默认输出设备", Tag = -1 });
             int deviceCount = Wave.WaveOut.DeviceCount;
@@ -104,7 +106,7 @@ namespace BiliLiveDanmaku
 
         private void ClearSpeechQueueBtn_Click(object sender, RoutedEventArgs e)
         {
-            TTSUtil.Synthesizer.ClearQueue();
+            SpeechUtil.Synthesizer.ClearQueue();
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -387,11 +389,11 @@ namespace BiliLiveDanmaku
             if (!OptionsDict[FilterOptions.DanmakuSpeech])
                 return;
 
-            if (TTSUtil.IsAvalable)
+            if (SpeechUtil.IsAvalable)
             {
                 string template = TemplateManager.DanmakuSpeechTemplate;
                 string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.Sender.Name)).Replace("{Message}", LexiconUtil.MakeText(SecurityElement.Escape(item.Message)));
-                TTSUtil.Speak(ssmlDoc);
+                SpeechUtil.Speak(ssmlDoc);
             }
         }
 
@@ -419,11 +421,11 @@ namespace BiliLiveDanmaku
             if (!OptionsDict[FilterOptions.SuperChatSpeech])
                 return;
 
-            if (TTSUtil.IsAvalable)
+            if (SpeechUtil.IsAvalable)
             {
                 string template = TemplateManager.SuperChatTemplate;
                 string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.User.Name)).Replace("{Message}", LexiconUtil.MakeText(SecurityElement.Escape(item.Message)));
-                TTSUtil.Speak(ssmlDoc);
+                SpeechUtil.Speak(ssmlDoc);
             }
         }
 
@@ -457,11 +459,11 @@ namespace BiliLiveDanmaku
             if (item.CoinType == "silver" && !OptionsDict[FilterOptions.SilverGiftSpeech])
                 return;
 
-            if (TTSUtil.IsAvalable)
+            if (SpeechUtil.IsAvalable)
             {
                 string template = TemplateManager.GiftSpeechTemplate;
                 string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.Sender.Name)).Replace("{Count}", SecurityElement.Escape(item.Number.ToString())).Replace("{Gift}", SecurityElement.Escape(item.GiftName));
-                TTSUtil.Speak(ssmlDoc);
+                SpeechUtil.Speak(ssmlDoc);
             }
         }
 
@@ -488,11 +490,11 @@ namespace BiliLiveDanmaku
             if (!OptionsDict[FilterOptions.ComboSendSpeech])
                 return;
 
-            if (TTSUtil.IsAvalable)
+            if (SpeechUtil.IsAvalable)
             {
                 string template = TemplateManager.GiftSpeechTemplate;
                 string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.Sender.Name)).Replace("{Count}", SecurityElement.Escape(item.Number.ToString())).Replace("{Gift}", SecurityElement.Escape(item.GiftName));
-                TTSUtil.Speak(ssmlDoc);
+                SpeechUtil.Speak(ssmlDoc);
             }
         }
 
@@ -696,7 +698,7 @@ namespace BiliLiveDanmaku
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
-            TTSUtil.Volume = (float)e.NewValue;
+            SpeechUtil.Volume = (float)e.NewValue;
         }
 
         private void OutputDeviceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -704,11 +706,11 @@ namespace BiliLiveDanmaku
             ComboBoxItem comboBoxItem = (ComboBoxItem)((ComboBox)sender).SelectedItem;
             if (comboBoxItem != null)
             {
-                TTSUtil.OutputDeviceId = (int)comboBoxItem.Tag;
+                SpeechUtil.OutputDeviceId = (int)comboBoxItem.Tag;
             }
             else
             {
-                TTSUtil.OutputDeviceId = -1;
+                SpeechUtil.OutputDeviceId = -1;
             }
             
         }

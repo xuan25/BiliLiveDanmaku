@@ -8,7 +8,7 @@ using System.Windows;
 using System.Windows.Resources;
 using System.Xml.Linq;
 
-namespace BiliLiveDanmaku.Speech
+namespace Speech.Lexicon
 {
     public static class LexiconUtil
     {
@@ -32,7 +32,7 @@ namespace BiliLiveDanmaku.Speech
         {
             Lexemes = new List<Lexeme>();
 
-            Uri uri = new Uri("/Speech/Lexicon.xml", UriKind.Relative);
+            Uri uri = new Uri("/Speech/Lexicon/Lexicon.xml", UriKind.Relative);
             StreamResourceInfo info = Application.GetResourceStream(uri);
             XDocument xDocument = XDocument.Load(info.Stream);
             Alphabet = (string)xDocument.Root.Attribute("alphabet");

@@ -1,5 +1,4 @@
-﻿using CognitiveServicesTTS;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,9 +12,9 @@ using System.Xml.Linq;
 using Wave;
 using Wave.Filters;
 
-namespace BiliLiveDanmaku.Speech
+namespace Speech
 {
-    class TTSUtil
+    class SpeechUtil
     {
         public static readonly Synthesizer Synthesizer;
         private static readonly List<IWaveFilter> WaveFilters;
@@ -52,7 +51,7 @@ namespace BiliLiveDanmaku.Speech
             Synthesizer.Speak(ssmlDoc);
         }
 
-        static TTSUtil()
+        static SpeechUtil()
         {
             bool ttsEnable = (bool)Application.Current.FindResource("TTSEnable");
             if (!ttsEnable)
@@ -64,10 +63,10 @@ namespace BiliLiveDanmaku.Speech
 
             string tokenUri = (string)Application.Current.FindResource("TTSTokenUri");
             string key = (string)Application.Current.FindResource("TTSKey");
-            AuthenticationClient authenticationClient = null;
+            AuthClient authenticationClient = null;
             if (tokenUri != null)
             {
-                authenticationClient = new AuthenticationClient(tokenUri, key);
+                authenticationClient = new AuthClient(tokenUri, key);
             }
 
             Synthesizer = new Synthesizer(new Uri(endpointUri), Synthesizer.OutputFormats.Raw24Khz16BitMonoPcm, authenticationClient);

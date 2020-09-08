@@ -64,7 +64,9 @@
     <Compile Include="Bili\BiliPackReader.cs" />
     <Compile Include="Bili\BiliPackWriter.cs" />
     <Compile Include="JsonUtil.cs" />
-    <Compile Include="Speech\LexiconUtil.cs" />
+    <Compile Include="Speech\AuthClient.cs" />
+    <Compile Include="Speech\Lexicon\LexiconUtil.cs" />
+    <Compile Include="Speech\Synthesizer.cs" />
     <Compile Include="Speech\Wave\Filters\IWaveFilter.cs" />
     <Compile Include="Speech\Wave\Filters\VolumeFilter.cs" />
     <Compile Include="Speech\Wave\MmeInterop\MmException.cs" />
@@ -82,9 +84,8 @@
     <Compile Include="Speech\Wave\WaveOut.cs" />
     <Compile Include="Speech\Wave\WaveOutUtils.cs" />
     <Compile Include="Speech\Wave\WaveOutBuffer.cs" />
-    <Compile Include="Speech\TemplateManager.cs" />
-    <Compile Include="Speech\TTSClient.cs" />
-    <Compile Include="Speech\TTSUtil.cs" />
+    <Compile Include="Speech\Template\TemplateManager.cs" />
+    <Compile Include="Speech\SpeechUtil.cs" />
     <Compile Include="UI\ComboSend.xaml.cs">
       <DependentUpon>ComboSend.xaml</DependentUpon>
     </Compile>
@@ -190,7 +191,7 @@
     <Resource Include="Speech\Template\Danmaku.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Lexicon.xml" />
+    <Resource Include="Speech\Lexicon\Lexicon.xml" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Speech\Template\SuperChat.xml" />

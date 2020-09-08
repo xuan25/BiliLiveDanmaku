@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Resources;
 
-namespace BiliLiveDanmaku.Speech
+namespace Speech.Template
 {
     public static class TemplateManager
     {
