@@ -18,8 +18,12 @@ namespace BiliLiveDanmaku.Speech
     class TTSUtil
     {
         public static readonly Synthesizer Synthesizer;
-        private static List<IWaveFilter> WaveFilters;
-        private static VolumeFilter volumeFilter;
+        private static readonly List<IWaveFilter> WaveFilters;
+        private static readonly VolumeFilter volumeFilter;
+
+        private static WaveOut CurrentWaveOut = null;
+        private static bool IsPlaying;
+        private static readonly ManualResetEvent PlayCompletedEvent;
 
 
         public static bool IsAvalable { 
@@ -73,6 +77,9 @@ namespace BiliLiveDanmaku.Speech
             WaveFilters = new List<IWaveFilter>();
             volumeFilter = new VolumeFilter();
             WaveFilters.Add(volumeFilter);
+
+            IsPlaying = false;
+            PlayCompletedEvent = new ManualResetEvent(false);
         }
 
         private static void Synthesizer_OnError(object sender, Exception e)
@@ -82,25 +89,32 @@ namespace BiliLiveDanmaku.Speech
 
         private static void Synthesizer_OnAudioAvailable(object sender, Stream stream)
         {
-            using(MemoryStream memoryStream = new MemoryStream())
-            {
-                stream.CopyTo(memoryStream);
-                stream.Dispose();
-                memoryStream.Position = 0;
-                using(WaveOut waveOut = new WaveOut())
-                {
-                    waveOut.DeviceNumber = OutputDeviceId;
-                    waveOut.WaveFilters = WaveFilters;
-                    ManualResetEvent playCompletedEvent = new ManualResetEvent(false);
-                    waveOut.PlaybackStopped += (object s, StoppedEventArgs e) =>
-                    {
-                        playCompletedEvent.Set();
-                    };
-                    waveOut.Init(memoryStream, new WaveFormat(24000, 16, 1));
-                    waveOut.Play();
-                    playCompletedEvent.WaitOne();
-                }
+            MemoryStream memoryStream = new MemoryStream();
+            stream.CopyTo(memoryStream);
+            stream.Dispose();
+            memoryStream.Position = 0;
+
+            if (IsPlaying) { 
+                PlayCompletedEvent.WaitOne();
             }
+            if (CurrentWaveOut != null)
+            {
+                CurrentWaveOut.Dispose();
+            }
+            IsPlaying = true;
+            PlayCompletedEvent.Reset();
+
+            CurrentWaveOut = new WaveOut();
+            CurrentWaveOut.DeviceNumber = OutputDeviceId;
+            CurrentWaveOut.WaveFilters = WaveFilters;
+            CurrentWaveOut.PlaybackStopped += (object s, StoppedEventArgs e) =>
+            {
+                memoryStream.Dispose();
+                IsPlaying = false;
+                PlayCompletedEvent.Set();
+            };
+            CurrentWaveOut.Init(memoryStream, new WaveFormat(24000, 16, 1));
+            CurrentWaveOut.Play();
         }
     }
 }

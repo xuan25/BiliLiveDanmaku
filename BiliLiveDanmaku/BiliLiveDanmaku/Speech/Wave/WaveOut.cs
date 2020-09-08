@@ -95,7 +95,7 @@ namespace Wave
             WaveFilters = new List<IWaveFilter>();
             // set default values up
             DesiredLatency = 300;
-            NumberOfBuffers = 2;
+            NumberOfBuffers = 3;
 
             callback = Callback;
             waveOutLock = new object();
@@ -161,6 +161,7 @@ namespace Wave
                     else
                     {
                         playbackState = PlaybackState.Stopped;
+                        RaisePlaybackStoppedEvent(null);
                         break;
                     }
                     //Debug.WriteLine(String.Format("Resume from Pause: Buffer [{0}] requeued", n));
@@ -295,26 +296,24 @@ namespace Wave
 
             if (disposing)
             {
-                if (buffers != null)
+
+            }
+
+            if (buffers != null)
+            {
+                for (int n = 0; n < buffers.Length; n++)
                 {
-                    for (int n = 0; n < buffers.Length; n++)
+                    if (buffers[n] != null)
                     {
-                        if (buffers[n] != null)
-                        {
-                            buffers[n].Dispose();
-                        }
+                        buffers[n].Dispose();
                     }
-                    buffers = null;
                 }
+                buffers = null;
             }
 
             lock (waveOutLock)
             {
                 WaveInterop.waveOutClose(hWaveOut);
-            }
-            if (disposing)
-            {
-                
             }
         }
 
@@ -323,7 +322,6 @@ namespace Wave
         /// </summary>
         ~WaveOut()
         {
-            System.Diagnostics.Debug.Assert(false, "WaveOut device was not closed");
             Dispose(false);
         }
 

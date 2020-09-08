@@ -61,7 +61,6 @@ namespace Wave
         ~WaveOutBuffer()
         {
             Dispose(false);
-            System.Diagnostics.Debug.Assert(true, "WaveBuffer was not disposed");
         }
 
         /// <summary>
