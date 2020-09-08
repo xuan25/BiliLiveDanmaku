@@ -20,7 +20,7 @@ namespace Speech
         private static readonly List<IWaveFilter> WaveFilters;
         private static readonly VolumeFilter volumeFilter;
 
-        private static WaveOut CurrentWaveOut = null;
+        private static WaveOut CurrentWaveOut;
         private static bool IsPlaying;
         private static readonly ManualResetEvent PlayCompletedEvent;
 
@@ -93,13 +93,16 @@ namespace Speech
             stream.Dispose();
             memoryStream.Position = 0;
 
-            if (IsPlaying) { 
+            if (IsPlaying)
+            {
                 PlayCompletedEvent.WaitOne();
             }
             if (CurrentWaveOut != null)
             {
+                // If the interval between two WaveOuts is short, make sure that the previous WaveOut has been disposed.
                 CurrentWaveOut.Dispose();
             }
+
             IsPlaying = true;
             PlayCompletedEvent.Reset();
 
@@ -108,9 +111,17 @@ namespace Speech
             CurrentWaveOut.WaveFilters = WaveFilters;
             CurrentWaveOut.PlaybackStopped += (object s, StoppedEventArgs e) =>
             {
-                memoryStream.Dispose();
                 IsPlaying = false;
                 PlayCompletedEvent.Set();
+
+                memoryStream.Dispose();
+                // This event may occurs in the system callback.
+                // Therefore, the resource cannot be released before the callback returns.
+                // If you try to release resources in the current thread, it may cause a deadlock.
+                Task.Factory.StartNew(() =>
+                {
+                    CurrentWaveOut.Dispose();
+                });
             };
             CurrentWaveOut.Init(memoryStream, new WaveFormat(24000, 16, 1));
             CurrentWaveOut.Play();

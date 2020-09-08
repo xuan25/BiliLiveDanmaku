@@ -99,6 +99,7 @@ namespace Wave
 
             callback = Callback;
             waveOutLock = new object();
+            disposingLock = new object();
         }
 
         /// <summary>
@@ -275,58 +276,6 @@ namespace Wave
             }
         }
 
-        #region Dispose Pattern
-
-        /// <summary>
-        /// Closes this WaveOut device
-        /// </summary>
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-            Dispose(true);
-        }
-
-        /// <summary>
-        /// Closes the WaveOut device and disposes of buffers
-        /// </summary>
-        /// <param name="disposing">True if called from <see>Dispose</see></param>
-        protected void Dispose(bool disposing)
-        {
-            Stop();
-
-            if (disposing)
-            {
-
-            }
-
-            if (buffers != null)
-            {
-                for (int n = 0; n < buffers.Length; n++)
-                {
-                    if (buffers[n] != null)
-                    {
-                        buffers[n].Dispose();
-                    }
-                }
-                buffers = null;
-            }
-
-            lock (waveOutLock)
-            {
-                WaveInterop.waveOutClose(hWaveOut);
-            }
-        }
-
-        /// <summary>
-        /// Finalizer. Only called when user forgets to call <see>Dispose</see>
-        /// </summary>
-        ~WaveOut()
-        {
-            Dispose(false);
-        }
-
-        #endregion
-
         // made non-static so that playing can be stopped here
         private void Callback(IntPtr hWaveOut, WaveInterop.WaveMessage uMsg, IntPtr dwInstance, WaveHeader wavhdr, IntPtr dwReserved)
         {
@@ -393,5 +342,54 @@ namespace Wave
                 }
             }
         }
+
+        #region Dispose Pattern
+
+        private bool disposedValue;
+        private readonly object disposingLock;
+
+        protected virtual void Dispose(bool disposing)
+        {
+            lock (disposingLock)
+            {
+                if (!disposedValue)
+                {
+                    Stop();
+
+                    if (buffers != null)
+                    {
+                        for (int n = 0; n < buffers.Length; n++)
+                        {
+                            if (buffers[n] != null)
+                            {
+                                buffers[n].Dispose();
+                            }
+                        }
+                        buffers = null;
+                    }
+
+                    lock (waveOutLock)
+                    {
+                        WaveInterop.waveOutClose(hWaveOut);
+                    }
+
+                    disposedValue = true;
+                }
+            }
+        }
+
+        ~WaveOut()
+        {
+            Dispose(disposing: false);
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
+
+        #endregion
+
     }
 }
