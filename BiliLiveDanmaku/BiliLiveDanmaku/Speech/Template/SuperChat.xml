@@ -3,7 +3,7 @@
     <mstts:express-as style="assistant" styledegree="2.0">
       <prosody rate="10%" pitch="0%">感谢 {User} 的留言:</prosody>
     </mstts:express-as>
-    <mstts:express-as style="chat" styledegree="2.0">
+    <mstts:express-as style="happy" styledegree="2.0">
       <prosody rate="10%" pitch="0%">{Message}</prosody>
     </mstts:express-as>
   </voice>
