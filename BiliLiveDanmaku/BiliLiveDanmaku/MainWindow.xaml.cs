@@ -266,6 +266,10 @@ namespace BiliLiveDanmaku
             {
                 VolumeSlider.Value = config.Volume;
             }
+            else
+            {
+                VolumeSlider.Value = 1;
+            }
         }
 
         private void InitCounters()

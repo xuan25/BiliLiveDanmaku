@@ -12,7 +12,7 @@ namespace Wave.Filters
 
         public VolumeFilter()
         {
-            
+            Volume = 1;
         }
 
         public void ProcessBlock(byte[] buffer)
