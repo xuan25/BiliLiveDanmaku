@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Security;
 using System.Text;
 using System.Threading;
@@ -24,6 +25,7 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Resources;
 using System.Windows.Shapes;
+using System.Xml;
 using System.Xml.Linq;
 
 namespace BiliLiveDanmaku
@@ -33,93 +35,7 @@ namespace BiliLiveDanmaku
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool IsConnected;
-
-        public MainWindow()
-        {
-            InitializeComponent();
-
-            IsConnected = false;
-
-            FaceLoader.CachedCountChanged += (int count) =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    CachedCountBox.Text = count.ToString();
-                });
-            };
-
-            FaceLoader.QueueCountChanged += (int count) =>
-            {
-                Dispatcher.Invoke(() =>
-                {
-                    CachedQueueCountBox.Text = count.ToString();
-                });
-            };
-
-            OptionsDict = new Dictionary<FilterOptions, bool>();
-            foreach(FilterOptions filterOption in Enum.GetValues(typeof(FilterOptions)))
-            {
-                OptionsDict.Add(filterOption, true);
-
-                DescriptionAttribute[] attributes = (DescriptionAttribute[])filterOption
-                   .GetType()
-                   .GetField(filterOption.ToString())
-                   .GetCustomAttributes(typeof(DescriptionAttribute), false);
-                string description = attributes.Length > 0 ? attributes[0].Description : string.Empty;
-
-                CheckBox checkBox = new CheckBox
-                {
-                    Content = description,
-                    IsChecked = true,
-                    Foreground = Brushes.White,
-                    Margin = new Thickness(4),
-                    VerticalAlignment = VerticalAlignment.Center,
-                    Tag = filterOption
-                };
-                checkBox.Checked += ShowOptionCkb_Checked;
-                checkBox.Unchecked += ShowOptionCkb_Unchecked;
-                OptionPanel.Children.Add(checkBox);
-            }
-
-            SpeechUtil.QueueChanged += Synthesizer_QueueChanged;
-
-            OutputDeviceCombo.Items.Add(new ComboBoxItem() { Content = "默认输出设备", Tag = -1 });
-            int deviceCount = Wave.WaveOut.DeviceCount;
-            for (int i = 0; i < deviceCount; i++)
-            {
-                Wave.MmeInterop.WaveOutCapabilities waveOutCapabilities = Wave.WaveOut.GetCapabilities(i);
-                OutputDeviceCombo.Items.Add(new ComboBoxItem() { Content = waveOutCapabilities.ProductName, Tag = i });
-            }
-            OutputDeviceCombo.SelectedIndex = 0;
-
-            this.Closing += MainWindow_Closing;
-        }
-
-        private void Synthesizer_QueueChanged(object sender, int e)
-        {
-            Dispatcher.Invoke(() =>
-            {
-                SynthesizeQueueCountBox.Text = e.ToString();
-            });
-        }
-
-        private void ClearSpeechQueueBtn_Click(object sender, RoutedEventArgs e)
-        {
-            SpeechUtil.ClearQueue();
-        }
-
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-            if (IsConnected)
-            {
-                LiveListener.Disconnect();
-
-                // Wait for all Dispatcher tasks finished.
-                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(() => { }));
-            }
-        }
-
+        [Serializable]
         public enum FilterOptions
         {
             [Description("弹幕显示")]
@@ -159,20 +75,257 @@ namespace BiliLiveDanmaku
             [Description("礼物连击播报")]
             ComboSendSpeech,
         }
-        private Dictionary<FilterOptions, bool> OptionsDict = new Dictionary<FilterOptions, bool>();
+
+        private Dictionary<FilterOptions, bool> FilterValueDict;
+
+        private bool IsConnected;
+
+        [Serializable]
+        private class Config
+        {
+            public Rect WindowRect { get; set; }
+            public string RoomId { get; set; }
+            public string OutputDevice { get; set; }
+            public double Volume { get; set; }
+            public Dictionary<FilterOptions, bool> FilterValueDict { get; set; }
+        }
+
+        public MainWindow()
+        {
+            InitializeComponent();
+
+            IsConnected = false;
+
+            Config config = LoadConfig();
+
+            if(config != null)
+            {
+                RoomIdBox.Text = config.RoomId;
+                if (this.Width != 0 && this.Height != 0)
+                {
+                    this.Left = config.WindowRect.Left;
+                    this.Top = config.WindowRect.Top;
+                    this.Width = config.WindowRect.Width;
+                    this.Height = config.WindowRect.Height;
+                }
+            }
+
+            InitFilterOptions(config);
+
+            InitSpeech(config);
+
+            InitCounters();
+
+            this.Closing += MainWindow_Closing;
+        }
+
+        private Config LoadConfig()
+        {
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            FileInfo fileInfo = new FileInfo("./config/settings.dat");
+            if (!fileInfo.Exists)
+                return null;
+            try
+            {
+                using (FileStream fileStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.Read))
+                {
+                    Config config = (Config)binaryFormatter.Deserialize(fileStream);
+                    return config;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return null;
+            }
+        }
+
+        private void SaveConfig()
+        {
+            Config config = new Config()
+            {
+                WindowRect = new Rect(this.Left, this.Top, this.Width, this.Height),
+                RoomId = RoomIdBox.Text,
+                OutputDevice = ((ComboBoxItem)OutputDeviceCombo.SelectedItem).Content.ToString(),
+                Volume = VolumeSlider.Value,
+                FilterValueDict = FilterValueDict
+            };
+            FileInfo fileInfo = new FileInfo("./config/settings.dat");
+            try
+            {
+                if (!fileInfo.Directory.Exists)
+                {
+                    fileInfo.Directory.Create();
+                }
+                using (FileStream fileStream = new FileStream(fileInfo.FullName, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))
+                {
+                    BinaryFormatter binaryFormatter = new BinaryFormatter();
+                    binaryFormatter.Serialize(fileStream, config);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+        private void InitFilterOptions(Config config)
+        {
+            FilterValueDict = new Dictionary<FilterOptions, bool>();
+            foreach (FilterOptions filterOption in Enum.GetValues(typeof(FilterOptions)))
+            {
+                bool initValue = true;
+                if (config != null && config.FilterValueDict != null)
+                {
+                    if (config.FilterValueDict.ContainsKey(filterOption))
+                    {
+                        initValue = config.FilterValueDict[filterOption];
+                    }
+                }
+
+                DescriptionAttribute[] attributes = (DescriptionAttribute[])filterOption
+                   .GetType()
+                   .GetField(filterOption.ToString())
+                   .GetCustomAttributes(typeof(DescriptionAttribute), false);
+                string description = attributes.Length > 0 ? attributes[0].Description : string.Empty;
+
+                CheckBox checkBox = new CheckBox
+                {
+                    Content = description,
+                    IsChecked = initValue,
+                    Foreground = Brushes.White,
+                    Margin = new Thickness(4),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Tag = filterOption
+                };
+                checkBox.Checked += ShowOptionCkb_Checked;
+                checkBox.Unchecked += ShowOptionCkb_Unchecked;
+                OptionPanel.Children.Add(checkBox);
+
+                FilterValueDict.Add(filterOption, initValue);
+            }
+        }
+
+        private void InitSpeech(Config config)
+        {
+            FileInfo fileInfo = new FileInfo("./config/speech.xml");
+            Stream speechConfigStream = null;
+            try
+            {
+                if (fileInfo.Exists)
+                {
+                    speechConfigStream = new FileStream(fileInfo.FullName, FileMode.Open, FileAccess.Read, FileShare.Read);
+                }
+                else
+                {
+                    speechConfigStream = Application.GetResourceStream(new Uri("Config/Speech.xml", UriKind.RelativeOrAbsolute)).Stream;
+                }
+                XmlDocument xmlDocument = new XmlDocument();
+                xmlDocument.Load(speechConfigStream);
+                XmlNode enableAttr = xmlDocument.SelectSingleNode("speech/@enable");
+                string enable = enableAttr != null ? enableAttr.Value : "true";
+                if (enable.ToLower() != "false")
+                {
+                    XmlNode tokenEndpointNode = xmlDocument.SelectSingleNode("speech/token_endpoint/text()");
+                    XmlNode ttsEndpointNode = xmlDocument.SelectSingleNode("speech/tts_endpoint/text()");
+                    XmlNode apiKeyNode = xmlDocument.SelectSingleNode("speech/api_key/text()");
+                    string tokenEndpoint = tokenEndpointNode.Value;
+                    string ttsEndpoint = ttsEndpointNode.Value;
+                    string apiKey = apiKeyNode.Value;
+                    SpeechUtil.Init(tokenEndpoint, ttsEndpoint, apiKey);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+            finally
+            {
+                if (speechConfigStream != null)
+                    speechConfigStream.Close();
+            }
+
+            OutputDeviceCombo.Items.Add(new ComboBoxItem() { Content = "默认输出设备", Tag = -1 });
+            OutputDeviceCombo.SelectedIndex = 0;
+            int deviceCount = Wave.WaveOut.DeviceCount;
+            for (int i = 0; i < deviceCount; i++)
+            {
+                Wave.MmeInterop.WaveOutCapabilities waveOutCapabilities = Wave.WaveOut.GetCapabilities(i);
+                ComboBoxItem comboBoxItem = new ComboBoxItem() { Content = waveOutCapabilities.ProductName, Tag = i };
+                OutputDeviceCombo.Items.Add(comboBoxItem);
+                if(config != null)
+                {
+                    if (waveOutCapabilities.ProductName == config.OutputDevice)
+                    {
+                        OutputDeviceCombo.SelectedItem = comboBoxItem;
+                    }
+                }
+            }
+
+            if (config != null)
+            {
+                VolumeSlider.Value = config.Volume;
+            }
+        }
+
+        private void InitCounters()
+        {
+            FaceLoader.CachedCountChanged += (int count) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    CachedCountBox.Text = count.ToString();
+                });
+            };
+
+            FaceLoader.QueueCountChanged += (int count) =>
+            {
+                Dispatcher.Invoke(() =>
+                {
+                    CachedQueueCountBox.Text = count.ToString();
+                });
+            };
+
+            SpeechUtil.QueueChanged += Synthesizer_QueueChanged;
+        }
+
+        private void Synthesizer_QueueChanged(object sender, int e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                SynthesizeQueueCountBox.Text = e.ToString();
+            });
+        }
+
+        private void ClearSpeechQueueBtn_Click(object sender, RoutedEventArgs e)
+        {
+            SpeechUtil.ClearQueue();
+        }
+
+        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            if (IsConnected)
+            {
+                LiveListener.Disconnect();
+
+                // Wait for all Dispatcher tasks finished.
+                Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(() => { }));
+            }
+            SaveConfig();
+        }
 
         private void ShowOptionCkb_Checked(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)sender;
             FilterOptions filterOptions = (FilterOptions)checkBox.Tag;
-            OptionsDict[filterOptions] = true;
+            FilterValueDict[filterOptions] = true;
         }
 
         private void ShowOptionCkb_Unchecked(object sender, RoutedEventArgs e)
         {
             CheckBox checkBox = (CheckBox)sender;
             FilterOptions filterOptions = (FilterOptions)checkBox.Tag;
-            OptionsDict[filterOptions] = false;
+            FilterValueDict[filterOptions] = false;
         }
 
         #region Listener
@@ -367,7 +520,7 @@ namespace BiliLiveDanmaku
 
         private void AppendDanmaku(BiliLiveJsonParser.Danmaku item)
         {
-            if (!OptionsDict[FilterOptions.Danmaku])
+            if (!FilterValueDict[FilterOptions.Danmaku])
                 return;
 
             Dispatcher.Invoke(() =>
@@ -386,7 +539,7 @@ namespace BiliLiveDanmaku
 
         private void SpeakDanmaku(BiliLiveJsonParser.Danmaku item)
         {
-            if (!OptionsDict[FilterOptions.DanmakuSpeech])
+            if (!FilterValueDict[FilterOptions.DanmakuSpeech])
                 return;
 
             if (SpeechUtil.IsAvalable)
@@ -399,7 +552,7 @@ namespace BiliLiveDanmaku
 
         private void AppendSuperChat(BiliLiveJsonParser.SuperChat item)
         {
-            if (!OptionsDict[FilterOptions.SuperChat])
+            if (!FilterValueDict[FilterOptions.SuperChat])
                 return;
 
             Dispatcher.Invoke(() =>
@@ -418,7 +571,7 @@ namespace BiliLiveDanmaku
 
         private void SpeakSuperChat(BiliLiveJsonParser.SuperChat item)
         {
-            if (!OptionsDict[FilterOptions.SuperChatSpeech])
+            if (!FilterValueDict[FilterOptions.SuperChatSpeech])
                 return;
 
             if (SpeechUtil.IsAvalable)
@@ -431,9 +584,9 @@ namespace BiliLiveDanmaku
 
         private void AppendGift(BiliLiveJsonParser.Gift item)
         {
-            if (item.CoinType == "gold" && !OptionsDict[FilterOptions.GoldenGift])
+            if (item.CoinType == "gold" && !FilterValueDict[FilterOptions.GoldenGift])
                 return;
-            if (item.CoinType == "silver" && !OptionsDict[FilterOptions.SilverGift])
+            if (item.CoinType == "silver" && !FilterValueDict[FilterOptions.SilverGift])
                 return;
 
             Dispatcher.Invoke(() =>
@@ -454,9 +607,9 @@ namespace BiliLiveDanmaku
 
         private void SpeakGift(BiliLiveJsonParser.Gift item)
         {
-            if (item.CoinType == "gold" && !OptionsDict[FilterOptions.GoldenGiftSpeech])
+            if (item.CoinType == "gold" && !FilterValueDict[FilterOptions.GoldenGiftSpeech])
                 return;
-            if (item.CoinType == "silver" && !OptionsDict[FilterOptions.SilverGiftSpeech])
+            if (item.CoinType == "silver" && !FilterValueDict[FilterOptions.SilverGiftSpeech])
                 return;
 
             if (SpeechUtil.IsAvalable)
@@ -469,7 +622,7 @@ namespace BiliLiveDanmaku
 
         private void AppendComboSend(BiliLiveJsonParser.ComboSend item)
         {
-            if (!OptionsDict[FilterOptions.ComboSend])
+            if (!FilterValueDict[FilterOptions.ComboSend])
                 return;
             Dispatcher.Invoke(() =>
             {
@@ -487,7 +640,7 @@ namespace BiliLiveDanmaku
 
         private void SpeakComboSend(BiliLiveJsonParser.ComboSend item)
         {
-            if (!OptionsDict[FilterOptions.ComboSendSpeech])
+            if (!FilterValueDict[FilterOptions.ComboSendSpeech])
                 return;
 
             if (SpeechUtil.IsAvalable)
@@ -500,7 +653,7 @@ namespace BiliLiveDanmaku
 
         private void AppendWelcome(BiliLiveJsonParser.Welcome item)
         {
-            if (!OptionsDict[FilterOptions.Welcome])
+            if (!FilterValueDict[FilterOptions.Welcome])
                 return;
 
             Dispatcher.Invoke(() =>
@@ -519,7 +672,7 @@ namespace BiliLiveDanmaku
 
         private void AppendWelcomeGuard(BiliLiveJsonParser.WelcomeGuard item)
         {
-            if (!OptionsDict[FilterOptions.WelcomeGuard])
+            if (!FilterValueDict[FilterOptions.WelcomeGuard])
                 return;
 
             Dispatcher.Invoke(() =>
@@ -538,7 +691,7 @@ namespace BiliLiveDanmaku
 
         private void AppendGuardBuy(BiliLiveJsonParser.GuardBuy item)
         {
-            if (!OptionsDict[FilterOptions.GuardBuy])
+            if (!FilterValueDict[FilterOptions.GuardBuy])
                 return;
 
             Dispatcher.Invoke(() =>
@@ -557,11 +710,11 @@ namespace BiliLiveDanmaku
 
         private void AppendInteractWord(BiliLiveJsonParser.InteractWord item)
         {
-            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Enter && !OptionsDict[FilterOptions.InteractEnter])
+            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Enter && !FilterValueDict[FilterOptions.InteractEnter])
                 return;
-            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Follow && !OptionsDict[FilterOptions.InteractFollow])
+            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Follow && !FilterValueDict[FilterOptions.InteractFollow])
                 return;
-            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Share && !OptionsDict[FilterOptions.InteractShare])
+            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Share && !FilterValueDict[FilterOptions.InteractShare])
                 return;
 
             Dispatcher.Invoke(() =>
@@ -580,7 +733,7 @@ namespace BiliLiveDanmaku
 
         private void AppendRoomBlock(BiliLiveJsonParser.RoomBlock item)
         {
-            if (!OptionsDict[FilterOptions.RoomBlock])
+            if (!FilterValueDict[FilterOptions.RoomBlock])
                 return;
 
             Dispatcher.Invoke(() =>
@@ -609,7 +762,7 @@ namespace BiliLiveDanmaku
 
         private void AppendRythmStorm(BiliLiveJsonParser.Danmaku item)
         {
-            if (!OptionsDict[FilterOptions.RythmStorm])
+            if (!FilterValueDict[FilterOptions.RythmStorm])
                 return;
 
             Dispatcher.Invoke(() =>

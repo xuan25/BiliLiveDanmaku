@@ -16,13 +16,13 @@ namespace Speech
 {
     class SpeechUtil
     {
-        private static readonly Synthesizer Synthesizer;
-        private static readonly List<IWaveFilter> WaveFilters;
-        private static readonly VolumeFilter volumeFilter;
+        private static Synthesizer Synthesizer;
+        private static List<IWaveFilter> WaveFilters;
+        private static VolumeFilter volumeFilter;
 
         private static WaveOut CurrentWaveOut;
         private static bool IsPlaying;
-        private static readonly ManualResetEvent PlayCompletedEvent;
+        private static ManualResetEvent PlayCompletedEvent;
 
         public static event EventHandler<int> QueueChanged;
 
@@ -61,25 +61,18 @@ namespace Speech
                 Synthesizer.ClearQueue();
         }
 
-        static SpeechUtil()
+        public static void Init(string tokenEndpoint, string ttsEndpoint, string key)
         {
-            bool ttsEnable = (bool)Application.Current.FindResource("TTSEnable");
-            if (!ttsEnable)
-                return;
+            if (tokenEndpoint == null || ttsEndpoint == null || key == null)
+                throw new Exception("Config Error");
 
-            string endpointUri = (string)Application.Current.FindResource("TTSEndpointUri");
-            if (endpointUri == null)
-                return;
-
-            string tokenUri = (string)Application.Current.FindResource("TTSTokenUri");
-            string key = (string)Application.Current.FindResource("TTSKey");
             AuthClient authenticationClient = null;
-            if (tokenUri != null)
+            if (tokenEndpoint != null)
             {
-                authenticationClient = new AuthClient(tokenUri, key);
+                authenticationClient = new AuthClient(tokenEndpoint, key);
             }
 
-            Synthesizer = new Synthesizer(new Uri(endpointUri), Synthesizer.OutputFormats.Raw24Khz16BitMonoPcm, authenticationClient);
+            Synthesizer = new Synthesizer(new Uri(ttsEndpoint), Synthesizer.OutputFormats.Raw24Khz16BitMonoPcm, authenticationClient);
             Synthesizer.OnAudioAvailable += Synthesizer_OnAudioAvailable;
             Synthesizer.OnError += Synthesizer_OnError;
 
@@ -91,6 +84,11 @@ namespace Speech
 
             IsPlaying = false;
             PlayCompletedEvent = new ManualResetEvent(false);
+        }
+
+        static SpeechUtil()
+        {
+            IsPlaying = false;
         }
 
         private static void Synthesizer_QueueChanged(object sender, int e)

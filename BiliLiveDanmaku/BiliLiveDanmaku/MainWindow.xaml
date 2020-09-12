@@ -8,7 +8,7 @@
     xmlns:layout="clr-namespace:Microsoft.Xaml.Behaviors.Layout"
     x:Class="BiliLiveDanmaku.MainWindow"
     mc:Ignorable="d"
-    Title="BiliDanmaku" Height="1000" Width="500" Background="#9947494F" WindowStyle="SingleBorderWindow" AllowsTransparency="False" Topmost="True">
+    Title="BiliDanmaku" MinWidth="380" MinHeight="340" Height="1000" Width="500" Background="#9947494F" WindowStyle="SingleBorderWindow" AllowsTransparency="False" Topmost="True">
     <Grid>
         <Grid x:Name="DisplayGrid">
             <ScrollViewer x:Name="DanmakuScrollViewer" VerticalScrollBarVisibility="Auto" MouseLeave="DanmakuScrollViewer_MouseLeave">
@@ -117,6 +117,7 @@
                         <Run x:Name="SynthesizeQueueCountBox"/>
                     </TextBlock>
                 </WrapPanel>
+                <TextBlock Margin="4.4" Foreground="White" Text="Build 2009121"/>
             </StackPanel>
         </Grid>
     </Grid>

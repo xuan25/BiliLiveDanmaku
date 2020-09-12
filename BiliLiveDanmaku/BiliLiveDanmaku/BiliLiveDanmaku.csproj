@@ -176,10 +176,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Speech\AccessKey.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="UI\ComboSend.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -251,6 +247,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Speech\Template\Gift.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Config\Speech.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

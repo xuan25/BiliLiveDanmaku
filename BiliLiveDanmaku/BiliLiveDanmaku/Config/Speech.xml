@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<speech enable="false">
+  <token_endpoint>https://southeastasia.api.cognitive.microsoft.com/sts/v1.0/issueToken</token_endpoint>
+  <tts_endpoint>https://southeastasia.tts.speech.microsoft.com/cognitiveservices/v1</tts_endpoint>
+  <api_key>input your key here</api_key>
+</speech>
