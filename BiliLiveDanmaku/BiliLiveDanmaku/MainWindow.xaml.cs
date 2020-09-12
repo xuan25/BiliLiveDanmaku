@@ -82,7 +82,7 @@ namespace BiliLiveDanmaku
                 OptionPanel.Children.Add(checkBox);
             }
 
-            SpeechUtil.Synthesizer.QueueChanged += Synthesizer_QueueChanged;
+            SpeechUtil.QueueChanged += Synthesizer_QueueChanged;
 
             OutputDeviceCombo.Items.Add(new ComboBoxItem() { Content = "默认输出设备", Tag = -1 });
             int deviceCount = Wave.WaveOut.DeviceCount;
@@ -106,7 +106,7 @@ namespace BiliLiveDanmaku
 
         private void ClearSpeechQueueBtn_Click(object sender, RoutedEventArgs e)
         {
-            SpeechUtil.Synthesizer.ClearQueue();
+            SpeechUtil.ClearQueue();
         }
 
         private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)

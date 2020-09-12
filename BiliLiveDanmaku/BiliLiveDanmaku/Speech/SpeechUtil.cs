@@ -16,7 +16,7 @@ namespace Speech
 {
     class SpeechUtil
     {
-        public static readonly Synthesizer Synthesizer;
+        private static readonly Synthesizer Synthesizer;
         private static readonly List<IWaveFilter> WaveFilters;
         private static readonly VolumeFilter volumeFilter;
 
@@ -24,6 +24,7 @@ namespace Speech
         private static bool IsPlaying;
         private static readonly ManualResetEvent PlayCompletedEvent;
 
+        public static event EventHandler<int> QueueChanged;
 
         public static bool IsAvalable { 
             get 
@@ -38,17 +39,26 @@ namespace Speech
         {
             get
             {
-                return volumeFilter.Volume;
+                if (volumeFilter != null)
+                    return volumeFilter.Volume;
+                return -1;
             }
             set
             {
-                volumeFilter.Volume = value;
+                if (volumeFilter != null)
+                    volumeFilter.Volume = value;
             }
         }
 
         public static void Speak(string ssmlDoc)
         {
             Synthesizer.Speak(ssmlDoc);
+        }
+
+        public static void ClearQueue()
+        {
+            if (Synthesizer != null)
+                Synthesizer.ClearQueue();
         }
 
         static SpeechUtil()
@@ -73,12 +83,19 @@ namespace Speech
             Synthesizer.OnAudioAvailable += Synthesizer_OnAudioAvailable;
             Synthesizer.OnError += Synthesizer_OnError;
 
+            Synthesizer.QueueChanged += Synthesizer_QueueChanged;
+
             WaveFilters = new List<IWaveFilter>();
             volumeFilter = new VolumeFilter();
             WaveFilters.Add(volumeFilter);
 
             IsPlaying = false;
             PlayCompletedEvent = new ManualResetEvent(false);
+        }
+
+        private static void Synthesizer_QueueChanged(object sender, int e)
+        {
+            QueueChanged?.Invoke(sender, e);
         }
 
         private static void Synthesizer_OnError(object sender, Exception e)
