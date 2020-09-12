@@ -35,9 +35,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Xaml.Behaviors, Version=1.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Xaml.Behaviors.Wpf.1.1.19\lib\net45\Microsoft.Xaml.Behaviors.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
@@ -64,6 +61,62 @@
     <Compile Include="Bili\BiliPackReader.cs" />
     <Compile Include="Bili\BiliPackWriter.cs" />
     <Compile Include="JsonUtil.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\AttachableCollection.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Behavior.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\BehaviorCollection.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\ComparisonLogic.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\ActionCommand.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\CallMethodAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\ChangePropertyAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\ComparisonCondition.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\ComparisonConditionType.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\ConditionalExpression.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\ConditionBehavior.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\ConditionCollection.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\DataStateBehavior.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\DataStoreChangedTrigger.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\DataTrigger.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\ExtendedVisualStateManager.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\GoToStateAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\ICondition.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\LaunchUriOrFileAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\PropertyChangedTrigger.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\PrototypingActions.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\RemoveElementAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\SetDataStoreValueAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Core\TimerTrigger.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\CustomPropertyValueEditorAttribute.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\DataBindingHelper.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\DefaultTriggerAttribute.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\DependencyObjectHelper.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\EventObserver.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\EventTrigger.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\EventTriggerBase.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\ExceptionStringTable.Designer.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\IAttachedObject.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Input\KeyTrigger.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Input\TranslateZoomRotateBehavior.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Interaction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\InteractionContext.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\InvokeCommandAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\ITickTimer.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Layout\FluidMoveBehavior.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Layout\MouseDragElementBehavior.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Media\PlaySoundAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Media\StoryboardAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Media\StoryboardTrigger.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Media\TransitionEffect.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\NameResolver.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\ScreenType.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\Serializer.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\TargetedTriggerAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\TriggerAction.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\TriggerActionCollection.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\TriggerBase.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\TriggerCollection.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\TypeConstraintAttribute.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\TypeConverterHelper.cs" />
+    <Compile Include="Microsoft.Xaml.Behaviors\VisualStateUtilities.cs" />
     <Compile Include="Speech\AuthClient.cs" />
     <Compile Include="Speech\Lexicon\LexiconUtil.cs" />
     <Compile Include="Speech\Synthesizer.cs" />
@@ -174,11 +227,11 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <EmbeddedResource Include="Microsoft.Xaml.Behaviors\ExceptionStringTable.resx" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

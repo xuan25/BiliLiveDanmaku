@@ -1,26 +1,28 @@
 ﻿<Window
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:BiliLiveDanmaku" xmlns:ui="clr-namespace:BiliLiveDanmaku.UI"
-        xmlns:b="http://schemas.microsoft.com/xaml/behaviors" x:Class="BiliLiveDanmaku.MainWindow"
-        mc:Ignorable="d"
-        Title="BiliDanmaku" Height="1000" Width="500" Background="#9947494F" WindowStyle="SingleBorderWindow" AllowsTransparency="False" Topmost="True">
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="clr-namespace:BiliLiveDanmaku" xmlns:ui="clr-namespace:BiliLiveDanmaku.UI"
+    xmlns:behaviors="clr-namespace:Microsoft.Xaml.Behaviors"
+    xmlns:layout="clr-namespace:Microsoft.Xaml.Behaviors.Layout"
+    x:Class="BiliLiveDanmaku.MainWindow"
+    mc:Ignorable="d"
+    Title="BiliDanmaku" Height="1000" Width="500" Background="#9947494F" WindowStyle="SingleBorderWindow" AllowsTransparency="False" Topmost="True">
     <Grid>
         <Grid x:Name="DisplayGrid">
             <ScrollViewer x:Name="DanmakuScrollViewer" VerticalScrollBarVisibility="Auto" MouseLeave="DanmakuScrollViewer_MouseLeave">
                 <StackPanel x:Name="DanmakuPanel" Margin="8" Background="Transparent">
-                    <b:Interaction.Behaviors>
-                        <b:FluidMoveBehavior x:Name="DanmakuFluidMove" Duration="00:00:00.200" AppliesTo="Self">
-                            <b:FluidMoveBehavior.EaseY>
+                    <behaviors:Interaction.Behaviors>
+                        <layout:FluidMoveBehavior x:Name="DanmakuFluidMove" Duration="00:00:00.200" AppliesTo="Self">
+                            <layout:FluidMoveBehavior.EaseY>
                                 <CubicEase EasingMode="EaseOut"/>
-                            </b:FluidMoveBehavior.EaseY>
-                            <b:FluidMoveBehavior.EaseX>
+                            </layout:FluidMoveBehavior.EaseY>
+                            <layout:FluidMoveBehavior.EaseX>
                                 <CubicEase EasingMode="EaseOut"/>
-                            </b:FluidMoveBehavior.EaseX>
-                        </b:FluidMoveBehavior>
-                    </b:Interaction.Behaviors>
+                            </layout:FluidMoveBehavior.EaseX>
+                        </layout:FluidMoveBehavior>
+                    </behaviors:Interaction.Behaviors>
                 </StackPanel>
             </ScrollViewer>
             <Border x:Name="RythmStormBorder" BorderBrush="#ff47494F" BorderThickness="0,0,0,1" Height="65" VerticalAlignment="Top" ClipToBounds="True" IsHitTestVisible="False" Background="#9947494F" Opacity="0">
@@ -44,16 +46,16 @@
                 </Border.Resources>
                 <ScrollViewer x:Name="RythmStormScrollViewer" Height="64" VerticalScrollBarVisibility="Hidden">
                     <StackPanel x:Name="RythmStormPanel" Margin="8,0" Background="Transparent">
-                        <b:Interaction.Behaviors>
-                            <b:FluidMoveBehavior x:Name="RythmStormFluidMove" Duration="00:00:00.200" AppliesTo="Self" >
-                                <b:FluidMoveBehavior.EaseY>
+                        <behaviors:Interaction.Behaviors>
+                            <layout:FluidMoveBehavior x:Name="RythmStormFluidMove" Duration="00:00:00.200" AppliesTo="Self" >
+                                <layout:FluidMoveBehavior.EaseY>
                                     <CubicEase EasingMode="EaseOut"/>
-                                </b:FluidMoveBehavior.EaseY>
-                                <b:FluidMoveBehavior.EaseX>
+                                </layout:FluidMoveBehavior.EaseY>
+                                <layout:FluidMoveBehavior.EaseX>
                                     <CubicEase EasingMode="EaseOut"/>
-                                </b:FluidMoveBehavior.EaseX>
-                            </b:FluidMoveBehavior>
-                        </b:Interaction.Behaviors>
+                                </layout:FluidMoveBehavior.EaseX>
+                            </layout:FluidMoveBehavior>
+                        </behaviors:Interaction.Behaviors>
                     </StackPanel>
                 </ScrollViewer>
             </Border>
