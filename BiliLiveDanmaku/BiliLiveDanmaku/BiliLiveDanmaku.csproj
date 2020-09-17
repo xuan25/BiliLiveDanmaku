@@ -118,7 +118,9 @@
     <Compile Include="Microsoft.Xaml.Behaviors\TypeConverterHelper.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\VisualStateUtilities.cs" />
     <Compile Include="Speech\AuthClient.cs" />
+    <Compile Include="Speech\Lang\LangDetection.cs" />
     <Compile Include="Speech\Lexicon\LexiconUtil.cs" />
+    <Compile Include="Speech\SsmlHelper.cs" />
     <Compile Include="Speech\Synthesizer.cs" />
     <Compile Include="Speech\Wave\Filters\IWaveFilter.cs" />
     <Compile Include="Speech\Wave\Filters\VolumeFilter.cs" />
@@ -137,7 +139,6 @@
     <Compile Include="Speech\Wave\WaveOut.cs" />
     <Compile Include="Speech\Wave\WaveOutUtils.cs" />
     <Compile Include="Speech\Wave\WaveOutBuffer.cs" />
-    <Compile Include="Speech\Template\TemplateManager.cs" />
     <Compile Include="Speech\SpeechUtil.cs" />
     <Compile Include="UI\ComboSend.xaml.cs">
       <DependentUpon>ComboSend.xaml</DependentUpon>
@@ -250,6 +251,33 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Config\Speech.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\ja-JP\Danmaku.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\ja-JP\Gift.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\ja-JP\SuperChat.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\en-US\Danmaku.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\en-US\Gift.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\en-US\SuperChat.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\zh-CN\Danmaku.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\zh-CN\Gift.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Speech\Template\zh-CN\SuperChat.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -1,7 +1,7 @@
 ﻿<speak xmlns="http://www.w3.org/2001/10/synthesis" xmlns:mstts="http://www.w3.org/2001/mstts" xmlns:emo="http://www.w3.org/2009/10/emotionml" version="1.0" xml:lang="en-US">
-  <voice name="zh-CN-XiaoxiaoNeural">
-    <mstts:express-as style="happy" styledegree="2.0">
-      <prosody rate="10%" pitch="0%">{Message}</prosody>
+  <voice name="en-US-AriaNeural">
+    <mstts:express-as style="Cheerful">
+      <prosody rate="10%" pitch="0%">Thank you {User} for the {Count} {Gift}</prosody>
     </mstts:express-as>
   </voice>
 </speak>

@@ -1,9 +1,8 @@
-﻿using BiliLiveDanmaku.UI;
+﻿using BiliLiveDanmaku.Speech;
+using BiliLiveDanmaku.UI;
 using BiliLiveHelper.Bili;
 using JsonUtil;
 using Speech;
-using Speech.Lexicon;
-using Speech.Template;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -548,8 +547,7 @@ namespace BiliLiveDanmaku
 
             if (SpeechUtil.IsAvalable)
             {
-                string template = TemplateManager.DanmakuSpeechTemplate;
-                string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.Sender.Name)).Replace("{Message}", LexiconUtil.MakeText(SecurityElement.Escape(item.Message)));
+                string ssmlDoc = SsmlHelper.Danmaku(item.Sender.Name, item.Message);
                 SpeechUtil.Speak(ssmlDoc);
             }
         }
@@ -580,8 +578,7 @@ namespace BiliLiveDanmaku
 
             if (SpeechUtil.IsAvalable)
             {
-                string template = TemplateManager.SuperChatTemplate;
-                string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.User.Name)).Replace("{Message}", LexiconUtil.MakeText(SecurityElement.Escape(item.Message)));
+                string ssmlDoc = SsmlHelper.SuperChat(item.User.Name, item.Message);
                 SpeechUtil.Speak(ssmlDoc);
             }
         }
@@ -618,8 +615,7 @@ namespace BiliLiveDanmaku
 
             if (SpeechUtil.IsAvalable)
             {
-                string template = TemplateManager.GiftSpeechTemplate;
-                string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.Sender.Name)).Replace("{Count}", SecurityElement.Escape(item.Number.ToString())).Replace("{Gift}", SecurityElement.Escape(item.GiftName));
+                string ssmlDoc = SsmlHelper.Gift(item.Sender.Name, item.Number, item.GiftName);
                 SpeechUtil.Speak(ssmlDoc);
             }
         }
@@ -649,8 +645,7 @@ namespace BiliLiveDanmaku
 
             if (SpeechUtil.IsAvalable)
             {
-                string template = TemplateManager.GiftSpeechTemplate;
-                string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(item.Sender.Name)).Replace("{Count}", SecurityElement.Escape(item.Number.ToString())).Replace("{Gift}", SecurityElement.Escape(item.GiftName));
+                string ssmlDoc = SsmlHelper.Gift(item.Sender.Name, item.Number, item.GiftName);
                 SpeechUtil.Speak(ssmlDoc);
             }
         }

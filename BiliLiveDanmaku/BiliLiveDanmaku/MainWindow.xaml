@@ -117,7 +117,7 @@
                         <Run x:Name="SynthesizeQueueCountBox"/>
                     </TextBlock>
                 </WrapPanel>
-                <TextBlock Margin="4.4" Foreground="White" Text="Build 2009121"/>
+                <TextBlock Margin="4.4" Foreground="White" Text="Build 2009171"/>
             </StackPanel>
         </Grid>
     </Grid>

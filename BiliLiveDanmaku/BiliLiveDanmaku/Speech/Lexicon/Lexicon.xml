@@ -11,8 +11,12 @@
     <alias>What the fuck</alias>
   </lexeme>
   <lexeme>
+    <grapheme>kksk</grapheme>
+    <alias>ここすき</alias>
+  </lexeme>
+  <lexeme>
     <grapheme>debu</grapheme>
-    <alias>爹不</alias>
+    <alias>デブ</alias>
   </lexeme>
   <lexeme>
     <grapheme>awsl</grapheme>
@@ -26,7 +30,7 @@
   </lexeme>
   <lexeme>
     <grapheme>rua</grapheme>
-    <grapheme>RUA</grapheme>
+    <grapheme>挼</grapheme>
     <phoneme>ra</phoneme>
   </lexeme>
   <lexeme>
@@ -34,6 +38,11 @@
     <grapheme>哈h</grapheme>
     <grapheme>ww</grapheme>
     <grapheme>哈w</grapheme>
+    <alias>哈哈</alias>
+  </lexeme>
+  <lexeme>
+    <grapheme>haha</grapheme>
+    <grapheme>哈ha</grapheme>
     <alias>哈哈</alias>
   </lexeme>
 </lexicon>
