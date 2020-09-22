@@ -7,25 +7,15 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Security;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Resources;
-using System.Windows.Shapes;
 using System.Xml;
-using System.Xml.Linq;
 
 namespace BiliLiveDanmaku
 {
@@ -114,6 +104,8 @@ namespace BiliLiveDanmaku
             InitSpeech(config);
 
             InitCounters();
+
+            Gift.GiftActiveExpired += Gift_GiftActiveExpired;
 
             this.Closing += MainWindow_Closing;
         }
@@ -305,7 +297,7 @@ namespace BiliLiveDanmaku
             SpeechUtil.ClearQueue();
         }
 
-        private void MainWindow_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
             if (IsConnected)
             {
@@ -450,7 +442,7 @@ namespace BiliLiveDanmaku
                         case BiliLiveJsonParser.Cmds.SEND_GIFT:
                             BiliLiveJsonParser.Gift gift = (BiliLiveJsonParser.Gift)item;
                             AppendGift(gift);
-                            SpeakGift(gift);
+                            //SpeakGift(gift);
                             break;
                         case BiliLiveJsonParser.Cmds.COMBO_SEND:
                             BiliLiveJsonParser.ComboSend comboSend = (BiliLiveJsonParser.ComboSend)item;
@@ -490,7 +482,7 @@ namespace BiliLiveDanmaku
         private DateTime CleanDanmakuTime { get; set; }
         private Task CleanDanmakuTask { get; set; }
 
-        public void CleanDanmaku()
+        public void CleanPanel()
         {
             while (DateTime.UtcNow < CleanDanmakuTime)
                 Thread.Sleep(200);
@@ -536,7 +528,7 @@ namespace BiliLiveDanmaku
 
             if(CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
@@ -567,7 +559,7 @@ namespace BiliLiveDanmaku
 
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
@@ -602,23 +594,46 @@ namespace BiliLiveDanmaku
 
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
-        private void SpeakGift(BiliLiveJsonParser.Gift item)
+        private void Gift_GiftActiveExpired(object sender, Gift e)
         {
-            if (item.CoinType == "gold" && !FilterValueDict[FilterOptions.GoldenGiftSpeech])
+            Dispatcher.Invoke(() =>
+            {
+                SpeakGift(e);
+            });
+        }
+
+        private void SpeakGift(Gift gift)
+        {
+            BiliLiveJsonParser.Gift raw = gift.Raw;
+            if (raw.CoinType == "gold" && !FilterValueDict[FilterOptions.GoldenGiftSpeech])
                 return;
-            if (item.CoinType == "silver" && !FilterValueDict[FilterOptions.SilverGiftSpeech])
+            if (raw.CoinType == "silver" && !FilterValueDict[FilterOptions.SilverGiftSpeech])
                 return;
 
             if (SpeechUtil.IsAvalable)
             {
-                string ssmlDoc = SsmlHelper.Gift(item.Sender.Name, item.Number, item.GiftName);
+                string ssmlDoc = SsmlHelper.Gift(raw.Sender.Name, gift.CountNumber, raw.GiftName, raw.Action);
                 SpeechUtil.Speak(ssmlDoc);
             }
         }
+
+        //private void SpeakGift(BiliLiveJsonParser.Gift item)
+        //{
+        //    if (item.CoinType == "gold" && !FilterValueDict[FilterOptions.GoldenGiftSpeech])
+        //        return;
+        //    if (item.CoinType == "silver" && !FilterValueDict[FilterOptions.SilverGiftSpeech])
+        //        return;
+
+        //    if (SpeechUtil.IsAvalable)
+        //    {
+        //        string ssmlDoc = SsmlHelper.Gift(item.Sender.Name, item.Number, item.GiftName);
+        //        SpeechUtil.Speak(ssmlDoc);
+        //    }
+        //}
 
         private void AppendComboSend(BiliLiveJsonParser.ComboSend item)
         {
@@ -634,7 +649,7 @@ namespace BiliLiveDanmaku
 
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
@@ -645,7 +660,7 @@ namespace BiliLiveDanmaku
 
             if (SpeechUtil.IsAvalable)
             {
-                string ssmlDoc = SsmlHelper.Gift(item.Sender.Name, item.Number, item.GiftName);
+                string ssmlDoc = SsmlHelper.Gift(item.Sender.Name, item.Number, item.GiftName, item.Action);
                 SpeechUtil.Speak(ssmlDoc);
             }
         }
@@ -665,7 +680,7 @@ namespace BiliLiveDanmaku
 
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
@@ -684,7 +699,7 @@ namespace BiliLiveDanmaku
 
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
@@ -703,7 +718,7 @@ namespace BiliLiveDanmaku
 
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
@@ -726,7 +741,7 @@ namespace BiliLiveDanmaku
 
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
@@ -745,14 +760,13 @@ namespace BiliLiveDanmaku
 
             if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
             {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanDanmaku);
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
         #endregion
 
         #region RythmStorm
-
         private DateTime CleanRythmStormTime { get; set; }
         private Task CleanRythmStormTask { get; set; }
 

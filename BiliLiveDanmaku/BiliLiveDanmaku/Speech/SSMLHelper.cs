@@ -63,11 +63,11 @@ namespace BiliLiveDanmaku.Speech
             return ssmlDoc;
         }
 
-        public static string Gift(string user, uint count, string giftName)
+        public static string Gift(string user, uint count, string giftName, string action)
         {
             string templateUri = "/Speech/Template/Gift.xml";
             string template = GetTextFromResource(templateUri);
-            string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(user)).Replace("{Count}", count.ToString()).Replace("{Gift}", SecurityElement.Escape(giftName));
+            string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(user)).Replace("{Count}", count.ToString()).Replace("{Gift}", SecurityElement.Escape(giftName)).Replace("{Action}", SecurityElement.Escape(action));
             return ssmlDoc;
         }
 

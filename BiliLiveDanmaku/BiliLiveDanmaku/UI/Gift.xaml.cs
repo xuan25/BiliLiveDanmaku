@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -22,28 +23,97 @@ namespace BiliLiveDanmaku.UI
     /// </summary>
     public partial class Gift : UserControl, ILoadFace
     {
-        public void SetFace(BitmapImage faceImage)
-        {
-            FaceImage.Source = faceImage;
-        }
+        // Activated Gift Cache sorted by expired time.
+        private static List<Gift> ActivedGiftCache { get; set; }
 
-        private static List<Gift> GiftAppendCache { get; set; }
+        private static Thread CacheManagingThread = null;
+        private static bool IsCacheManagingRunning = false;
+
+        public static event EventHandler<Gift> GiftActiveExpired;
 
         static Gift()
         {
-            GiftAppendCache = new List<Gift>();
+            ActivedGiftCache = new List<Gift>();
+        }
+
+        private static void StartCacheManageThread()
+        {
+            IsCacheManagingRunning = true;
+            if(CacheManagingThread == null)
+            {
+                CacheManagingThread = new Thread(() =>
+                {
+                    while (IsCacheManagingRunning)
+                    {
+                        CleanCache();
+                        if(ActivedGiftCache.Count == 0)
+                        {
+                            // Spin for 30 seconds, if the list is always empty, exit.
+                            int count = 0;
+                            while(ActivedGiftCache.Count == 0)
+                            {
+                                count++;
+                                if (count > 30)
+                                {
+                                    IsCacheManagingRunning = false;
+                                }
+                                Thread.Sleep(1000);
+                            }
+                        }
+                        else
+                        {
+                            Thread.Sleep(1000);
+                        }
+                    }
+                    CacheManagingThread = null;
+                })
+                {
+                    IsBackground = true,
+                    Name = "Gift.CacheManagingThread"
+                };
+                CacheManagingThread.Start();
+            }
+        }
+
+        private static void CleanCache()
+        {
+            lock (ActivedGiftCache)
+            {
+                while(ActivedGiftCache.Count > 0)
+                {
+                    Gift gift = ActivedGiftCache[0];
+                    if (gift.ActiveExpiredTime < DateTime.UtcNow)
+                    {
+                        ActivedGiftCache.RemoveAt(0);
+                        GiftActiveExpired?.Invoke(gift, gift);
+                    }
+                    else
+                    {
+                        break;
+                    } 
+                }
+            }
+        }
+
+        private static void AppendCache(Gift gift)
+        {
+            ActivedGiftCache.Add(gift);
+            StartCacheManageThread();
         }
 
         public static bool AppendGiftToExist(BiliLiveJsonParser.Gift gift)
         {
             CleanCache();
-            lock (GiftAppendCache)
+            lock (ActivedGiftCache)
             {
-                foreach(Gift cachedGift in GiftAppendCache)
+                foreach (Gift cachedGift in ActivedGiftCache)
                 {
-                    if(gift.Sender.Id == cachedGift.UserId && gift.GiftId == cachedGift.GiftId)
+                    if (gift.Sender.Id == cachedGift.UserId && gift.GiftId == cachedGift.GiftId)
                     {
                         cachedGift.AppendNumber(gift.Number);
+                        // Move to the end of the list
+                        ActivedGiftCache.Remove(cachedGift);
+                        ActivedGiftCache.Add(cachedGift);
                         return true;
                     }
                 }
@@ -51,19 +121,14 @@ namespace BiliLiveDanmaku.UI
             return false;
         }
 
-        public static void CleanCache()
+
+
+        public void SetFace(BitmapImage faceImage)
         {
-            lock (GiftAppendCache)
-            {
-                while(GiftAppendCache.Count > 0)
-                {
-                    if (GiftAppendCache[0].LastUpdateAllowedTime < DateTime.UtcNow)
-                        GiftAppendCache.RemoveAt(0);
-                    else
-                        break;
-                }
-            }
+            FaceImage.Source = faceImage;
         }
+
+        const double ActiceInterval = 5;
 
         public Gift()
         {
@@ -88,14 +153,18 @@ namespace BiliLiveDanmaku.UI
             }
         }
 
+        public BiliLiveJsonParser.Gift Raw { get; private set; }
+
         public uint UserId { get; private set; }
         public uint GiftId { get; private set; }
-        public DateTime LastUpdateAllowedTime { get; private set; }
+        public DateTime ActiveExpiredTime { get; private set; }
 
         public Gift(BiliLiveJsonParser.Gift gift)
         {
             InitializeComponent();
-            
+
+            Raw = gift;
+
             SenderBox.Text = gift.Sender.Name;
             ActionBox.Text = gift.Action;
             GiftBox.Text = gift.GiftName;
@@ -118,14 +187,14 @@ namespace BiliLiveDanmaku.UI
             //FaceImage.Source = FaceLoader.LoadFace(gift.Sender.Id, gift.FaceUri);
             FaceLoader.LoadFaceWithKnownUri(this, gift.FaceUri);
 
-            LastUpdateAllowedTime = DateTime.UtcNow.AddSeconds(5);
-            GiftAppendCache.Add(this);
+            ActiveExpiredTime = DateTime.UtcNow.AddSeconds(ActiceInterval);
+            Gift.AppendCache(this);
         }
 
         public void AppendNumber(uint count)
         {
             CountNumber += count;
-            LastUpdateAllowedTime = DateTime.UtcNow.AddSeconds(5);
+            ActiveExpiredTime = DateTime.UtcNow.AddSeconds(ActiceInterval);
         }
     }
 }
