@@ -841,6 +841,18 @@ namespace BiliLiveDanmaku
 
         #endregion
 
+        private void SettingButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (SettingGrid.Visibility == Visibility.Visible)
+            {
+                SettingGrid.Visibility = Visibility.Collapsed;
+            }
+            else
+            {
+                SettingGrid.Visibility = Visibility.Visible;
+            }
+        }
+
         private void TestBtn_Click(object sender, RoutedEventArgs e)
         {
             Random random = new Random((int)DateTime.Now.Ticks);
