@@ -86,7 +86,7 @@ namespace Speech.Lang
 
         public static bool InEnglish(char c)
         {
-            // Basic Latin (Partial)
+            // Basic Latin (Partial) (Without Symbols)
             if (c >= 0x0041 && c <= 0x005A)
             {
                 return true;
@@ -136,13 +136,13 @@ namespace Speech.Lang
 
         public static bool InJapanese(char c)
         {
-            // Hiragana
-            if (c >= 0x3040 && c <= 0x309F)
+            // Hiragana (Partial) (Without Letter "no" & Symbols)
+            if ((c >= 0x3040 && c <= 0x306D) || (c >= 0x306F && c <= 0x3096))
             {
                 return true;
             }
-            // Katakana
-            if (c >= 0x30A0 && c <= 0x30FF)
+            // Katakana (Partial) (Without Symbols)
+            if (c >= 0x30A1 && c <= 0x30FA)
             {
                 return true;
             }
