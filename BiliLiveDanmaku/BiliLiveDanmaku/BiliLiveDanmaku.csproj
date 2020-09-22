@@ -117,6 +117,9 @@
     <Compile Include="Microsoft.Xaml.Behaviors\TypeConstraintAttribute.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\TypeConverterHelper.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\VisualStateUtilities.cs" />
+    <Compile Include="Frame\HitTest.cs" />
+    <Compile Include="Frame\Screen.cs" />
+    <Compile Include="Frame\WindowLong.cs" />
     <Compile Include="Speech\AuthClient.cs" />
     <Compile Include="Speech\Lang\LangDetection.cs" />
     <Compile Include="Speech\Lexicon\LexiconUtil.cs" />

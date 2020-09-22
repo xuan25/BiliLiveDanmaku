@@ -1,6 +1,7 @@
 ﻿using BiliLiveDanmaku.Speech;
 using BiliLiveDanmaku.UI;
 using BiliLiveHelper.Bili;
+using Frame;
 using JsonUtil;
 using Speech;
 using System;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Xml;
@@ -108,6 +110,35 @@ namespace BiliLiveDanmaku
             Gift.GiftActiveExpired += Gift_GiftActiveExpired;
 
             this.Closing += MainWindow_Closing;
+            this.Loaded += MainWindow_Loaded;
+        }
+
+        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        {
+            IntPtr windowHandle = new WindowInteropHelper(this).Handle;
+            WindowLong.SetWindowLong(windowHandle, WindowLong.GWL_STYLE, (WindowLong.GetWindowLong(windowHandle, WindowLong.GWL_STYLE) | WindowLong.WS_CAPTION));
+            WindowLong.SetWindowLong(windowHandle, WindowLong.GWL_EXSTYLE, (WindowLong.GetWindowLong(windowHandle, WindowLong.GWL_EXSTYLE) | WindowLong.WS_EX_TOOLWINDOW));
+        }
+
+        protected override void OnSourceInitialized(EventArgs e)
+        {
+            base.OnSourceInitialized(e);
+            HwndSource hwndSource = (HwndSource)PresentationSource.FromVisual(this);
+            if (hwndSource != null)
+            {
+                hwndSource.AddHook(new HwndSourceHook(this.WndProc));
+            }
+        }
+
+        protected IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        {
+            switch (msg)
+            {
+                case HitTest.WM_NCHITTEST:
+                    handled = true;
+                    return HitTest.Hit(lParam, this.Top, this.Left, this.ActualHeight, this.ActualWidth);
+            }
+            return IntPtr.Zero;
         }
 
         private Config LoadConfig()
@@ -841,15 +872,17 @@ namespace BiliLiveDanmaku
 
         #endregion
 
-        private void SettingButton_Click(object sender, RoutedEventArgs e)
+        private void SettingBtn_Click(object sender, RoutedEventArgs e)
         {
             if (SettingGrid.Visibility == Visibility.Visible)
             {
                 SettingGrid.Visibility = Visibility.Collapsed;
+                SettingBtn.Content = "⏷";
             }
             else
             {
                 SettingGrid.Visibility = Visibility.Visible;
+                SettingBtn.Content = "⏶";
             }
         }
 
@@ -891,6 +924,24 @@ namespace BiliLiveDanmaku
                 SpeechUtil.OutputDeviceId = -1;
             }
             
+        }
+        
+        private void CloseBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
+        private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void HeaderGrid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            ResizeMode resizeMode = this.ResizeMode;
+            this.ResizeMode = ResizeMode.NoResize;
+            this.DragMove();
+            this.ResizeMode = resizeMode;
         }
     }
 }
