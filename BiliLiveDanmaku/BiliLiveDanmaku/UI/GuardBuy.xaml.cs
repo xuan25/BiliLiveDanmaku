@@ -27,6 +27,7 @@ namespace BiliLiveDanmaku.UI
         public void SetFace(BitmapImage faceImage)
         {
             FaceImage.Source = faceImage;
+            ((System.Windows.Media.Animation.Storyboard)Resources["ShowFaceImage"]).Begin();
         }
 
         private static SolidColorBrush CaptainBrush => new SolidColorBrush(Color.FromArgb(0xFF, 0x64, 0xD2, 0xF0));
@@ -38,6 +39,7 @@ namespace BiliLiveDanmaku.UI
         {
             InitializeComponent();
             FaceImage.Source = new BitmapImage(new Uri("http://i2.hdslb.com/bfs/face/ad21ee2add7f10bddb3a584129473dc46c694459.jpg"));
+            ((System.Windows.Media.Animation.Storyboard)Resources["ShowFaceImage"]).Begin();
         }
 
         public GuardBuy(BiliLiveJsonParser.GuardBuy guardBuy)

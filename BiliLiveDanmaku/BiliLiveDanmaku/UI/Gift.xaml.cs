@@ -126,6 +126,7 @@ namespace BiliLiveDanmaku.UI
         public void SetFace(BitmapImage faceImage)
         {
             FaceImage.Source = faceImage;
+            ((System.Windows.Media.Animation.Storyboard)Resources["ShowFaceImage"]).Begin();
         }
 
         const double ActiceInterval = 5;

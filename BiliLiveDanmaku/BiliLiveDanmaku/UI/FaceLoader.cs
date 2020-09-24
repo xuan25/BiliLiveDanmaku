@@ -51,13 +51,13 @@ namespace BiliLiveDanmaku.UI
                             bitmapImage.StreamSource = stream;
                             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                             bitmapImage.EndInit();
-
-                            owner.SetFace(bitmapImage);
                         });
-                    }
-                    catch (WebException)
-                    {
 
+                        ApplyTo(owner);
+                    }
+                    catch (WebException ex)
+                    {
+                        Console.WriteLine(ex);
                     }
                     
                 });

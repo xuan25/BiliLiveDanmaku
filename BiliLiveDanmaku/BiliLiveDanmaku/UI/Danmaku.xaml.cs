@@ -33,6 +33,7 @@ namespace BiliLiveDanmaku.UI
         public void SetFace(BitmapImage faceImage)
         {
             FaceImage.Source = faceImage;
+            ((System.Windows.Media.Animation.Storyboard)Resources["ShowFaceImage"]).Begin();
         }
 
         #endregion
@@ -43,6 +44,7 @@ namespace BiliLiveDanmaku.UI
             MessageBox.Text = Guid.NewGuid().ToString();
 
             FaceImage.Source = new BitmapImage(new Uri("http://i2.hdslb.com/bfs/face/ad21ee2add7f10bddb3a584129473dc46c694459.jpg"));
+            ((System.Windows.Media.Animation.Storyboard)Resources["ShowFaceImage"]).Begin();
         }
 
         public Danmaku(BiliLiveJsonParser.Danmaku danmaku)

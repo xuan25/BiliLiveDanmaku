@@ -6,6 +6,15 @@
              xmlns:local="clr-namespace:BiliLiveDanmaku.UI"
              mc:Ignorable="d" 
              d:DesignHeight="64" d:DesignWidth="300">
+    <UserControl.Resources>
+        <Storyboard x:Key="ShowFaceImage">
+            <DoubleAnimation Storyboard.TargetName="FaceImage" Storyboard.TargetProperty="Opacity" From="0" To="1" BeginTime="00:00:00.000" Duration="00:00:00.200">
+                <DoubleAnimation.EasingFunction>
+                    <CubicEase EasingMode="EaseIn"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+    </UserControl.Resources>
     <Grid x:Name="MainGrid" Margin="8" Height="48">
         <Grid.OpacityMask>
             <VisualBrush>
