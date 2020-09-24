@@ -77,6 +77,7 @@ namespace BiliLiveDanmaku.UI
 
         private static void CleanCache()
         {
+            List<Gift> cleanedGifts = new List<Gift>();
             lock (ActivedGiftCache)
             {
                 while(ActivedGiftCache.Count > 0)
@@ -85,13 +86,19 @@ namespace BiliLiveDanmaku.UI
                     if (gift.ActiveExpiredTime < DateTime.UtcNow)
                     {
                         ActivedGiftCache.RemoveAt(0);
-                        GiftActiveExpired?.Invoke(gift, gift);
+                        cleanedGifts.Add(gift);
+                        //GiftActiveExpired?.Invoke(gift, gift);
                     }
                     else
                     {
                         break;
                     } 
                 }
+            }
+            for(int i = 0; i < cleanedGifts.Count; i++)
+            {
+                Gift gift = cleanedGifts[i];
+                GiftActiveExpired?.Invoke(gift, gift);
             }
         }
 
