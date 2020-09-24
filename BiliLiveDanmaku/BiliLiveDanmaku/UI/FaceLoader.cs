@@ -242,7 +242,7 @@ namespace BiliLiveDanmaku.UI
         }
 
         // https://github.com/3Shain/BiliChat/issues/6
-        const int requestInterval = 250;
+        const int requestInterval = 200;
         const int blockMinutes = 15;
         static DateTime bolckUntil = new DateTime();
 
@@ -259,24 +259,34 @@ namespace BiliLiveDanmaku.UI
                 if (DateTime.Now < bolckUntil)
                     return;
 
-                DateTime startTime = DateTime.UtcNow;
+                //DateTime startTime = DateTime.UtcNow;
                 Uri uri;
-                try
+                while (true)
                 {
-                    uri = LoadFaceUriFromApi(loadFace.UserId);
-                }
-                catch (WebException ex)
-                {
-                    if (((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.PreconditionFailed)
+                    try
                     {
-                        bolckUntil = DateTime.Now.AddMinutes(blockMinutes);
-                        Console.WriteLine($"Face API has been blocked, expected until {bolckUntil}");
+                        uri = LoadFaceUriFromApi(loadFace.UserId);
+                        break;
                     }
-                    else
+                    catch (WebException ex)
                     {
-                        Console.WriteLine(ex);
+                        if(ex.Status == WebExceptionStatus.Timeout)
+                        {
+                            Console.WriteLine(ex);
+                            Thread.Sleep(1000);
+                        }
+                        else if (ex.Response != null && ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.PreconditionFailed)
+                        {
+                            bolckUntil = DateTime.Now.AddMinutes(blockMinutes);
+                            Console.WriteLine($"Face API has been blocked, expected until {bolckUntil}");
+                            return;
+                        }
+                        else
+                        {
+                            Console.WriteLine(ex);
+                            return;
+                        }
                     }
-                    return;
                 }
                 
                 if (uri != null)
@@ -290,12 +300,13 @@ namespace BiliLiveDanmaku.UI
                             FaceCacheDict.Add(loadFace.UserId, faceCache);
                     }
                 }
-                DateTime endTime = DateTime.UtcNow;
-                TimeSpan timeSpan = endTime - startTime;
-                int waitTime = requestInterval - (int)timeSpan.TotalMilliseconds;
-                if (waitTime < 0)
-                    waitTime = 0;
-                Thread.Sleep(waitTime);
+                //DateTime endTime = DateTime.UtcNow;
+                //TimeSpan timeSpan = endTime - startTime;
+                //int waitTime = requestInterval - (int)timeSpan.TotalMilliseconds;
+                //if (waitTime < 0)
+                //    waitTime = 0;
+                //Thread.Sleep(waitTime);
+                Thread.Sleep(requestInterval);
             }
         }
 
