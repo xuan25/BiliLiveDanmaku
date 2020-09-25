@@ -104,8 +104,20 @@ namespace Speech
         private static void Synthesizer_OnAudioAvailable(object sender, Stream stream)
         {
             MemoryStream memoryStream = new MemoryStream();
-            stream.CopyTo(memoryStream);
-            stream.Dispose();
+            try
+            {
+                stream.CopyTo(memoryStream);
+            }
+            catch(IOException ex)
+            {
+                Console.WriteLine(ex);
+                return;
+            }
+            finally
+            {
+                stream.Dispose();
+            }
+            
             memoryStream.Position = 0;
 
             if (IsPlaying)
