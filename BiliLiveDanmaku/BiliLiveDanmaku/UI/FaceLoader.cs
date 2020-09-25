@@ -43,12 +43,15 @@ namespace BiliLiveDanmaku.UI
                         try
                         {
                             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
-                            HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                            using (Stream stream = httpWebResponse.GetResponseStream())
+                            httpWebRequest.ServicePoint.ConnectionLimit = 16;
+                            using (HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse())
                             {
-                                memoryStream = new MemoryStream();
-                                stream.CopyTo(memoryStream);
-                                memoryStream.Position = 0;
+                                using (Stream stream = httpWebResponse.GetResponseStream())
+                                {
+                                    memoryStream = new MemoryStream();
+                                    stream.CopyTo(memoryStream);
+                                    memoryStream.Position = 0;
+                                }
                             }
                             break;
                         }
@@ -294,7 +297,7 @@ namespace BiliLiveDanmaku.UI
                 if (DateTime.Now < bolckUntil)
                     return;
 
-                //DateTime startTime = DateTime.UtcNow;
+                DateTime startTime = DateTime.UtcNow;
                 Uri uri;
                 while (true)
                 {
@@ -335,13 +338,13 @@ namespace BiliLiveDanmaku.UI
                             FaceCacheDict.Add(loadFace.UserId, faceCache);
                     }
                 }
-                //DateTime endTime = DateTime.UtcNow;
-                //TimeSpan timeSpan = endTime - startTime;
-                //int waitTime = requestInterval - (int)timeSpan.TotalMilliseconds;
-                //if (waitTime < 0)
-                //    waitTime = 0;
-                //Thread.Sleep(waitTime);
-                Thread.Sleep(requestInterval);
+                DateTime endTime = DateTime.UtcNow;
+                TimeSpan timeSpan = endTime - startTime;
+                int waitTime = requestInterval - (int)timeSpan.TotalMilliseconds;
+                if (waitTime < 0)
+                    waitTime = 0;
+                Thread.Sleep(waitTime);
+                //Thread.Sleep(requestInterval);
             }
         }
 
