@@ -22,58 +22,102 @@ namespace BiliLiveDanmaku.UI
 
         public class FaceCache
         {
-            public event EventHandler DownloadCompleted;
+            public event EventHandler<BitmapImage> DownloadCompleted;
 
             public BitmapImage FaceImage;
-            public bool IsDownloading;
+            public bool IsLoading;
             public DateTime Expire;
 
             public FaceCache(Uri uri, ILoadFace owner)
             {
-                IsDownloading = true;
-                Expire = DateTime.UtcNow.AddSeconds(300);
+                uri = new Uri(uri.AbsoluteUri + "@24w_24h_1c_100q.jpg");
+                IsLoading = true;
+                Expire = DateTime.UtcNow.AddMinutes(30);
 
                 Task.Factory.StartNew(() =>
                 {
-                    try
+                    MemoryStream memoryStream = null;
+                    int retryCounter = 0;
+                    while (retryCounter < 3)
                     {
-                        HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
-                        HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-                        Stream stream = httpWebResponse.GetResponseStream();
+                        try
+                        {
+                            HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
+                            HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                            using (Stream stream = httpWebResponse.GetResponseStream())
+                            {
+                                memoryStream = new MemoryStream();
+                                stream.CopyTo(memoryStream);
+                                memoryStream.Position = 0;
+                            }
+                            break;
+                        }
+                        catch (WebException ex)
+                        {
+                            Console.WriteLine(ex);
+                            if (memoryStream != null)
+                            {
+                                memoryStream.Dispose();
+                                memoryStream = null;
+                            }
+                            if (ex.Response != null && ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.NotFound)
+                            {
+                                return;
+                            }
+                            retryCounter++;
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                            if (memoryStream != null)
+                            {
+                                memoryStream.Dispose();
+                                memoryStream = null;
+                            }
+                            return;
+                        }
+                    }
 
-                        owner.Dispatcher.Invoke(() =>
+                    owner.Dispatcher.Invoke(() =>
+                    {
+                        try
                         {
                             BitmapImage bitmapImage = new BitmapImage();
-                            FaceImage = bitmapImage;
 
-                            bitmapImage.DownloadCompleted += FaceImage_DownloadCompleted;
                             bitmapImage.BeginInit();
-                            bitmapImage.StreamSource = stream;
+                            bitmapImage.StreamSource = memoryStream;
                             bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
                             bitmapImage.EndInit();
-                        });
 
-                        ApplyTo(owner);
-                    }
-                    catch (WebException ex)
-                    {
-                        Console.WriteLine(ex);
-                    }
-                    
+                            bitmapImage.Freeze();
+
+                            FaceImage = bitmapImage;
+                            memoryStream.Close();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine(ex);
+                            memoryStream.Close();
+                        }
+                        
+                    });
+
+                    IsLoading = false;
+                    DownloadCompleted?.Invoke(this, FaceImage);
+
+                    ApplyTo(owner);
                 });
-
-                
             }
 
             public void ApplyTo(ILoadFace loadFace)
             {
-                if (IsDownloading)
+                if (IsLoading)
                 {
-                    DownloadCompleted += (object sender, EventArgs e) =>
+                    DownloadCompleted += (object sender, BitmapImage e) =>
                     {
                         loadFace.Dispatcher.Invoke(() =>
                         {
-                            loadFace.SetFace(FaceImage);
+                            loadFace.SetFace(e);
                         });
                     };
                 }
@@ -84,15 +128,6 @@ namespace BiliLiveDanmaku.UI
                         loadFace.SetFace(FaceImage);
                     });
                 } 
-            }
-
-            private void FaceImage_DownloadCompleted(object sender, EventArgs e)
-            {
-                FaceImage.Freeze();
-                FaceImage.StreamSource.Close();
-
-                IsDownloading = false;
-                DownloadCompleted?.Invoke(sender, e);
             }
         }
 
@@ -155,7 +190,7 @@ namespace BiliLiveDanmaku.UI
             if (FaceCacheDict.ContainsKey(loadFace.UserId))
             {
                 FaceCache faceCache = FaceCacheDict[loadFace.UserId];
-                faceCache.Expire = DateTime.UtcNow.AddSeconds(300);
+                faceCache.Expire = DateTime.UtcNow.AddMinutes(30);
                 faceCache.ApplyTo(loadFace);
 
                 return true;
@@ -251,7 +286,7 @@ namespace BiliLiveDanmaku.UI
             if (FaceCacheDict.ContainsKey(loadFace.UserId))
             {
                 FaceCache faceCache = FaceCacheDict[loadFace.UserId];
-                faceCache.Expire = DateTime.UtcNow.AddSeconds(300);
+                faceCache.Expire = DateTime.UtcNow.AddMinutes(30);
                 faceCache.ApplyTo(loadFace);
             }
             else
