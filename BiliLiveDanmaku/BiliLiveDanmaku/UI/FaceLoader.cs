@@ -65,7 +65,7 @@ namespace BiliLiveDanmaku.UI
                             }
                             if (ex.Response != null && ((HttpWebResponse)ex.Response).StatusCode == HttpStatusCode.NotFound)
                             {
-                                return;
+                                break;
                             }
                             retryCounter++;
                         }
@@ -77,9 +77,15 @@ namespace BiliLiveDanmaku.UI
                                 memoryStream.Dispose();
                                 memoryStream = null;
                             }
-                            return;
+                            break;
                         }
                     }
+
+                    if(memoryStream == null)
+                    {
+                        return;
+                    }
+
 
                     owner.Dispatcher.Invoke(() =>
                     {
