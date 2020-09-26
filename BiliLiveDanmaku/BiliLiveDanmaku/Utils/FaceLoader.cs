@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
-namespace BiliLiveDanmaku.UI
+namespace BiliLiveDanmaku.Utils
 {
     class FaceLoader
     {

@@ -82,6 +82,11 @@
     <Compile Include="Bili\BiliLiveListener.cs" />
     <Compile Include="Bili\BiliPackReader.cs" />
     <Compile Include="Bili\BiliPackWriter.cs" />
+    <Compile Include="Config.cs" />
+    <Compile Include="DisplayWindow.xaml.cs">
+      <DependentUpon>DisplayWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="FilterOptions.cs" />
     <Compile Include="JsonUtil.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\AttachableCollection.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\Behavior.cs" />
@@ -165,13 +170,14 @@
     <Compile Include="Speech\Wave\WaveOutUtils.cs" />
     <Compile Include="Speech\Wave\WaveOutBuffer.cs" />
     <Compile Include="Speech\SpeechUtil.cs" />
+    <Compile Include="Utils\GiftCache.cs" />
     <Compile Include="UI\ComboSend.xaml.cs">
       <DependentUpon>ComboSend.xaml</DependentUpon>
     </Compile>
     <Compile Include="UI\Danmaku.xaml.cs">
       <DependentUpon>Danmaku.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\FaceLoader.cs" />
+    <Compile Include="Utils\FaceLoader.cs" />
     <Compile Include="UI\Gift.xaml.cs">
       <DependentUpon>Gift.xaml</DependentUpon>
     </Compile>
@@ -190,6 +196,10 @@
     <Compile Include="UI\Welcome.xaml.cs">
       <DependentUpon>Welcome.xaml</DependentUpon>
     </Compile>
+    <Page Include="DisplayWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

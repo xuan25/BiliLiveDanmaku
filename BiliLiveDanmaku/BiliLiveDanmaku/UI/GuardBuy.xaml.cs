@@ -1,4 +1,5 @@
-﻿using BiliLiveHelper.Bili;
+﻿using BiliLiveDanmaku.Utils;
+using BiliLiveHelper.Bili;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,14 +14,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static BiliLiveDanmaku.UI.FaceLoader;
 
 namespace BiliLiveDanmaku.UI
 {
     /// <summary>
     /// GuardBuy.xaml 的交互逻辑
     /// </summary>
-    public partial class GuardBuy : UserControl, ILoadFace
+    public partial class GuardBuy : UserControl, FaceLoader.ILoadFace
     {
         public uint UserId { get; private set; }
 

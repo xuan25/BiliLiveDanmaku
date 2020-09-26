@@ -1,5 +1,6 @@
 ﻿using BiliLiveDanmaku.Speech;
 using BiliLiveDanmaku.UI;
+using BiliLiveDanmaku.Utils;
 using BiliLiveHelper.Bili;
 using Frame;
 using JsonUtil;
@@ -26,47 +27,6 @@ namespace BiliLiveDanmaku
     /// </summary>
     public partial class MainWindow : Window
     {
-        [Serializable]
-        public enum FilterOptions
-        {
-            [Description("弹幕显示")]
-            Danmaku,
-            [Description("醒目留言显示")]
-            SuperChat,
-            [Description("金瓜子礼物显示")]
-            GoldenGift,
-            [Description("银瓜子礼物显示")]
-            SilverGift,
-            [Description("礼物连击显示")]
-            ComboSend,
-            [Description("节奏风暴显示")]
-            RythmStorm,
-            [Description("上舰显示")]
-            GuardBuy,
-            [Description("舰长欢迎显示")]
-            WelcomeGuard,
-            [Description("老爷欢迎显示")]
-            Welcome,
-            [Description("进入直播间显示")]
-            InteractEnter,
-            [Description("关注直播间显示")]
-            InteractFollow,
-            [Description("分享直播间显示")]
-            InteractShare,
-            [Description("直播间禁言显示")]
-            RoomBlock,
-            [Description("弹幕播报")]
-            DanmakuSpeech,
-            [Description("醒目留言播报")]
-            SuperChatSpeech,
-            [Description("金瓜子礼物播报")]
-            GoldenGiftSpeech,
-            [Description("银瓜子礼物播报")]
-            SilverGiftSpeech,
-            [Description("礼物连击播报")]
-            ComboSendSpeech,
-        }
-
         private Dictionary<FilterOptions, bool> FilterValueDict;
 
         private bool IsConnected;
@@ -81,9 +41,13 @@ namespace BiliLiveDanmaku
             public Dictionary<FilterOptions, bool> FilterValueDict { get; set; }
         }
 
+        private DisplayWindow displayWindow;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            displayWindow = new DisplayWindow();
 
             IsConnected = false;
 
@@ -92,14 +56,16 @@ namespace BiliLiveDanmaku
             if(config != null)
             {
                 RoomIdBox.Text = config.RoomId;
-                if (this.Width != 0 && this.Height != 0)
+                if (config.WindowRect.Width != 0 && config.WindowRect.Height != 0)
                 {
-                    this.Left = config.WindowRect.Left;
-                    this.Top = config.WindowRect.Top;
-                    this.Width = config.WindowRect.Width;
-                    this.Height = config.WindowRect.Height;
+                    displayWindow.Left = config.WindowRect.Left;
+                    displayWindow.Top = config.WindowRect.Top;
+                    displayWindow.Width = config.WindowRect.Width;
+                    displayWindow.Height = config.WindowRect.Height;
                 }
             }
+
+            displayWindow.Show();
 
             InitFilterOptions(config);
 
@@ -107,38 +73,9 @@ namespace BiliLiveDanmaku
 
             InitCounters();
 
-            Gift.GiftActiveExpired += Gift_GiftActiveExpired;
+            GiftCache.CacheExpired += GiftCache_CacheExpired;
 
             this.Closing += MainWindow_Closing;
-            this.Loaded += MainWindow_Loaded;
-        }
-
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
-        {
-            IntPtr windowHandle = new WindowInteropHelper(this).Handle;
-            WindowLong.SetWindowLong(windowHandle, WindowLong.GWL_STYLE, (WindowLong.GetWindowLong(windowHandle, WindowLong.GWL_STYLE) | WindowLong.WS_CAPTION));
-            WindowLong.SetWindowLong(windowHandle, WindowLong.GWL_EXSTYLE, (WindowLong.GetWindowLong(windowHandle, WindowLong.GWL_EXSTYLE) | WindowLong.WS_EX_TOOLWINDOW));
-        }
-
-        protected override void OnSourceInitialized(EventArgs e)
-        {
-            base.OnSourceInitialized(e);
-            HwndSource hwndSource = (HwndSource)PresentationSource.FromVisual(this);
-            if (hwndSource != null)
-            {
-                hwndSource.AddHook(new HwndSourceHook(this.WndProc));
-            }
-        }
-
-        protected IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
-        {
-            switch (msg)
-            {
-                case HitTest.WM_NCHITTEST:
-                    handled = true;
-                    return HitTest.Hit(lParam, this.Top, this.Left, this.ActualHeight, this.ActualWidth);
-            }
-            return IntPtr.Zero;
         }
 
         private Config LoadConfig()
@@ -330,6 +267,7 @@ namespace BiliLiveDanmaku
 
         private void MainWindow_Closing(object sender, CancelEventArgs e)
         {
+            SaveConfig();
             if (IsConnected)
             {
                 LiveListener.Disconnect();
@@ -337,7 +275,7 @@ namespace BiliLiveDanmaku
                 // Wait for all Dispatcher tasks finished.
                 Dispatcher.Invoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(() => { }));
             }
-            SaveConfig();
+            displayWindow.Close();
         }
 
         private void ShowOptionCkb_Checked(object sender, RoutedEventArgs e)
@@ -459,46 +397,68 @@ namespace BiliLiveDanmaku
                             BiliLiveJsonParser.Danmaku danmaku = (BiliLiveJsonParser.Danmaku)item;
                             if (danmaku.Type == 0)
                             {
-                                AppendDanmaku(danmaku);
-                                SpeakDanmaku(danmaku);
+                                if (FilterValueDict[FilterOptions.Danmaku])
+                                    displayWindow.AppendDanmaku(danmaku);
+                                if (FilterValueDict[FilterOptions.DanmakuSpeech])
+                                    SpeakDanmaku(danmaku);
                             }
                             else
-                                AppendRythmStorm(danmaku);
+                                if (FilterValueDict[FilterOptions.RythmStorm])
+                                displayWindow.AppendRythmStorm(danmaku);
                             break;
                         case BiliLiveJsonParser.Cmds.SUPER_CHAT_MESSAGE:
                             BiliLiveJsonParser.SuperChat superChat = (BiliLiveJsonParser.SuperChat)item;
-                            AppendSuperChat(superChat);
-                            SpeakSuperChat(superChat);
+                            if (FilterValueDict[FilterOptions.SuperChat])
+                                displayWindow.AppendSuperChat(superChat);
+                            if (FilterValueDict[FilterOptions.SuperChatSpeech])
+                                SpeakSuperChat(superChat);
                             break;
                         case BiliLiveJsonParser.Cmds.SEND_GIFT:
                             BiliLiveJsonParser.Gift gift = (BiliLiveJsonParser.Gift)item;
-                            AppendGift(gift);
-                            //SpeakGift(gift);
+                            if (!GiftCache.AppendToExist(gift))
+                            {
+                                if (gift.CoinType == "gold" && FilterValueDict[FilterOptions.GoldenGift])
+                                    displayWindow.AppendGift(gift);
+                                else if (gift.CoinType == "silver" && FilterValueDict[FilterOptions.SilverGift])
+                                    displayWindow.AppendGift(gift);
+                                //SpeakGift(gift);
+                            }
                             break;
                         case BiliLiveJsonParser.Cmds.COMBO_SEND:
                             BiliLiveJsonParser.ComboSend comboSend = (BiliLiveJsonParser.ComboSend)item;
-                            AppendComboSend(comboSend);
-                            SpeakComboSend(comboSend);
+                            if (FilterValueDict[FilterOptions.ComboSend])
+                                displayWindow.AppendComboSend(comboSend);
+                            if (FilterValueDict[FilterOptions.ComboSendSpeech])
+                                SpeakComboSend(comboSend);
                             break;
                         case BiliLiveJsonParser.Cmds.WELCOME:
                             BiliLiveJsonParser.Welcome welcome = (BiliLiveJsonParser.Welcome)item;
-                            AppendWelcome(welcome);
+                            if (FilterValueDict[FilterOptions.Welcome])
+                                displayWindow.AppendWelcome(welcome);
                             break;
                         case BiliLiveJsonParser.Cmds.WELCOME_GUARD:
                             BiliLiveJsonParser.WelcomeGuard welcomeGuard = (BiliLiveJsonParser.WelcomeGuard)item;
-                            AppendWelcomeGuard(welcomeGuard);
+                            if (FilterValueDict[FilterOptions.WelcomeGuard])
+                                displayWindow.AppendWelcomeGuard(welcomeGuard);
                             break;
                         case BiliLiveJsonParser.Cmds.GUARD_BUY:
                             BiliLiveJsonParser.GuardBuy guardBuy = (BiliLiveJsonParser.GuardBuy)item;
-                            AppendGuardBuy(guardBuy);
+                            if (!FilterValueDict[FilterOptions.GuardBuy])
+                                displayWindow.AppendGuardBuy(guardBuy);
                             break;
                         case BiliLiveJsonParser.Cmds.INTERACT_WORD:
                             BiliLiveJsonParser.InteractWord interactWord = (BiliLiveJsonParser.InteractWord)item;
-                            AppendInteractWord(interactWord);
+                            if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Enter && FilterValueDict[FilterOptions.InteractEnter])
+                                displayWindow.AppendInteractWord(interactWord);
+                            else if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Follow && FilterValueDict[FilterOptions.InteractFollow])
+                                displayWindow.AppendInteractWord(interactWord);
+                            else if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Share && FilterValueDict[FilterOptions.InteractShare])
+                                displayWindow.AppendInteractWord(interactWord);
                             break;
                         case BiliLiveJsonParser.Cmds.ROOM_BLOCK_MSG:
                             BiliLiveJsonParser.RoomBlock roomBlock = (BiliLiveJsonParser.RoomBlock)item;
-                            AppendRoomBlock(roomBlock);
+                            if (FilterValueDict[FilterOptions.RoomBlock])
+                                displayWindow.AppendRoomBlock(roomBlock);
                             break;
                     }
                 }
@@ -508,66 +468,10 @@ namespace BiliLiveDanmaku
 
         #endregion
 
-        #region Danmaku
-
-        private DateTime CleanDanmakuTime { get; set; }
-        private Task CleanDanmakuTask { get; set; }
-
-        public void CleanPanel()
-        {
-            while (DateTime.UtcNow < CleanDanmakuTime)
-                Thread.Sleep(200);
-
-            uint count = 0;
-            Dispatcher.Invoke(() =>
-            {
-                double offset = 0;
-                while (DanmakuPanel.Children.Count > 5000)
-                {
-                    FrameworkElement frameworkElement = (FrameworkElement)DanmakuPanel.Children[0];
-                    offset += frameworkElement.ActualHeight;
-                    DanmakuPanel.Children.RemoveAt(0);
-                    count++;
-                }
-                double verticalOffset = DanmakuScrollViewer.VerticalOffset - offset;
-                if (verticalOffset < 0)
-                    verticalOffset = 0;
-                DanmakuFluidMove.Duration = new Duration(TimeSpan.FromSeconds(0));
-                DanmakuScrollViewer.ScrollToVerticalOffset(verticalOffset);
-
-                DanmakuScrollViewer.InvalidateArrange();
-                DanmakuScrollViewer.UpdateLayout();
-
-                DanmakuFluidMove.Duration = new Duration(TimeSpan.FromSeconds(0.2));
-            });
-
-            Console.WriteLine("Danmaku cleaned : {0}", count);
-        }
-
-        private void AppendDanmaku(BiliLiveJsonParser.Danmaku item)
-        {
-            if (!FilterValueDict[FilterOptions.Danmaku])
-                return;
-
-            Dispatcher.Invoke(() =>
-            {
-                DanmakuPanel.Children.Add(new Danmaku(item));
-                if(!DanmakuScrollViewer.IsMouseOver)
-                    DanmakuScrollViewer.ScrollToBottom();
-                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
-            });
-
-            if(CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
-            {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
-            }
-        }
+        #region Speech
 
         private void SpeakDanmaku(BiliLiveJsonParser.Danmaku item)
         {
-            if (!FilterValueDict[FilterOptions.DanmakuSpeech])
-                return;
-
             if (SpeechUtil.IsAvalable)
             {
                 string ssmlDoc = SsmlHelper.Danmaku(item.Sender.Name, item.Message);
@@ -575,30 +479,8 @@ namespace BiliLiveDanmaku
             }
         }
 
-        private void AppendSuperChat(BiliLiveJsonParser.SuperChat item)
-        {
-            if (!FilterValueDict[FilterOptions.SuperChat])
-                return;
-
-            Dispatcher.Invoke(() =>
-            {
-                DanmakuPanel.Children.Add(new SuperChat(item));
-                if (!DanmakuScrollViewer.IsMouseOver)
-                    DanmakuScrollViewer.ScrollToBottom();
-                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
-            });
-
-            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
-            {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
-            }
-        }
-
         private void SpeakSuperChat(BiliLiveJsonParser.SuperChat item)
         {
-            if (!FilterValueDict[FilterOptions.SuperChatSpeech])
-                return;
-
             if (SpeechUtil.IsAvalable)
             {
                 string ssmlDoc = SsmlHelper.SuperChat(item.User.Name, item.Message);
@@ -606,89 +488,27 @@ namespace BiliLiveDanmaku
             }
         }
 
-        private void AppendGift(BiliLiveJsonParser.Gift item)
+        private void GiftCache_CacheExpired(object sender, GiftCache e)
         {
-            if (item.CoinType == "gold" && !FilterValueDict[FilterOptions.GoldenGift])
-                return;
-            if (item.CoinType == "silver" && !FilterValueDict[FilterOptions.SilverGift])
-                return;
-
-            Dispatcher.Invoke(() =>
-            {
-                if (Gift.AppendGiftToExist(item))
-                    return;
-                DanmakuPanel.Children.Add(new Gift(item));
-                if (!DanmakuScrollViewer.IsMouseOver)
-                    DanmakuScrollViewer.ScrollToBottom();
-                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
-            });
-
-            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
-            {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
-            }
+            SpeakGift(e);
         }
 
-        private void Gift_GiftActiveExpired(object sender, Gift e)
+        private void SpeakGift(GiftCache gift)
         {
-            Dispatcher.Invoke(() =>
-            {
-                SpeakGift(e);
-            });
-        }
-
-        private void SpeakGift(Gift gift)
-        {
-            BiliLiveJsonParser.Gift raw = gift.Raw;
-            if (raw.CoinType == "gold" && !FilterValueDict[FilterOptions.GoldenGiftSpeech])
+            if (gift.CoinType == "gold" && !FilterValueDict[FilterOptions.GoldenGiftSpeech])
                 return;
-            if (raw.CoinType == "silver" && !FilterValueDict[FilterOptions.SilverGiftSpeech])
+            if (gift.CoinType == "silver" && !FilterValueDict[FilterOptions.SilverGiftSpeech])
                 return;
 
             if (SpeechUtil.IsAvalable)
             {
-                string ssmlDoc = SsmlHelper.Gift(raw.Sender.Name, gift.CountNumber, raw.GiftName, raw.Action);
+                string ssmlDoc = SsmlHelper.Gift(gift.Username, gift.Number, gift.GiftName, gift.Action);
                 SpeechUtil.Speak(ssmlDoc);
-            }
-        }
-
-        //private void SpeakGift(BiliLiveJsonParser.Gift item)
-        //{
-        //    if (item.CoinType == "gold" && !FilterValueDict[FilterOptions.GoldenGiftSpeech])
-        //        return;
-        //    if (item.CoinType == "silver" && !FilterValueDict[FilterOptions.SilverGiftSpeech])
-        //        return;
-
-        //    if (SpeechUtil.IsAvalable)
-        //    {
-        //        string ssmlDoc = SsmlHelper.Gift(item.Sender.Name, item.Number, item.GiftName);
-        //        SpeechUtil.Speak(ssmlDoc);
-        //    }
-        //}
-
-        private void AppendComboSend(BiliLiveJsonParser.ComboSend item)
-        {
-            if (!FilterValueDict[FilterOptions.ComboSend])
-                return;
-            Dispatcher.Invoke(() =>
-            {
-                DanmakuPanel.Children.Add(new ComboSend(item));
-                if (!DanmakuScrollViewer.IsMouseOver)
-                    DanmakuScrollViewer.ScrollToBottom();
-                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
-            });
-
-            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
-            {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
             }
         }
 
         private void SpeakComboSend(BiliLiveJsonParser.ComboSend item)
         {
-            if (!FilterValueDict[FilterOptions.ComboSendSpeech])
-                return;
-
             if (SpeechUtil.IsAvalable)
             {
                 string ssmlDoc = SsmlHelper.Gift(item.Sender.Name, item.Number, item.GiftName, item.Action);
@@ -696,195 +516,7 @@ namespace BiliLiveDanmaku
             }
         }
 
-        private void AppendWelcome(BiliLiveJsonParser.Welcome item)
-        {
-            if (!FilterValueDict[FilterOptions.Welcome])
-                return;
-
-            Dispatcher.Invoke(() =>
-            {
-                DanmakuPanel.Children.Add(new Welcome(item));
-                if (!DanmakuScrollViewer.IsMouseOver)
-                    DanmakuScrollViewer.ScrollToBottom();
-                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
-            });
-
-            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
-            {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
-            }
-        }
-
-        private void AppendWelcomeGuard(BiliLiveJsonParser.WelcomeGuard item)
-        {
-            if (!FilterValueDict[FilterOptions.WelcomeGuard])
-                return;
-
-            Dispatcher.Invoke(() =>
-            {
-                DanmakuPanel.Children.Add(new Welcome(item));
-                if (!DanmakuScrollViewer.IsMouseOver)
-                    DanmakuScrollViewer.ScrollToBottom();
-                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
-            });
-
-            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
-            {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
-            }
-        }
-
-        private void AppendGuardBuy(BiliLiveJsonParser.GuardBuy item)
-        {
-            if (!FilterValueDict[FilterOptions.GuardBuy])
-                return;
-
-            Dispatcher.Invoke(() =>
-            {
-                DanmakuPanel.Children.Add(new GuardBuy(item));
-                if (!DanmakuScrollViewer.IsMouseOver)
-                    DanmakuScrollViewer.ScrollToBottom();
-                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
-            });
-
-            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
-            {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
-            }
-        }
-
-        private void AppendInteractWord(BiliLiveJsonParser.InteractWord item)
-        {
-            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Enter && !FilterValueDict[FilterOptions.InteractEnter])
-                return;
-            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Follow && !FilterValueDict[FilterOptions.InteractFollow])
-                return;
-            if (item.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Share && !FilterValueDict[FilterOptions.InteractShare])
-                return;
-
-            Dispatcher.Invoke(() =>
-            {
-                DanmakuPanel.Children.Add(new InteractWord(item));
-                if (!DanmakuScrollViewer.IsMouseOver)
-                    DanmakuScrollViewer.ScrollToBottom();
-                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
-            });
-
-            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
-            {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
-            }
-        }
-
-        private void AppendRoomBlock(BiliLiveJsonParser.RoomBlock item)
-        {
-            if (!FilterValueDict[FilterOptions.RoomBlock])
-                return;
-
-            Dispatcher.Invoke(() =>
-            {
-                DanmakuPanel.Children.Add(new RoomBlock(item));
-                if (!DanmakuScrollViewer.IsMouseOver)
-                    DanmakuScrollViewer.ScrollToBottom();
-                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
-            });
-
-            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
-            {
-                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
-            }
-        }
-
         #endregion
-
-        #region RythmStorm
-        private DateTime CleanRythmStormTime { get; set; }
-        private Task CleanRythmStormTask { get; set; }
-
-        private DateTime HideRythmStormTime { get; set; }
-        private Task ShowRythmStormTask { get; set; }
-
-        private void AppendRythmStorm(BiliLiveJsonParser.Danmaku item)
-        {
-            if (!FilterValueDict[FilterOptions.RythmStorm])
-                return;
-
-            Dispatcher.Invoke(() =>
-            {
-                RythmStormPanel.Children.Add(new Danmaku(item));
-                if (!RythmStormScrollViewer.IsMouseOver)
-                    RythmStormScrollViewer.ScrollToBottom();
-                CleanRythmStormTime = DateTime.UtcNow.AddSeconds(0.2);
-                HideRythmStormTime = DateTime.UtcNow.AddSeconds(5);
-            });
-
-            if (CleanRythmStormTask == null || CleanRythmStormTask.IsCompleted)
-            {
-                CleanRythmStormTask = Task.Factory.StartNew(CleanRythmStorm);
-            }
-            if (ShowRythmStormTask == null || ShowRythmStormTask.IsCompleted)
-            {
-                ShowRythmStormTask = Task.Factory.StartNew(ShowRythmStorm);
-            }
-        }
-
-        public void CleanRythmStorm()
-        {
-            while (DateTime.UtcNow < CleanRythmStormTime)
-                Thread.Sleep(200);
-            Dispatcher.Invoke(() =>
-            {
-                double offset = 0;
-                while (RythmStormPanel.Children.Count > 2)
-                {
-                    FrameworkElement frameworkElement = (FrameworkElement)RythmStormPanel.Children[0];
-                    offset += frameworkElement.ActualHeight;
-                    RythmStormPanel.Children.RemoveAt(0);
-                }
-                double verticalOffset = RythmStormScrollViewer.VerticalOffset - offset;
-                if (verticalOffset < 0)
-                    verticalOffset = 0;
-                RythmStormFluidMove.Duration = new Duration(TimeSpan.FromSeconds(0));
-                RythmStormScrollViewer.ScrollToVerticalOffset(verticalOffset);
-            });
-            Thread.Sleep(1);
-            Dispatcher.Invoke(() =>
-            {
-                RythmStormFluidMove.Duration = new Duration(TimeSpan.FromSeconds(0.2));
-            });
-            
-            Console.WriteLine("Rythm storm cleaned");
-        }
-
-        public void ShowRythmStorm()
-        {
-            Dispatcher.Invoke(() =>
-            {
-                ((Storyboard)RythmStormBorder.Resources["ShowRythmStorm"]).Begin();
-            });
-            while (DateTime.UtcNow < HideRythmStormTime)
-                Thread.Sleep(200);
-            Dispatcher.Invoke(() =>
-            {
-                ((Storyboard)RythmStormBorder.Resources["HideRythmStorm"]).Begin();
-            });
-        }
-
-        #endregion
-
-        private void SettingBtn_Click(object sender, RoutedEventArgs e)
-        {
-            if (SettingGrid.Visibility == Visibility.Visible)
-            {
-                SettingGrid.Visibility = Visibility.Collapsed;
-                SettingBtn.Content = "⏷";
-            }
-            else
-            {
-                SettingGrid.Visibility = Visibility.Visible;
-                SettingBtn.Content = "⏶";
-            }
-        }
 
         private void TestBtn_Click(object sender, RoutedEventArgs e)
         {
@@ -904,8 +536,7 @@ namespace BiliLiveDanmaku
 
         private void CaptureBtn_Click(object sender, RoutedEventArgs e)
         {
-            System.Windows.Media.Imaging.RenderTargetBitmap renderTarget = new System.Windows.Media.Imaging.RenderTargetBitmap((int)DisplayGrid.ActualWidth, (int)DisplayGrid.ActualHeight, 96, 96, PixelFormats.Pbgra32);
-            renderTarget.Render(DisplayGrid);
+            System.Windows.Media.Imaging.RenderTargetBitmap renderTarget = displayWindow.CaptureSnapshot();
             System.Windows.Media.Imaging.BitmapFrame bitmapFrame = System.Windows.Media.Imaging.BitmapFrame.Create(renderTarget);
             System.Windows.Media.Imaging.PngBitmapEncoder pngEncoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
             pngEncoder.Frames.Add(bitmapFrame);
@@ -913,11 +544,6 @@ namespace BiliLiveDanmaku
             {
                 pngEncoder.Save(fileStream);
             }
-        }
-
-        private void DanmakuScrollViewer_MouseLeave(object sender, MouseEventArgs e)
-        {
-            //DanmakuScrollViewer.ScrollToEnd();
         }
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -938,24 +564,5 @@ namespace BiliLiveDanmaku
             }
             
         }
-        
-        private void CloseBtn_Click(object sender, RoutedEventArgs e)
-        {
-            this.Close();
-        }
-
-        private void MinimizeBtn_Click(object sender, RoutedEventArgs e)
-        {
-            this.WindowState = WindowState.Minimized;
-        }
-
-        private void HeaderGrid_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
-        {
-            ResizeMode resizeMode = this.ResizeMode;
-            this.ResizeMode = ResizeMode.NoResize;
-            this.DragMove();
-            this.ResizeMode = resizeMode;
-        }
-
     }
 }

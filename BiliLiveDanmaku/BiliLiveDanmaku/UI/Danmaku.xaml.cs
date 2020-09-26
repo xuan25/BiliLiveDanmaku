@@ -1,4 +1,5 @@
-﻿using BiliLiveHelper.Bili;
+﻿using BiliLiveDanmaku.Utils;
+using BiliLiveHelper.Bili;
 using JsonUtil;
 using System;
 using System.Collections.Generic;
@@ -17,14 +18,13 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using static BiliLiveDanmaku.UI.FaceLoader;
 
 namespace BiliLiveDanmaku.UI
 {
     /// <summary>
     /// Danmaku.xaml 的交互逻辑
     /// </summary>
-    public partial class Danmaku : UserControl, ILoadFace
+    public partial class Danmaku : UserControl, FaceLoader.ILoadFace
     {
         #region ILoadFace
 
