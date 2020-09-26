@@ -357,6 +357,8 @@ namespace BiliLiveDanmaku.UI
         private static Uri LoadFaceUriFromApi(uint uid)
         {
             HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(string.Format("https://api.bilibili.com/x/space/acc/info?mid={0}&jsonp=jsonp", uid));
+            //HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create(string.Format("http://api.bilibili.com/x/web-interface/card?mid={0}&photo=false", uid));
+
             HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
             string responseText;
             using (StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream()))
@@ -367,6 +369,7 @@ namespace BiliLiveDanmaku.UI
             if (value["code"] != 0)
                 return null;
             Uri uri = new Uri(value["data"]["face"]);
+            //Uri uri = new Uri(value["data"]["card"]["face"]);
             return uri;
         }
     }
