@@ -325,6 +325,7 @@
                             <WrapPanel x:Name="OptionPanel"/>
                             <WrapPanel>
                                 <Button x:Name="TestBtn" Margin="4.4" Content="压测" HorizontalAlignment="Left" VerticalAlignment="Center" Width="32" Click="TestBtn_Click"/>
+                                <Button x:Name="CaptureBtn" Margin="4.4" Content="快照" HorizontalAlignment="Left" VerticalAlignment="Center" Width="32" Click="CaptureBtn_Click"/>
                                 <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White">
                         <Run Text="头像缓存计数: "/>
                         <Run x:Name="CachedCountBox"/>

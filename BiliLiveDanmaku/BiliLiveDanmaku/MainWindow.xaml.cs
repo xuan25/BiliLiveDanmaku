@@ -902,6 +902,19 @@ namespace BiliLiveDanmaku
             });
         }
 
+        private void CaptureBtn_Click(object sender, RoutedEventArgs e)
+        {
+            System.Windows.Media.Imaging.RenderTargetBitmap renderTarget = new System.Windows.Media.Imaging.RenderTargetBitmap((int)DisplayGrid.ActualWidth, (int)DisplayGrid.ActualHeight, 96, 96, PixelFormats.Pbgra32);
+            renderTarget.Render(DisplayGrid);
+            System.Windows.Media.Imaging.BitmapFrame bitmapFrame = System.Windows.Media.Imaging.BitmapFrame.Create(renderTarget);
+            System.Windows.Media.Imaging.PngBitmapEncoder pngEncoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            pngEncoder.Frames.Add(bitmapFrame);
+            using (FileStream fileStream = new FileStream("capture.png", FileMode.Create, FileAccess.Write))
+            {
+                pngEncoder.Save(fileStream);
+            }
+        }
+
         private void DanmakuScrollViewer_MouseLeave(object sender, MouseEventArgs e)
         {
             //DanmakuScrollViewer.ScrollToEnd();
@@ -943,5 +956,6 @@ namespace BiliLiveDanmaku
             this.DragMove();
             this.ResizeMode = resizeMode;
         }
+
     }
 }
