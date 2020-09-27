@@ -64,7 +64,6 @@ namespace BiliLiveDanmaku
             }
 
             List<IModuleConfig> moduleConfigs = null;
-            config.ModuleConfigs = null;
             if (config != null && config.ModuleConfigs != null)
             {
                 moduleConfigs = config.ModuleConfigs;
@@ -72,8 +71,8 @@ namespace BiliLiveDanmaku
             else
             {
                 moduleConfigs = new List<IModuleConfig>();
-                //moduleConfigs.Add(new DisplayConfig());
-                //moduleConfigs.Add(new SpeechConfig());
+                moduleConfigs.Add(new DisplayConfig());
+                moduleConfigs.Add(new SpeechConfig());
             }
             Modules = new List<IModule>();
             foreach (IModuleConfig moduleConfig in moduleConfigs)
@@ -177,9 +176,16 @@ namespace BiliLiveDanmaku
         private void AddModule(IModuleConfig moduleConfig)
         {
             IModule module = moduleConfig.CreateModule();
-            UIElement uIElement = module.GetControl();
-            SettingPanel.Children.Add(uIElement);
+            ModuleBorder moduleBorder = new ModuleBorder(module);
+            moduleBorder.Closing += ModuleBorder_Closing;
+            ModulesPanel.Children.Add(moduleBorder);
             Modules.Add(module);
+        }
+
+        private void ModuleBorder_Closing(object sender, IModule e)
+        {
+            Modules.Remove(e);
+            ModulesPanel.Children.Remove((ModuleBorder)sender);
         }
 
         private BiliLiveListener LiveListener { get; set; }

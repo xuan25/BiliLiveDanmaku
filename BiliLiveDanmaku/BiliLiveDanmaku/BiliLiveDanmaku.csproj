@@ -83,6 +83,9 @@
     <Compile Include="Bili\BiliPackReader.cs" />
     <Compile Include="Bili\BiliPackWriter.cs" />
     <Compile Include="Config.cs" />
+    <Compile Include="ModuleBorder.xaml.cs">
+      <DependentUpon>ModuleBorder.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Modules\DisplayWindow.xaml.cs">
       <DependentUpon>DisplayWindow.xaml</DependentUpon>
     </Compile>
@@ -208,6 +211,10 @@
     <Compile Include="UI\Welcome.xaml.cs">
       <DependentUpon>Welcome.xaml</DependentUpon>
     </Compile>
+    <Page Include="ModuleBorder.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Modules\DisplayWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

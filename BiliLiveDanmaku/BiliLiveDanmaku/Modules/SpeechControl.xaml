@@ -10,9 +10,9 @@
         <WrapPanel x:Name="OptionPanel"/>
         <WrapPanel>
             <ComboBox x:Name="OutputDeviceCombo" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="120" SelectionChanged="OutputDeviceCombo_SelectionChanged"/>
-            <TextBlock Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Text="🔊" FontSize="14" Foreground="White"/>
+            <TextBlock Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Text="🔊" FontSize="14"/>
             <Slider x:Name="VolumeSlider" Margin="4" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Value="1" ValueChanged="VolumeSlider_ValueChanged" Maximum="1" LargeChange="0.1" SmallChange="0.01"/>
-            <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White">
+            <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center">
                         <Run Text="语音合成队列: "/>
                         <Run x:Name="SynthesizeQueueCountBox"/>
             </TextBlock>

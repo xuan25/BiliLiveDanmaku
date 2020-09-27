@@ -42,7 +42,7 @@ namespace BiliLiveDanmaku.Modules
 
         }
 
-        public UserControl GetControl()
+        public UIElement GetControl()
         {
             return Control;
         }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace BiliLiveDanmaku.Modules
@@ -12,7 +13,7 @@ namespace BiliLiveDanmaku.Modules
     {
         void Init(IModuleConfig config);
         IModuleConfig GetConfig();
-        UserControl GetControl();
+        UIElement GetControl();
         void ProcessItem(BiliLiveJsonParser.IItem item);
         void Close();
     }

@@ -9,38 +9,43 @@
     x:Class="BiliLiveDanmaku.MainWindow"
     mc:Ignorable="d"
     Title="BiliLiveDanmaku" Height="340" Width="400">
-    <Grid Background="#B247494F">
-        <StackPanel x:Name="SettingPanel">
-            <Grid x:Name="SettingGrid" Height="Auto" Background="#E547494F" VerticalAlignment="Top">
-                <StackPanel Orientation="Vertical" Margin="4,4">
-                    <WrapPanel>
-                        <TextBox x:Name="RoomIdBox" Margin="4" HorizontalAlignment="Left" Height="23" Text="" TextWrapping="Wrap" VerticalAlignment="Center" Width="120"/>
-                        <Button x:Name="ConnectBtn" Margin="4" Content="连接" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="ConnectBtn_Click"/>
-                        <Button x:Name="DisconnectBtn" Margin="4" Content="断开" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="DisconnectBtn_Click" IsEnabled="False"/>
-                        <Button x:Name="AddModuleBtn" Margin="4" Content="+" HorizontalAlignment="Left" VerticalAlignment="Center" Width="22" Click="AddModuleBtn_Click">
-                            <Button.Resources>
-                                <ContextMenu x:Key="AddModuleMenu">
-                                    <MenuItem x:Name="AddDisplayBtn" Header="添加显示面板" Click="AddDisplayBtn_Click"/>
-                                    <MenuItem x:Name="AddSpeechBtn" Header="添加语音播报" Click="AddSpeechBtn_Click"/>
-                                </ContextMenu>
-                            </Button.Resources>
-                        </Button>
-                        <TextBlock x:Name="PopularityBox" Margin="4" Foreground="White" VerticalAlignment="Center"/>
-                    </WrapPanel>
-                    
-                    <WrapPanel>
-                        <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel x:Name="GlobalSettings" Orientation="Vertical" Margin="4,4" Grid.Row="0">
+            <WrapPanel>
+                <TextBox x:Name="RoomIdBox" Margin="4" HorizontalAlignment="Left" Height="23" Text="" TextWrapping="Wrap" VerticalAlignment="Center" Width="120"/>
+                <Button x:Name="ConnectBtn" Margin="4" Content="连接" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="ConnectBtn_Click"/>
+                <Button x:Name="DisconnectBtn" Margin="4" Content="断开" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="DisconnectBtn_Click" IsEnabled="False"/>
+                <Button x:Name="AddModuleBtn" Margin="4" Content="+" HorizontalAlignment="Left" VerticalAlignment="Center" Width="22" Click="AddModuleBtn_Click">
+                    <Button.Resources>
+                        <ContextMenu x:Key="AddModuleMenu">
+                            <MenuItem x:Name="AddDisplayBtn" Header="添加显示面板" Click="AddDisplayBtn_Click"/>
+                            <MenuItem x:Name="AddSpeechBtn" Header="添加语音播报" Click="AddSpeechBtn_Click"/>
+                        </ContextMenu>
+                    </Button.Resources>
+                </Button>
+                <TextBlock x:Name="PopularityBox" Margin="4" VerticalAlignment="Center"/>
+            </WrapPanel>
+
+            <WrapPanel>
+                <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center">
                         <Run Text="头像缓存计数: "/>
                         <Run x:Name="CachedCountBox"/>
-                        </TextBlock>
-                        <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="White">
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center">
                         <Run Text="头像缓存队列: "/>
                         <Run x:Name="CachedQueueCountBox"/>
-                        </TextBlock>
-                    </WrapPanel>
-                    <TextBlock Margin="4.4" Foreground="White" Text="Build 2009242"/>
-                </StackPanel>
-            </Grid>
+                </TextBlock>
+            </WrapPanel>
+            <TextBlock Margin="4.4" Text="Build 2009242"/>
+
+            
         </StackPanel>
+        <ScrollViewer VerticalAlignment="Stretch" Grid.Row="1">
+            <StackPanel x:Name="ModulesPanel"/>
+        </ScrollViewer>
     </Grid>
 </Window>

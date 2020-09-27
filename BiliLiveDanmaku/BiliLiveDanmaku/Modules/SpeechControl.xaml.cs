@@ -52,7 +52,6 @@ namespace BiliLiveDanmaku.Modules
                 {
                     Content = description,
                     IsChecked = initValue,
-                    Foreground = Brushes.White,
                     Margin = new Thickness(4),
                     VerticalAlignment = VerticalAlignment.Center,
                     Tag = filterOption
