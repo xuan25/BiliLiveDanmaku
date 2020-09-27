@@ -83,7 +83,7 @@
     <Compile Include="Bili\BiliPackReader.cs" />
     <Compile Include="Bili\BiliPackWriter.cs" />
     <Compile Include="Config.cs" />
-    <Compile Include="DisplayWindow.xaml.cs">
+    <Compile Include="Modules\DisplayWindow.xaml.cs">
       <DependentUpon>DisplayWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="FilterOptions.cs" />
@@ -147,6 +147,18 @@
     <Compile Include="Frame\HitTest.cs" />
     <Compile Include="Frame\Screen.cs" />
     <Compile Include="Frame\WindowLong.cs" />
+    <Compile Include="Modules\DisplayConfig.cs" />
+    <Compile Include="Modules\SpeechControl.xaml.cs">
+      <DependentUpon>SpeechControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Modules\DisplayControl.xaml.cs">
+      <DependentUpon>DisplayControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Modules\SpeechModule.cs" />
+    <Compile Include="Modules\DisplayModule.cs" />
+    <Compile Include="Modules\IConfig.cs" />
+    <Compile Include="Modules\IModule.cs" />
+    <Compile Include="Modules\SpeechConfig.cs" />
     <Compile Include="Speech\AuthClient.cs" />
     <Compile Include="Speech\Lang\LangDetection.cs" />
     <Compile Include="Speech\Lexicon\LexiconUtil.cs" />
@@ -169,8 +181,8 @@
     <Compile Include="Speech\Wave\WaveOut.cs" />
     <Compile Include="Speech\Wave\WaveOutUtils.cs" />
     <Compile Include="Speech\Wave\WaveOutBuffer.cs" />
-    <Compile Include="Speech\SpeechUtil.cs" />
-    <Compile Include="Utils\GiftCache.cs" />
+    <Compile Include="Speech\SpeechProcessor.cs" />
+    <Compile Include="Utils\GiftCacheManager.cs" />
     <Compile Include="UI\ComboSend.xaml.cs">
       <DependentUpon>ComboSend.xaml</DependentUpon>
     </Compile>
@@ -196,7 +208,7 @@
     <Compile Include="UI\Welcome.xaml.cs">
       <DependentUpon>Welcome.xaml</DependentUpon>
     </Compile>
-    <Page Include="DisplayWindow.xaml">
+    <Page Include="Modules\DisplayWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -212,6 +224,14 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Modules\SpeechControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Modules\DisplayControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="UI\ComboSend.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -1,5 +1,6 @@
 ﻿using BiliLiveDanmaku.Speech;
 using BiliLiveDanmaku.UI;
+using BiliLiveDanmaku.Utils;
 using BiliLiveHelper.Bili;
 using Frame;
 using JsonUtil;
@@ -19,7 +20,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Xml;
 
-namespace BiliLiveDanmaku
+namespace BiliLiveDanmaku.Modules
 {
     /// <summary>
     /// Interaction logic for DisplayWindow.xaml
@@ -147,6 +148,22 @@ namespace BiliLiveDanmaku
             {
                 //if (Gift.AppendGiftToExist(item))
                 //    return;
+                DanmakuPanel.Children.Add(new Gift(item));
+                if (!DanmakuScrollViewer.IsMouseOver)
+                    DanmakuScrollViewer.ScrollToBottom();
+                CleanDanmakuTime = DateTime.UtcNow.AddSeconds(0.2);
+            });
+
+            if (CleanDanmakuTask == null || CleanDanmakuTask.IsCompleted)
+            {
+                CleanDanmakuTask = Task.Factory.StartNew(CleanPanel);
+            }
+        }
+
+        public void AppendGift(GiftCacheManager.GiftCache item)
+        {
+            Dispatcher.Invoke(() =>
+            {
                 DanmakuPanel.Children.Add(new Gift(item));
                 if (!DanmakuScrollViewer.IsMouseOver)
                     DanmakuScrollViewer.ScrollToBottom();

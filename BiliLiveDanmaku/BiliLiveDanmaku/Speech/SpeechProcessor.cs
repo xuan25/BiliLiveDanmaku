@@ -14,28 +14,28 @@ using Wave.Filters;
 
 namespace Speech
 {
-    class SpeechUtil
+    public class SpeechProcessor
     {
-        private static Synthesizer Synthesizer;
-        private static List<IWaveFilter> WaveFilters;
-        private static VolumeFilter volumeFilter;
+        private Synthesizer Synthesizer;
+        private List<IWaveFilter> WaveFilters;
+        private VolumeFilter volumeFilter;
 
-        private static WaveOut CurrentWaveOut;
-        private static bool IsPlaying;
-        private static ManualResetEvent PlayCompletedEvent;
+        private WaveOut CurrentWaveOut;
+        private static bool IsPlaying = false;
+        private static ManualResetEvent PlayCompletedEvent = new ManualResetEvent(false);
 
-        public static event EventHandler<int> QueueChanged;
+        public event EventHandler<int> QueueChanged;
 
-        public static bool IsAvalable { 
+        public bool IsAvalable { 
             get 
             { 
                 return Synthesizer != null;
             }
         }
 
-        public static int OutputDeviceId;
+        public int OutputDeviceId;
 
-        public static float Volume
+        public float Volume
         {
             get
             {
@@ -50,18 +50,18 @@ namespace Speech
             }
         }
 
-        public static void Speak(string ssmlDoc)
+        public void Speak(string ssmlDoc)
         {
             Synthesizer.Speak(ssmlDoc);
         }
 
-        public static void ClearQueue()
+        public void ClearQueue()
         {
             if (Synthesizer != null)
                 Synthesizer.ClearQueue();
         }
 
-        public static void Init(string tokenEndpoint, string ttsEndpoint, string key)
+        public void Init(string tokenEndpoint, string ttsEndpoint, string key)
         {
             if (tokenEndpoint == null || ttsEndpoint == null || key == null)
                 throw new Exception("Config Error");
@@ -73,8 +73,8 @@ namespace Speech
             }
 
             Synthesizer = new Synthesizer(new Uri(ttsEndpoint), Synthesizer.OutputFormats.Raw24Khz16BitMonoPcm, authenticationClient);
-            Synthesizer.OnAudioAvailable += Synthesizer_OnAudioAvailable;
-            Synthesizer.OnError += Synthesizer_OnError;
+            Synthesizer.AudioAvailabled += Synthesizer_OnAudioAvailable;
+            Synthesizer.Failed += Synthesizer_OnError;
 
             Synthesizer.QueueChanged += Synthesizer_QueueChanged;
 
@@ -82,26 +82,36 @@ namespace Speech
             volumeFilter = new VolumeFilter();
             WaveFilters.Add(volumeFilter);
 
-            IsPlaying = false;
-            PlayCompletedEvent = new ManualResetEvent(false);
+            //IsPlaying = false;
+            //PlayCompletedEvent = new ManualResetEvent(false);
         }
 
-        static SpeechUtil()
+        public SpeechProcessor()
         {
-            IsPlaying = false;
+            //IsPlaying = false;
         }
 
-        private static void Synthesizer_QueueChanged(object sender, int e)
+        private void Synthesizer_QueueChanged(object sender, int e)
         {
             QueueChanged?.Invoke(sender, e);
         }
 
-        private static void Synthesizer_OnError(object sender, Exception e)
+        public void OnError(Exception e)
+        {
+            Synthesizer_OnError(null, e);
+        }
+
+        private void Synthesizer_OnError(object sender, Exception e)
         {
             Console.WriteLine("Unable to complete the TTS request: [{0}]", e.ToString());
         }
 
-        private static void Synthesizer_OnAudioAvailable(object sender, Stream stream)
+        public void OnAudioAvailable(Stream stream)
+        {
+            Synthesizer_OnAudioAvailable(null, stream);
+        }
+
+        private void Synthesizer_OnAudioAvailable(object sender, Stream stream)
         {
             MemoryStream memoryStream = new MemoryStream();
             try

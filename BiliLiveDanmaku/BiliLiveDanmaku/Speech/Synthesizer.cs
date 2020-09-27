@@ -12,16 +12,64 @@ namespace Speech
 {
     public class Synthesizer
     {
-        Thread SynthesizeThread;
-        Queue<string> SsmlDocQueue;
+        static Thread SynthesizeThread;
+
+        class SynthesizeTask
+        {
+            public bool IsCleared;
+            public Synthesizer Handler;
+            public string Ssml;
+
+            public SynthesizeTask(Synthesizer handler, string ssml)
+            {
+                IsCleared = false;
+                handler.QueueCount++;
+                Handler = handler;
+                Ssml = ssml;
+            }
+
+            public void Clear()
+            {
+                lock (this)
+                {
+                    if (!IsCleared)
+                    {
+                        IsCleared = true;
+                        Handler.QueueCount--;
+                    }
+                }
+            }
+        }
+
+        static List<SynthesizeTask> SynthesizeQueue;
+
+        static Synthesizer()
+        {
+            SynthesizeQueue = new List<SynthesizeTask>();
+        }
 
         Uri EndpointUri;
         string OutputFormat;
         AuthClient AuthorizationClient;
 
-        public event EventHandler<Stream> OnAudioAvailable;
-        public event EventHandler<Exception> OnError;
+        public event EventHandler<Stream> AudioAvailabled;
+        public event EventHandler<Exception> Failed;
         public event EventHandler<int> QueueChanged;
+
+        private void OnAudioAvailabled(Stream stream)
+        {
+            AudioAvailabled?.Invoke(this, stream);
+        }
+
+        private void OnFailed(Exception ex)
+        {
+            Failed?.Invoke(this, ex);
+        }
+
+        private void OnQueueChanged()
+        {
+            QueueChanged?.Invoke(this, QueueCount);
+        }
 
         public enum OutputFormats
         {
@@ -80,9 +128,11 @@ namespace Speech
             Audio24Khz160KBitRateMonoMp3
         }
 
+        public int QueueCount = 0;
+
         public Synthesizer(Uri endpointUri, OutputFormats outputFormats, AuthClient authorization)
         {
-            SsmlDocQueue = new Queue<string>();
+            SynthesizeQueue = new List<SynthesizeTask>();
 
             EndpointUri = endpointUri;
 
@@ -93,10 +143,10 @@ namespace Speech
             AuthorizationClient = authorization;
         }
 
-        public void Speak(string ssmlDoc)
+        public void Speak(string ssml)
         {
-            SsmlDocQueue.Enqueue(ssmlDoc);
-            QueueChanged?.Invoke(this, SsmlDocQueue.Count);
+            SynthesizeQueue.Add(new SynthesizeTask(this, ssml));
+            OnQueueChanged();
 
             if (SynthesizeThread == null)
             {
@@ -106,33 +156,34 @@ namespace Speech
                     while (true)
                     {
                         int i = 0;
-                        while (SsmlDocQueue.Count == 0)
+                        while (SynthesizeQueue.Count == 0)
                         {
                             Thread.Sleep(10);
                             i++;
                             if (i == 30 * 1000 / 10)
                                 break;
                         }
-                        if (SsmlDocQueue.Count == 0)
+                        if (SynthesizeQueue.Count == 0)
                             break;
-                        ssmlDoc = SsmlDocQueue.Peek();
+                        SynthesizeTask synthesizeTask = SynthesizeQueue[0];
                         speechStream = null;
                         try
                         {
-                            speechStream = RequestSpeech(ssmlDoc);
+                            speechStream = synthesizeTask.Handler.RequestSpeech(synthesizeTask.Ssml);
                         }
                         catch (Exception ex)
                         {
-                            OnError?.Invoke(this, ex);
+                            synthesizeTask.Handler.OnFailed(ex);
                         }
                         if (speechStream != null)
                         {
-                            OnAudioAvailable?.Invoke(this, speechStream);
+                            synthesizeTask.Handler.OnAudioAvailabled(speechStream);
                         }
-                        if (SsmlDocQueue.Count > 0)
+                        if (SynthesizeQueue.Count > 0)
                         {
-                            SsmlDocQueue.Dequeue();
-                            QueueChanged?.Invoke(this, SsmlDocQueue.Count);
+                            SynthesizeQueue.RemoveAt(0);
+                            synthesizeTask.Clear();
+                            synthesizeTask.Handler.OnQueueChanged();
                         }
                     }
                     SynthesizeThread = null;
@@ -173,8 +224,17 @@ namespace Speech
 
         public void ClearQueue()
         {
-            SsmlDocQueue.Clear();
-            QueueChanged?.Invoke(this, SsmlDocQueue.Count);
+            for(int i = 0; i < SynthesizeQueue.Count; i++)
+            {
+                SynthesizeTask synthesizeTask = SynthesizeQueue[i];
+                if(synthesizeTask.Handler == this)
+                {
+                    SynthesizeQueue.RemoveAt(i);
+                    synthesizeTask.Clear();
+                    i--;
+                }
+            }
+            OnQueueChanged();
         }
     }
 

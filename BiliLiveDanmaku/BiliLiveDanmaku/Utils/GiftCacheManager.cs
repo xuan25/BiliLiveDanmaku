@@ -8,23 +8,24 @@ using System.Threading.Tasks;
 
 namespace BiliLiveDanmaku.Utils
 {
-    class GiftCache
+    public class GiftCacheManager
     {
-        const double CacheExpireTime = 5;
+        public double CacheExpireDuration { get; private set; }
 
-        private static List<GiftCache> GiftCaches { get; set; }
+        private List<GiftCache> GiftCaches { get; set; }
 
-        private static Thread CacheManagingThread = null;
-        private static bool IsCacheManagingRunning = false;
+        private Thread CacheManagingThread = null;
+        private bool IsCacheManagingRunning = false;
 
-        public static event EventHandler<GiftCache> CacheExpired;
+        public event EventHandler<GiftCache> CacheExpired;
 
-        static GiftCache()
+        public GiftCacheManager(double cacheExpireDuration)
         {
+            CacheExpireDuration = cacheExpireDuration;
             GiftCaches = new List<GiftCache>();
         }
 
-        private static void StartCacheManageThread()
+        private void StartCacheManageThread()
         {
             IsCacheManagingRunning = true;
             if (CacheManagingThread == null)
@@ -63,7 +64,7 @@ namespace BiliLiveDanmaku.Utils
             }
         }
 
-        private static void CleanCache()
+        private void CleanCache()
         {
             List<GiftCache> cleanedGifts = new List<GiftCache>();
             lock (GiftCaches)
@@ -71,7 +72,7 @@ namespace BiliLiveDanmaku.Utils
                 while (GiftCaches.Count > 0)
                 {
                     GiftCache gift = GiftCaches[0];
-                    if (gift.ActiveExpiredTime < DateTime.UtcNow)
+                    if (gift.ExpiredTime < DateTime.UtcNow)
                     {
                         GiftCaches.RemoveAt(0);
                         cleanedGifts.Add(gift);
@@ -85,14 +86,14 @@ namespace BiliLiveDanmaku.Utils
             for (int i = 0; i < cleanedGifts.Count; i++)
             {
                 GiftCache gift = cleanedGifts[i];
-                gift.Expired?.Invoke(gift, gift);
+                gift.OnExpire();
                 CacheExpired?.Invoke(gift, gift);
             }
         }
 
-        public static GiftCache AppendCache(BiliLiveJsonParser.Gift gift)
+        public GiftCache AppendCache(BiliLiveJsonParser.Gift gift)
         {
-            GiftCache giftCache = new GiftCache()
+            GiftCache giftCache = new GiftCache(DateTime.UtcNow.AddSeconds(CacheExpireDuration))
             {
                 UserId = gift.Sender.Id,
                 Username = gift.Sender.Name,
@@ -100,14 +101,15 @@ namespace BiliLiveDanmaku.Utils
                 GiftName = gift.GiftName,
                 Number = gift.Number,
                 CoinType = gift.CoinType,
-                Action = gift.Action
+                Action = gift.Action,
+                FaceUri = gift.FaceUri
             };
             GiftCaches.Add(giftCache);
             StartCacheManageThread();
             return giftCache;
         }
 
-        public static bool AppendToExist(BiliLiveJsonParser.Gift gift)
+        public bool AppendToExist(BiliLiveJsonParser.Gift gift)
         {
             CleanCache();
             lock (GiftCaches)
@@ -116,8 +118,8 @@ namespace BiliLiveDanmaku.Utils
                 {
                     if (gift.Sender.Id == cachedGift.UserId && gift.GiftId == cachedGift.GiftId)
                     {
-                        cachedGift.AppendNumber(gift.Number);
-                        cachedGift.Updated?.Invoke(cachedGift, cachedGift);
+                        cachedGift.AppendNumber(gift.Number, DateTime.UtcNow.AddSeconds(CacheExpireDuration));
+                        cachedGift.OnUpdate();
                         // Move to the end of the list
                         GiftCaches.Remove(cachedGift);
                         GiftCaches.Add(cachedGift);
@@ -128,29 +130,41 @@ namespace BiliLiveDanmaku.Utils
             return false;
         }
 
-
-
-        public uint UserId;
-        public string Username;
-        public uint GiftId;
-        public string GiftName;
-        public uint Number;
-        public string CoinType;
-        public string Action;
-        public DateTime ActiveExpiredTime;
-
-        public event EventHandler<GiftCache> Updated;
-        public event EventHandler<GiftCache> Expired;
-
-        public GiftCache()
+        public class GiftCache
         {
-            ActiveExpiredTime = DateTime.UtcNow.AddSeconds(CacheExpireTime);
-        }
+            public uint UserId;
+            public string Username;
+            public uint GiftId;
+            public string GiftName;
+            public uint Number;
+            public string CoinType;
+            public string Action;
+            public string FaceUri;
+            public DateTime ExpiredTime;
 
-        public void AppendNumber(uint count)
-        {
-            Number += count;
-            ActiveExpiredTime = DateTime.UtcNow.AddSeconds(CacheExpireTime);
+            public event EventHandler<GiftCache> Updated;
+            public event EventHandler<GiftCache> Expired;
+
+            public GiftCache(DateTime expirTime)
+            {
+                ExpiredTime = expirTime;
+            }
+
+            public void AppendNumber(uint count, DateTime expireTime)
+            {
+                Number += count;
+                ExpiredTime = expireTime;
+            }
+
+            public void OnUpdate()
+            {
+                Updated?.Invoke(this, this);
+            }
+
+            public void OnExpire()
+            {
+                Expired?.Invoke(this, this);
+            }
         }
     }
 }

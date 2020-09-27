@@ -78,12 +78,37 @@ namespace BiliLiveDanmaku.UI
             FaceImage.Source = null;
             //FaceImage.Source = FaceLoader.LoadFace(gift.Sender.Id, gift.FaceUri);
             FaceLoader.LoadFaceWithKnownUri(this, gift.FaceUri);
+        }
 
-            GiftCache giftCache = GiftCache.AppendCache(gift);
+        public Gift(GiftCacheManager.GiftCache giftCache)
+        {
+            InitializeComponent();
+
+            SenderBox.Text = giftCache.Username;
+            ActionBox.Text = giftCache.Action;
+            GiftBox.Text = giftCache.GiftName;
+            if (giftCache.CoinType == "gold")
+            {
+                // "gold"
+                GiftBox.Foreground = GoldBrush;
+            }
+            else
+            {
+                // "silver"
+                GiftBox.Foreground = SilverBrush;
+            }
+            Number = giftCache.Number;
+
+            UserId = giftCache.UserId;
+
+            FaceImage.Source = null;
+            //FaceImage.Source = FaceLoader.LoadFace(gift.Sender.Id, gift.FaceUri);
+            FaceLoader.LoadFaceWithKnownUri(this, giftCache.FaceUri);
+
             giftCache.Updated += GiftCache_GiftUpdated;
         }
 
-        private void GiftCache_GiftUpdated(object sender, GiftCache e)
+        private void GiftCache_GiftUpdated(object sender, GiftCacheManager.GiftCache e)
         {
             Dispatcher.Invoke(() =>
             {
