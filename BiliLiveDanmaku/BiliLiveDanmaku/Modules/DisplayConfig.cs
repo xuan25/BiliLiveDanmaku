@@ -44,6 +44,7 @@ namespace BiliLiveDanmaku.Modules
 
         public Rect WindowRect { get; set; }
         public Dictionary<DisplayFilterOptions, bool> OptionDict { get; set; }
+        public bool IsLocked { get; set; }
 
         public DisplayConfig()
         {
@@ -55,10 +56,11 @@ namespace BiliLiveDanmaku.Modules
             }
         }
 
-        public DisplayConfig(Dictionary<DisplayFilterOptions, bool> optionDict, Rect windowRect)
+        public DisplayConfig(Dictionary<DisplayFilterOptions, bool> optionDict, Rect windowRect, bool isLocked)
         {
             OptionDict = optionDict;
             WindowRect = windowRect;
+            IsLocked = isLocked;
         }
 
         public IModule CreateModule()

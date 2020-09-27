@@ -80,5 +80,20 @@ namespace BiliLiveDanmaku.Modules
         {
             Module.CaptureSnapshot();
         }
+
+        public void SetLock(bool value)
+        {
+            LockBtn.IsChecked = value;
+        }
+
+        private void LockBtn_Checked(object sender, RoutedEventArgs e)
+        {
+            Module.LockWindow(true);
+        }
+
+        private void LockBtn_Unchecked(object sender, RoutedEventArgs e)
+        {
+            Module.LockWindow(false);
+        }
     }
 }

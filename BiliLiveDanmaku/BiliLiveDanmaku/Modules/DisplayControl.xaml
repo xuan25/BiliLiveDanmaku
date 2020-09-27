@@ -9,7 +9,8 @@
     <StackPanel Orientation="Vertical" Margin="4,4">
         <WrapPanel x:Name="OptionPanel"/>
         <WrapPanel>
-            <Button x:Name="CaptureBtn" Margin="4.4" Content="快照" HorizontalAlignment="Left" VerticalAlignment="Center" Width="32" Click="CaptureBtn_Click"/>
+            <Button x:Name="CaptureBtn" Margin="4" Content="⎙" HorizontalAlignment="Left" VerticalAlignment="Center" Width="32" Click="CaptureBtn_Click"/>
+            <CheckBox x:Name="LockBtn" Margin="4" Content="📌" HorizontalAlignment="Left" VerticalAlignment="Center" Checked="LockBtn_Checked" Unchecked="LockBtn_Unchecked"/>
         </WrapPanel>
     </StackPanel>
 </UserControl>

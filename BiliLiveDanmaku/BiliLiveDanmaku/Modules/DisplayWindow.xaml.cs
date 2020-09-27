@@ -274,8 +274,6 @@ namespace BiliLiveDanmaku.Modules
 
 
 
-
-
         private DateTime CleanRythmStormTime { get; set; }
         private Task CleanRythmStormTask { get; set; }
 
@@ -355,5 +353,20 @@ namespace BiliLiveDanmaku.Modules
         }
 
 
+        public bool IsLocked { get; set; } = false;
+        public void Lock(bool value)
+        {
+            IntPtr windowHandle = new WindowInteropHelper(this).Handle;
+            if (value && !IsLocked)
+            {
+                WindowLong.SetWindowLong(windowHandle, WindowLong.GWL_EXSTYLE, (WindowLong.GetWindowLong(windowHandle, WindowLong.GWL_EXSTYLE) | WindowLong.WS_EX_TRANSPARENT));
+                IsLocked = true;
+            }
+            else if(!value && IsLocked)
+            {
+                WindowLong.SetWindowLong(windowHandle, WindowLong.GWL_EXSTYLE, (WindowLong.GetWindowLong(windowHandle, WindowLong.GWL_EXSTYLE) & ~WindowLong.WS_EX_TRANSPARENT));
+                IsLocked = false;
+            }
+        }
     }
 }

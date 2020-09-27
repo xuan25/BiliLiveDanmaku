@@ -36,7 +36,9 @@ namespace BiliLiveDanmaku.Modules
 
             DisplayConfig displayConfig = (DisplayConfig)config;
             OptionDict = displayConfig.OptionDict;
+
             Control = new DisplayControl(this);
+
             DisplayWindow displayWindow = new DisplayWindow();
             Window = displayWindow;
             if (displayConfig.WindowRect.Width != 0 && displayConfig.WindowRect.Height != 0)
@@ -47,12 +49,14 @@ namespace BiliLiveDanmaku.Modules
                 displayWindow.Height = displayConfig.WindowRect.Height;
             }
             Window.Show();
+
+            Control.SetLock(displayConfig.IsLocked);
         }
 
         public IModuleConfig GetConfig()
         {
             Rect windowRect = new Rect(Window.Left, Window.Top, Window.Width, Window.Height);
-            DisplayConfig displayConfig = new DisplayConfig(OptionDict, windowRect);
+            DisplayConfig displayConfig = new DisplayConfig(OptionDict, windowRect, Window.IsLocked);
             return displayConfig;
         }
 
@@ -136,13 +140,58 @@ namespace BiliLiveDanmaku.Modules
         public void CaptureSnapshot()
         {
             RenderTargetBitmap renderTarget = Window.CaptureSnapshot();
+            
+            Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
+            saveFileDialog.Filter = "BMP files (*.bmp)|*.bmp|GIF files (*.gif)|*.gif|JPEG files (*.jpg)|*.jpg|PNG files (*.png)|*.png|TIFF files (*.tif)|*.tif|WMP files (*.wmp)|*.wmp|All files (*.*)|*.*";
+            saveFileDialog.FilterIndex = 4;
+            saveFileDialog.DefaultExt = "png";
+            saveFileDialog.FileName = DateTime.Now.ToString("yyyyMMddHHmmssffff");
+            saveFileDialog.AddExtension = true;
+            if (saveFileDialog.ShowDialog(Window) == false) 
+            {
+                return;
+            }
+
             BitmapFrame bitmapFrame = BitmapFrame.Create(renderTarget);
-            PngBitmapEncoder pngEncoder = new PngBitmapEncoder();
-            pngEncoder.Frames.Add(bitmapFrame);
+            BitmapEncoder bitmapEncoder = null;
+            switch (Path.GetExtension(saveFileDialog.FileName).Substring(1).ToLower())
+            {
+                case "bmp":
+                    bitmapEncoder = new BmpBitmapEncoder();
+                    break;
+                case "gif":
+                    bitmapEncoder = new GifBitmapEncoder();
+                    break;
+                case "jpg":
+                case "jpeg":
+                    bitmapEncoder = new JpegBitmapEncoder();
+                    break;
+                case "png":
+                    bitmapEncoder = new PngBitmapEncoder();
+                    break;
+                case "tif":
+                case "tiff":
+                    bitmapEncoder = new TiffBitmapEncoder();
+                    break;
+                case "wmp":
+                    bitmapEncoder = new WmpBitmapEncoder();
+                    break;
+            }
+            if(bitmapEncoder == null)
+            {
+                MessageBox.Show("不支持的格式");
+                return;
+            }
+            bitmapEncoder.Frames.Add(bitmapFrame);
             using (FileStream fileStream = new FileStream("capture.png", FileMode.Create, FileAccess.Write))
             {
-                pngEncoder.Save(fileStream);
+                bitmapEncoder.Save(fileStream);
             }
+        }
+
+        public void LockWindow(bool value)
+        {
+            Window.Lock(value);
         }
     }
 }

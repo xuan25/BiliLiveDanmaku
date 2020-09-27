@@ -297,7 +297,7 @@
                 </ScrollViewer>
             </Border>
         </Grid>
-        <Grid x:Name="HeaderGrid" Background="Transparent" Height="22" VerticalAlignment="Top" MouseLeftButtonDown="HeaderGrid_MouseLeftButtonDown"/>
+        <Grid x:Name="HeaderGrid" Background="Transparent" Height="22" VerticalAlignment="Top" Cursor="SizeAll" MouseLeftButtonDown="HeaderGrid_MouseLeftButtonDown"/>
     </Grid>
 
 </Window>
