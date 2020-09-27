@@ -14,7 +14,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <StackPanel x:Name="GlobalSettings" Orientation="Vertical" Margin="4,4" Grid.Row="0">
+        <StackPanel x:Name="GlobalSettings" Orientation="Vertical" Margin="4" Grid.Row="0">
             <WrapPanel>
                 <TextBox x:Name="RoomIdBox" Margin="4" HorizontalAlignment="Left" Height="23" Text="" TextWrapping="Wrap" VerticalAlignment="Center" Width="120"/>
                 <Button x:Name="ConnectBtn" Margin="4" Content="连接" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="ConnectBtn_Click"/>
@@ -29,7 +29,6 @@
                 </Button>
                 <TextBlock x:Name="PopularityBox" Margin="4" VerticalAlignment="Center"/>
             </WrapPanel>
-
             <WrapPanel>
                 <TextBlock HorizontalAlignment="Left" Margin="4" TextWrapping="Wrap" VerticalAlignment="Center">
                         <Run Text="头像缓存计数: "/>
@@ -40,9 +39,7 @@
                         <Run x:Name="CachedQueueCountBox"/>
                 </TextBlock>
             </WrapPanel>
-            <TextBlock Margin="4.4" Text="Build 2009242"/>
-
-            
+            <TextBlock Margin="4" Text="Build 2009272"/>
         </StackPanel>
         <ScrollViewer VerticalAlignment="Stretch" Grid.Row="1">
             <StackPanel x:Name="ModulesPanel"/>
