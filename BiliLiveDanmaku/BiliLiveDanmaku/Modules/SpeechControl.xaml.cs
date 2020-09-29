@@ -112,11 +112,60 @@ namespace BiliLiveDanmaku.Modules
             Module.OptionDict[filterOptions] = false;
         }
 
+        private DateTime VolumeTipCloseTime;
+        private Task VolumeTipCloseTask;
+
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (!IsInitialized)
                 return;
             Module.SetVolume(e.NewValue);
+
+            VolumeTip.Content = $"{e.NewValue * 100:0}%";
+            if (IsLoaded)
+            {
+                if (VolumeSlider.IsMouseOver)
+                {
+                    Point point = Mouse.GetPosition(VolumeSlider);
+                    VolumeTip.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
+                    VolumeTip.PlacementTarget = VolumeSlider;
+                    VolumeTip.HorizontalOffset = point.X + 10;
+                    VolumeTip.VerticalOffset = VolumeTip.ActualHeight;
+                    VolumeTip.IsOpen = true;
+                }
+                else
+                {
+                    VolumeTip.Placement = System.Windows.Controls.Primitives.PlacementMode.Relative;
+                    VolumeTip.PlacementTarget = VolumeSlider;
+                    VolumeTip.HorizontalOffset = VolumeSlider.ActualWidth;
+                    VolumeTip.VerticalOffset = VolumeTip.ActualHeight;
+                    VolumeTip.IsOpen = true;
+                    VolumeTipCloseTime = DateTime.Now.AddSeconds(1);
+                    if (VolumeTipCloseTask == null)
+                    {
+                        VolumeTipCloseTask = Task.Factory.StartNew(() =>
+                        {
+                            Dispatcher.Invoke(async () =>
+                            {
+                                while (DateTime.Now < VolumeTipCloseTime)
+                                {
+                                    await Task.Delay(100);
+                                }
+                                if (!VolumeSlider.IsMouseOver)
+                                {
+                                    VolumeTip.IsOpen = false;
+                                }
+                                VolumeTipCloseTask = null;
+                            });
+                        });
+                    }
+                }
+            }
+        }
+
+        private void VolumeSlider_MouseLeave(object sender, MouseEventArgs e)
+        {
+            VolumeTip.IsOpen = false;
         }
 
         private void OutputDeviceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -141,5 +190,6 @@ namespace BiliLiveDanmaku.Modules
                 return;
             Module.ClearQueue();
         }
+
     }
 }
