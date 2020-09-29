@@ -39,6 +39,9 @@ namespace BiliLiveDanmaku.UI
             InitializeComponent();
         }
 
+        private static SolidColorBrush SilverBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xAD, 0xBC, 0xD9));
+        private static SolidColorBrush GoldBrush = new SolidColorBrush(Color.FromArgb(0xFF, 0xDC, 0x8C, 0x32));
+
         public InteractWord(BiliLiveJsonParser.InteractWord interactWord)
         {
             InitializeComponent();
@@ -49,12 +52,15 @@ namespace BiliLiveDanmaku.UI
             {
                 case BiliLiveJsonParser.InteractWord.MessageTypes.Enter:
                     InteractWordBox.Text = "进入了直播间";
+                    InteractWordBox.Foreground = SilverBrush;
                     break;
                 case BiliLiveJsonParser.InteractWord.MessageTypes.Follow:
                     InteractWordBox.Text = "关注了直播间";
+                    InteractWordBox.Foreground = GoldBrush;
                     break;
                 case BiliLiveJsonParser.InteractWord.MessageTypes.Share:
                     InteractWordBox.Text = "分享了直播间";
+                    InteractWordBox.Foreground = GoldBrush;
                     break;
             }
             
