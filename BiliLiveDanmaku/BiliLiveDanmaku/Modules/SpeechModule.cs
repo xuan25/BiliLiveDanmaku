@@ -34,7 +34,7 @@ namespace BiliLiveDanmaku.Modules
         public void SetVolume(double volume)
         {
             Volume = volume;
-            speechProcessor.Volume = (float)volume;
+            speechProcessor.Volume = volume;
         }
 
         public SpeechModule()

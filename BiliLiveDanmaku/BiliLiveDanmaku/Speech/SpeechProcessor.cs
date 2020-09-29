@@ -35,7 +35,7 @@ namespace Speech
 
         public int OutputDeviceId;
 
-        public float Volume
+        public double Volume
         {
             get
             {

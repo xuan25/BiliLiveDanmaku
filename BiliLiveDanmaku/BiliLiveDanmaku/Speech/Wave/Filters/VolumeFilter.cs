@@ -8,10 +8,39 @@ namespace Wave.Filters
 {
     public class VolumeFilter : IWaveFilter
     {
-        public float Volume;
+        public double Volume
+        {
+            get
+            {
+                return (Db - DbMin) / (DbMax - DbMin);
+            }
+            set
+            {
+                Db = DbMin + value * (DbMax - DbMin);
+            }
+        }
+
+        public double DbMax { get; set; }
+        public double DbMin { get; set; }
+
+        public double Db
+        {
+            get
+            {
+                return 20 * Math.Log10(Ratio);
+            }
+            private set
+            {
+                Ratio = Math.Pow(10, value / 20);
+            }
+        }
+
+        public double Ratio { get; private set; }
 
         public VolumeFilter()
         {
+            DbMax = 0;
+            DbMin = -80;
             Volume = 1;
         }
 
@@ -21,7 +50,7 @@ namespace Wave.Filters
             {
                 short v = ToShort(buffer[i], buffer[i+1]);
 
-                v = (short)(v * Volume);
+                v = (short)(v * Ratio);
 
                 FromShort(v, out byte byte1, out byte byte2);
                 buffer[i] = byte1;
