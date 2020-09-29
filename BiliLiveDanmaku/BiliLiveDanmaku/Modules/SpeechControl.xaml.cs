@@ -26,9 +26,9 @@ namespace BiliLiveDanmaku.Modules
 
         public SpeechControl(SpeechModule SpeechModule, string defaultOutputDevice)
         {
-            Module = SpeechModule;
-
             InitializeComponent();
+
+            Module = SpeechModule;
 
             foreach (SpeechConfig.SpeechFilterOptions filterOption in Enum.GetValues(typeof(SpeechConfig.SpeechFilterOptions)))
             {
@@ -96,6 +96,8 @@ namespace BiliLiveDanmaku.Modules
 
         private void ShowOptionCkb_Checked(object sender, RoutedEventArgs e)
         {
+            if (!IsInitialized)
+                return;
             CheckBox checkBox = (CheckBox)sender;
             SpeechConfig.SpeechFilterOptions filterOptions = (SpeechConfig.SpeechFilterOptions)checkBox.Tag;
             Module.OptionDict[filterOptions] = true;
@@ -103,6 +105,8 @@ namespace BiliLiveDanmaku.Modules
 
         private void ShowOptionCkb_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (!IsInitialized)
+                return;
             CheckBox checkBox = (CheckBox)sender;
             SpeechConfig.SpeechFilterOptions filterOptions = (SpeechConfig.SpeechFilterOptions)checkBox.Tag;
             Module.OptionDict[filterOptions] = false;
@@ -110,11 +114,15 @@ namespace BiliLiveDanmaku.Modules
 
         private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
+            if (!IsInitialized)
+                return;
             Module.SetVolume(e.NewValue);
         }
 
         private void OutputDeviceCombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            if (!IsInitialized)
+                return;
             ComboBoxItem comboBoxItem = (ComboBoxItem)((ComboBox)sender).SelectedItem;
             if (comboBoxItem != null)
             {
@@ -129,6 +137,8 @@ namespace BiliLiveDanmaku.Modules
 
         private void ClearSpeechQueueBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (!IsInitialized)
+                return;
             Module.ClearQueue();
         }
     }

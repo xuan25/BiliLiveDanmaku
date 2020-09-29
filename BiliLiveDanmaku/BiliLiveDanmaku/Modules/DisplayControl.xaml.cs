@@ -26,9 +26,9 @@ namespace BiliLiveDanmaku.Modules
 
         public DisplayControl(DisplayModule displayModule)
         {
-            Module = displayModule;
-
             InitializeComponent();
+
+            Module = displayModule;
 
             foreach (DisplayConfig.DisplayFilterOptions filterOption in Enum.GetValues(typeof(DisplayConfig.DisplayFilterOptions)))
             {
@@ -64,6 +64,8 @@ namespace BiliLiveDanmaku.Modules
 
         private void ShowOptionCkb_Checked(object sender, RoutedEventArgs e)
         {
+            if (!IsInitialized)
+                return;
             CheckBox checkBox = (CheckBox)sender;
             DisplayConfig.DisplayFilterOptions filterOptions = (DisplayConfig.DisplayFilterOptions)checkBox.Tag;
             Module.OptionDict[filterOptions] = true;
@@ -71,6 +73,8 @@ namespace BiliLiveDanmaku.Modules
 
         private void ShowOptionCkb_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (!IsInitialized)
+                return;
             CheckBox checkBox = (CheckBox)sender;
             DisplayConfig.DisplayFilterOptions filterOptions = (DisplayConfig.DisplayFilterOptions)checkBox.Tag;
             Module.OptionDict[filterOptions] = false;
@@ -78,6 +82,8 @@ namespace BiliLiveDanmaku.Modules
 
         private void CaptureBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (!IsInitialized)
+                return;
             Module.CaptureSnapshot();
         }
 
@@ -88,11 +94,15 @@ namespace BiliLiveDanmaku.Modules
 
         private void LockBtn_Checked(object sender, RoutedEventArgs e)
         {
+            if (!IsInitialized)
+                return;
             Module.LockWindow(true);
         }
 
         private void LockBtn_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (!IsInitialized)
+                return;
             Module.LockWindow(false);
         }
     }
