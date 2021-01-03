@@ -12,35 +12,21 @@ namespace Wave.Filters
         {
             get
             {
-                return (Db - DbMin) / (DbMax - DbMin);
+                double db = 20 * Math.Log10(Ratio);
+                return db + 1 / 80;
             }
             set
             {
-                Db = DbMin + value * (DbMax - DbMin);
+                double db = (value - 1) * 80;
+                Console.WriteLine(db);
+                Ratio = Math.Pow(10, db / 20); 
             }
         }
 
-        public double DbMax { get; set; }
-        public double DbMin { get; set; }
-
-        public double Db
-        {
-            get
-            {
-                return 20 * Math.Log10(Ratio);
-            }
-            private set
-            {
-                Ratio = Math.Pow(10, value / 20);
-            }
-        }
-
-        public double Ratio { get; private set; }
+        public double Ratio;
 
         public VolumeFilter()
         {
-            DbMax = 0;
-            DbMin = -80;
             Volume = 1;
         }
 
