@@ -69,10 +69,11 @@ namespace BiliLiveDanmaku.Utils
             List<GiftCache> cleanedGifts = new List<GiftCache>();
             lock (GiftCaches)
             {
+                DateTime now = DateTime.UtcNow;
                 while (GiftCaches.Count > 0)
                 {
                     GiftCache gift = GiftCaches[0];
-                    if (gift.ExpiredTime < DateTime.UtcNow)
+                    if (gift.ExpiredTime < now)
                     {
                         GiftCaches.RemoveAt(0);
                         cleanedGifts.Add(gift);
