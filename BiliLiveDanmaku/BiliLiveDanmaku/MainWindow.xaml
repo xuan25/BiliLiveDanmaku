@@ -39,7 +39,7 @@
                         <Run x:Name="CachedQueueCountBox"/>
                 </TextBlock>
             </WrapPanel>
-            <TextBlock Margin="4" Text="Build 2009272"/>
+            <TextBlock Margin="4" Text="Build 2101241"/>
         </StackPanel>
         <ScrollViewer VerticalAlignment="Stretch" Grid.Row="1">
             <StackPanel x:Name="ModulesPanel"/>
