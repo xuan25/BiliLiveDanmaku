@@ -14,6 +14,21 @@
 
 ![./img/preview.gif](./img/preview.gif)
 
+## 语音播报API配置
+
+配置文件位置: *./config/speech.xml*
+
+配置文件模板
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<speech>
+    <token_endpoint>https://southeastasia.api.cognitive.microsoft.com/sts/v1.0/issueToken</token_endpoint>
+    <tts_endpoint>https://southeastasia.tts.speech.microsoft.com/cognitiveservices/v1</tts_endpoint>
+    <api_key>you api key</api_key>
+</speech>
+```
+
 ## Todo
 
 - [ ] 在高并发下，弹幕显示版中，礼物增量计数系统导致的概率性线程死锁问题。
