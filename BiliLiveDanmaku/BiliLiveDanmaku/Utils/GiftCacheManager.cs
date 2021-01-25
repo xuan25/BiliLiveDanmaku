@@ -45,6 +45,7 @@ namespace BiliLiveDanmaku.Utils
                                 if (count > 30)
                                 {
                                     IsCacheManagingRunning = false;
+                                    break;
                                 }
                                 Thread.Sleep(1000);
                             }
