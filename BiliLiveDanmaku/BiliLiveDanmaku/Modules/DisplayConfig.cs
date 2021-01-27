@@ -33,11 +33,15 @@ namespace BiliLiveDanmaku.Modules
             [Description("老爷欢迎显示")]
             Welcome,
             [Description("进入直播间显示")]
-            InteractEnter,
+            InteractEntry,
             [Description("关注直播间显示")]
-            InteractFollow,
+            InteractAttention,
             [Description("分享直播间显示")]
             InteractShare,
+            [Description("特别关注直播间显示")]
+            InteractSpecialAttention,
+            [Description("互关直播间显示")]
+            InteractMutualAttention,
             [Description("直播间禁言显示")]
             RoomBlock
         }

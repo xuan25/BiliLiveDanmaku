@@ -50,16 +50,40 @@ namespace BiliLiveDanmaku.UI
 
             switch (interactWord.MessageType)
             {
-                case BiliLiveJsonParser.InteractWord.MessageTypes.Enter:
-                    InteractWordBox.Text = "进入了直播间";
+                case BiliLiveJsonParser.InteractWord.MessageTypes.Entry:
+                    bool isGuard = false;
+                    foreach (BiliLiveJsonParser.InteractWord.Identities identity in interactWord.Identity)
+                    {
+                        if((int)identity >= (int)BiliLiveJsonParser.InteractWord.Identities.GuardJian)
+                        {
+                            isGuard = true;
+                            break;
+                        }
+                    }
+                    if (isGuard)
+                    {
+                        InteractWordBox.Text = "光临直播间";
+                    }
+                    else
+                    {
+                        InteractWordBox.Text = "进入直播间";
+                    }
                     InteractWordBox.Foreground = SilverBrush;
                     break;
-                case BiliLiveJsonParser.InteractWord.MessageTypes.Follow:
+                case BiliLiveJsonParser.InteractWord.MessageTypes.Attention:
                     InteractWordBox.Text = "关注了直播间";
                     InteractWordBox.Foreground = GoldBrush;
                     break;
                 case BiliLiveJsonParser.InteractWord.MessageTypes.Share:
                     InteractWordBox.Text = "分享了直播间";
+                    InteractWordBox.Foreground = GoldBrush;
+                    break;
+                case BiliLiveJsonParser.InteractWord.MessageTypes.SpecialAttention:
+                    InteractWordBox.Text = "特别关注了直播间";
+                    InteractWordBox.Foreground = GoldBrush;
+                    break;
+                case BiliLiveJsonParser.InteractWord.MessageTypes.MutualAttention:
+                    InteractWordBox.Text = "互粉了直播间";
                     InteractWordBox.Foreground = GoldBrush;
                     break;
             }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
 using JsonUtil;
@@ -222,35 +223,93 @@ namespace BiliLiveHelper.Bili
         [Serializable]
         public class InteractWord : ITimeStampedItem
         {
+            public enum Identities
+            {
+                Unknown = 0,
+                Normal,
+                Manager,
+                Fans,
+                Vip,
+                SVip,
+                GuardJian,
+                GuardTi,
+                GuardZong
+            }
+
             public enum MessageTypes
             {
-                Enter,
-                Follow,
+                Unknown = 0,
+                Entry,
+                Attention,
                 Share,
-                Unknown
+                SpecialAttention,
+                MutualAttention
             }
 
             public Cmds Cmd => Cmds.INTERACT_WORD;
             public DateTime TimeStamp { get; private set; }
 
             public User User { get; private set; }
+            public ICollection<Identities> Identity { get; private set; }
             public MessageTypes MessageType { get; private set; }
 
             public InteractWord(Json.Value json)
             {
                 User = new User(json["data"]["uid"], Regex.Unescape(json["data"]["uname"]));
 
+                List<Identities> identities = new List<Identities>();
+                foreach (Json.Value i in json["data"]["identities"])
+                {
+                    switch ((int)i)
+                    {
+                        case 1:
+                            identities.Add(Identities.Normal);
+                            break;
+                        case 2:
+                            identities.Add(Identities.Manager);
+                            break;
+                        case 3:
+                            identities.Add(Identities.Fans);
+                            break;
+                        case 4:
+                            identities.Add(Identities.Vip);
+                            break;
+                        case 5:
+                            identities.Add(Identities.SVip);
+                            break;
+                        case 6:
+                            identities.Add(Identities.GuardJian);
+                            break;
+                        case 7:
+                            identities.Add(Identities.GuardTi);
+                            break;
+                        case 8:
+                            identities.Add(Identities.GuardZong);
+                            break;
+                        default:
+                            identities.Add(Identities.Unknown);
+                            break;
+                    }
+                }
+                Identity = identities.ToArray();
+
                 int msgTypeId = json["data"]["msg_type"];
                 switch (msgTypeId)
                 {
                     case 1:
-                        MessageType = MessageTypes.Enter;
+                        MessageType = MessageTypes.Entry;
                         break;
                     case 2:
-                        MessageType = MessageTypes.Follow;
+                        MessageType = MessageTypes.Attention;
                         break;
                     case 3:
                         MessageType = MessageTypes.Share;
+                        break;
+                    case 4:
+                        MessageType = MessageTypes.SpecialAttention;
+                        break;
+                    case 5:
+                        MessageType = MessageTypes.MutualAttention;
                         break;
                     default:
                         MessageType = MessageTypes.Unknown;

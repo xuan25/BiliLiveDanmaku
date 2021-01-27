@@ -116,11 +116,15 @@ namespace BiliLiveDanmaku.Modules
                     break;
                 case BiliLiveJsonParser.Cmds.INTERACT_WORD:
                     BiliLiveJsonParser.InteractWord interactWord = (BiliLiveJsonParser.InteractWord)item;
-                    if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Enter && OptionDict[DisplayConfig.DisplayFilterOptions.InteractEnter])
+                    if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Entry && OptionDict[DisplayConfig.DisplayFilterOptions.InteractEntry])
                         Window.AppendInteractWord(interactWord);
-                    else if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Follow && OptionDict[DisplayConfig.DisplayFilterOptions.InteractFollow])
+                    else if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Attention && OptionDict[DisplayConfig.DisplayFilterOptions.InteractAttention])
                         Window.AppendInteractWord(interactWord);
                     else if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.Share && OptionDict[DisplayConfig.DisplayFilterOptions.InteractShare])
+                        Window.AppendInteractWord(interactWord);
+                    else if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.SpecialAttention && OptionDict[DisplayConfig.DisplayFilterOptions.InteractSpecialAttention])
+                        Window.AppendInteractWord(interactWord);
+                    else if (interactWord.MessageType == BiliLiveJsonParser.InteractWord.MessageTypes.MutualAttention && OptionDict[DisplayConfig.DisplayFilterOptions.InteractMutualAttention])
                         Window.AppendInteractWord(interactWord);
                     break;
                 case BiliLiveJsonParser.Cmds.ROOM_BLOCK_MSG:
