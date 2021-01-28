@@ -303,7 +303,7 @@ namespace BiliLiveDanmaku.Utils
                 if (DateTime.Now < bolckUntil)
                     return;
 
-                DateTime startTime = DateTime.UtcNow;
+                //DateTime startTime = DateTime.UtcNow;
                 Uri uri;
                 while (true)
                 {
@@ -344,13 +344,13 @@ namespace BiliLiveDanmaku.Utils
                             FaceCacheDict.Add(loadFace.UserId, faceCache);
                     }
                 }
-                DateTime endTime = DateTime.UtcNow;
-                TimeSpan timeSpan = endTime - startTime;
-                int waitTime = requestInterval - (int)timeSpan.TotalMilliseconds;
-                if (waitTime < 0)
-                    waitTime = 0;
-                Thread.Sleep(waitTime);
-                //Thread.Sleep(requestInterval);
+                //DateTime endTime = DateTime.UtcNow;
+                //TimeSpan timeSpan = endTime - startTime;
+                //int waitTime = requestInterval - (int)timeSpan.TotalMilliseconds;
+                //if (waitTime < 0)
+                //    waitTime = 0;
+                //Thread.Sleep(waitTime);
+                Thread.Sleep(requestInterval);
             }
         }
 
