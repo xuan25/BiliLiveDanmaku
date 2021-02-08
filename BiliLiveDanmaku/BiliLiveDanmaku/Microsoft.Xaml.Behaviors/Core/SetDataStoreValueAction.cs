@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Core
 {
-    using System.Windows;
     using Microsoft.Xaml.Behaviors;
+    using System.Windows;
 
     /// <summary>
     /// An action that will change the value of a property from a data store object.

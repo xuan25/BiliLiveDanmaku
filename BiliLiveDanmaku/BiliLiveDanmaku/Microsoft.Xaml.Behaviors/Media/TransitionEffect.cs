@@ -3,8 +3,8 @@
 namespace Microsoft.Xaml.Behaviors.Media
 {
     using System.Windows;
-    using System.Windows.Media.Effects;
     using System.Windows.Media;
+    using System.Windows.Media.Effects;
 
     /// <summary>
     /// Defines a transition effect shader that transitions from one visual to another visual

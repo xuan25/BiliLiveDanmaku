@@ -2,8 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors
 {
-    using System.Windows;
     using System.Diagnostics.CodeAnalysis;
+    using System.Windows;
 
     /// <summary>
     /// A trigger that listens for a specified event on its source and fires when that event is fired.

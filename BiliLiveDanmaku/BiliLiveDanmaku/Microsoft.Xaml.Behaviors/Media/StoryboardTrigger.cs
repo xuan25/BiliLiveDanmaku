@@ -2,10 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Media
 {
+    using Microsoft.Xaml.Behaviors;
     using System;
     using System.Windows;
     using System.Windows.Media.Animation;
-    using Microsoft.Xaml.Behaviors;
 
     /// <summary>
     /// An abstract class that provides the ability to target a Storyboard.

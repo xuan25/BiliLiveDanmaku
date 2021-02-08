@@ -1,11 +1,5 @@
-﻿using BiliLiveHelper.Bili;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BiliLive;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace BiliLiveDanmaku.Modules
 {

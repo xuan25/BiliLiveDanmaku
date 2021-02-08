@@ -3,10 +3,9 @@
 namespace Microsoft.Xaml.Behaviors
 {
     using System;
-    using System.Windows;
     using System.Diagnostics;
-    using System.Windows.Media;
     using System.Globalization;
+    using System.Windows;
 
     /// <summary>
     /// Provides data about which objects were affected when resolving a name change.

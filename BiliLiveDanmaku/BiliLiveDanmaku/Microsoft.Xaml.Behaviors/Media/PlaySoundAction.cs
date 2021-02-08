@@ -2,11 +2,11 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Media
 {
+    using Microsoft.Xaml.Behaviors;
     using System;
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Controls.Primitives;
-    using Microsoft.Xaml.Behaviors;
 
     /// <summary>
     /// An action that will play a sound to completion.

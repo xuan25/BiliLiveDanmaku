@@ -2,13 +2,13 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Core
 {
+    using Microsoft.Xaml.Behaviors;
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using System.Windows;
     using System.Diagnostics.CodeAnalysis;
     using System.Globalization;
-    using Microsoft.Xaml.Behaviors;
+    using System.Windows;
 
     /// <summary>
     /// Toggles between two states based on a conditional statement.

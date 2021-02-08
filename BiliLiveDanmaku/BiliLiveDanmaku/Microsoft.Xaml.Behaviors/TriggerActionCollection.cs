@@ -2,10 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors
 {
-    using System.Windows;
     using System;
     using System.Diagnostics;
-    using System.ComponentModel;
+    using System.Windows;
 
     /// <summary>
     /// Represents a collection of actions with a shared AssociatedObject and provides change notifications to its contents when that AssociatedObject changes.

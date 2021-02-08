@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Core
 {
+    using Microsoft.Xaml.Behaviors;
     using System; //Do not remove this - as the cref in the comments breaks if this is not included.
     using System.Collections;
     using System.Linq;
@@ -9,7 +10,6 @@ namespace Microsoft.Xaml.Behaviors.Core
     using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Controls.Primitives;
-    using Microsoft.Xaml.Behaviors;
 
     [DefaultTrigger(typeof(ButtonBase), typeof(Behaviors.EventTrigger), "Click")]
     [DefaultTrigger(typeof(TextBox), typeof(Behaviors.EventTrigger), "TextChanged")]

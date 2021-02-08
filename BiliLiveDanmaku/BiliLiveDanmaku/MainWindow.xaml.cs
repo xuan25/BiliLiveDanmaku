@@ -1,11 +1,6 @@
-﻿using BiliLiveDanmaku.Modules;
-using BiliLiveDanmaku.Speech;
-using BiliLiveDanmaku.UI;
-using BiliLiveDanmaku.Utils;
-using BiliLiveHelper.Bili;
-using Frame;
-using JsonUtil;
-using Speech;
+﻿using BiliLive;
+using BiliLiveDanmaku.Common;
+using BiliLiveDanmaku.Modules;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,11 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Interop;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Xml;
 
 namespace BiliLiveDanmaku
 {
@@ -71,8 +61,8 @@ namespace BiliLiveDanmaku
             else
             {
                 moduleConfigs = new List<IModuleConfig>();
-                moduleConfigs.Add(new DisplayConfig());
-                moduleConfigs.Add(new SpeechConfig());
+                moduleConfigs.Add(new DanmakuShowConfig());
+                moduleConfigs.Add(new DanmakuSpeechConfig());
             }
             Modules = new List<IModule>();
             foreach (IModuleConfig moduleConfig in moduleConfigs)
@@ -291,10 +281,10 @@ namespace BiliLiveDanmaku
                         module.ProcessItem(item);
                     }
 
-                    
+
                 }
             });
-            
+
         }
 
         private void AddModuleBtn_Click(object sender, RoutedEventArgs e)
@@ -306,12 +296,12 @@ namespace BiliLiveDanmaku
 
         private void AddDisplayBtn_Click(object sender, RoutedEventArgs e)
         {
-            AddModule(new DisplayConfig());
+            AddModule(new DanmakuShowConfig());
         }
 
         private void AddSpeechBtn_Click(object sender, RoutedEventArgs e)
         {
-            AddModule(new SpeechConfig());
+            AddModule(new DanmakuSpeechConfig());
         }
     }
 }

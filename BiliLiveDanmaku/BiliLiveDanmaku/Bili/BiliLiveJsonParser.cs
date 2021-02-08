@@ -1,10 +1,10 @@
-﻿using System;
+﻿using JsonUtil;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Windows.Media;
-using JsonUtil;
 
-namespace BiliLiveHelper.Bili
+namespace BiliLive
 {
     public class BiliLiveJsonParser
     {
@@ -94,7 +94,7 @@ namespace BiliLiveHelper.Bili
                 {
                     Message = json["info"][1];
                 }
-                
+
                 Type = (uint)json["info"][0][9];
                 TimeStamp = new DateTime(1970, 01, 01).AddMilliseconds(json["info"][0][4]);
             }
@@ -405,7 +405,7 @@ namespace BiliLiveHelper.Bili
                 Console.WriteLine(ex);
                 return null;
             }
-            
+
         }
     }
 }

@@ -3,10 +3,10 @@
 namespace Microsoft.Xaml.Behaviors
 {
     using System;
-    using System.Windows;
-    using System.Windows.Media.Animation;
     using System.Globalization;
+    using System.Windows;
     using System.Windows.Controls.Primitives;
+    using System.Windows.Media.Animation;
 
     /// <summary>
     /// Represents an attachable object that encapsulates a unit of functionality.

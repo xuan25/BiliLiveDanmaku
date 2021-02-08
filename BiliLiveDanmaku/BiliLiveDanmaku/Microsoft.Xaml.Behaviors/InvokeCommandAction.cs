@@ -4,11 +4,11 @@ namespace Microsoft.Xaml.Behaviors
 {
     using System;
     using System.Diagnostics;
+    using System.Globalization;
     using System.Reflection;
     using System.Windows;
-    using System.Windows.Input;
-    using System.Globalization;
     using System.Windows.Data;
+    using System.Windows.Input;
 
     /// <summary>
     /// Executes a specified ICommand when invoked.
@@ -139,7 +139,8 @@ namespace Microsoft.Xaml.Behaviors
                     {
                         command.Execute(commandParameter);
                     }
-                } else
+                }
+                else
                 {
                     Debug.WriteLine(ExceptionStringTable.CommandDoesNotExistOnBehaviorWarningMessage, this.CommandName, this.AssociatedObject.GetType().Name);
                 }
@@ -168,7 +169,8 @@ namespace Microsoft.Xaml.Behaviors
             if (this.Command != null)
             {
                 command = this.Command;
-            } else if (this.AssociatedObject != null)
+            }
+            else if (this.AssociatedObject != null)
             {
                 // todo jekelly 06/09/08: we could potentially cache some or all of this information if needed, updating when AssociatedObject changes
                 Type associatedObjectType = this.AssociatedObject.GetType();

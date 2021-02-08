@@ -2,14 +2,14 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Layout
 {
+    using Microsoft.Xaml.Behaviors;
+    using Microsoft.Xaml.Behaviors.Core;
     using System;
     using System.Diagnostics;
     using System.Diagnostics.CodeAnalysis;
     using System.Windows;
     using System.Windows.Input;
     using System.Windows.Media;
-    using Microsoft.Xaml.Behaviors.Core;
-    using Microsoft.Xaml.Behaviors;
 
     /// <summary>
     /// Repositions the attached element in response to mouse drag gestures on the element.

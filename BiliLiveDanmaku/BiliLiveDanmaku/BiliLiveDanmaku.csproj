@@ -82,15 +82,15 @@
     <Compile Include="Bili\BiliLiveListener.cs" />
     <Compile Include="Bili\BiliPackReader.cs" />
     <Compile Include="Bili\BiliPackWriter.cs" />
-    <Compile Include="Config.cs" />
+    <Compile Include="Common\Config.cs" />
     <Compile Include="ModuleBorder.xaml.cs">
       <DependentUpon>ModuleBorder.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Modules\DisplayWindow.xaml.cs">
-      <DependentUpon>DisplayWindow.xaml</DependentUpon>
+    <Compile Include="Modules\DanmakuShow\DanmakuShowWindow.xaml.cs">
+      <DependentUpon>DanmakuShowWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FilterOptions.cs" />
-    <Compile Include="JsonUtil.cs" />
+    <Compile Include="Common\FilterOptions.cs" />
+    <Compile Include="JsonUtil\Json.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\AttachableCollection.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\Behavior.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\BehaviorCollection.cs" />
@@ -147,75 +147,75 @@
     <Compile Include="Microsoft.Xaml.Behaviors\TypeConstraintAttribute.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\TypeConverterHelper.cs" />
     <Compile Include="Microsoft.Xaml.Behaviors\VisualStateUtilities.cs" />
-    <Compile Include="Frame\HitTest.cs" />
-    <Compile Include="Frame\Screen.cs" />
-    <Compile Include="Frame\WindowLong.cs" />
-    <Compile Include="Modules\DisplayConfig.cs" />
-    <Compile Include="Modules\SpeechControl.xaml.cs">
-      <DependentUpon>SpeechControl.xaml</DependentUpon>
+    <Compile Include="Native\HitTest.cs" />
+    <Compile Include="Native\Screen.cs" />
+    <Compile Include="Native\WindowLong.cs" />
+    <Compile Include="Modules\DanmakuShow\DanmakuShowConfig.cs" />
+    <Compile Include="Modules\DanmakuSpeech\DanmakuSpeechControl.xaml.cs">
+      <DependentUpon>DanmakuSpeechControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Modules\DisplayControl.xaml.cs">
-      <DependentUpon>DisplayControl.xaml</DependentUpon>
+    <Compile Include="Modules\DanmakuShow\DanmakuShowControl.xaml.cs">
+      <DependentUpon>DanmakuShowControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Modules\SpeechModule.cs" />
-    <Compile Include="Modules\DisplayModule.cs" />
-    <Compile Include="Modules\IConfig.cs" />
+    <Compile Include="Modules\DanmakuSpeech\DanmakuSpeechModule.cs" />
+    <Compile Include="Modules\DanmakuShow\DanmakuShowModule.cs" />
+    <Compile Include="Modules\IModuleConfig.cs" />
     <Compile Include="Modules\IModule.cs" />
-    <Compile Include="Modules\SpeechConfig.cs" />
-    <Compile Include="Speech\AuthClient.cs" />
-    <Compile Include="Speech\Lang\LangDetection.cs" />
-    <Compile Include="Speech\Lexicon\LexiconUtil.cs" />
-    <Compile Include="Speech\SsmlHelper.cs" />
-    <Compile Include="Speech\Synthesizer.cs" />
-    <Compile Include="Speech\Wave\Filters\IWaveFilter.cs" />
-    <Compile Include="Speech\Wave\Filters\VolumeFilter.cs" />
-    <Compile Include="Speech\Wave\MmeInterop\MmException.cs" />
-    <Compile Include="Speech\Wave\MmeInterop\MmResult.cs" />
-    <Compile Include="Speech\Wave\MmeInterop\MmTime.cs" />
-    <Compile Include="Speech\Wave\MmeInterop\WaveHeader.cs" />
-    <Compile Include="Speech\Wave\MmeInterop\WaveHeaderFlags.cs" />
-    <Compile Include="Speech\Wave\MmeInterop\WaveInCapabilities.cs" />
-    <Compile Include="Speech\Wave\MmeInterop\WaveInterop.cs" />
-    <Compile Include="Speech\Wave\MmeInterop\WaveOutCapabilities.cs" />
-    <Compile Include="Speech\Wave\MmeInterop\WaveOutSupport.cs" />
-    <Compile Include="Speech\Wave\WaveFormat.cs" />
-    <Compile Include="Speech\Wave\PlaybackState.cs" />
-    <Compile Include="Speech\Wave\StoppedEventArgs.cs" />
-    <Compile Include="Speech\Wave\WaveOut.cs" />
-    <Compile Include="Speech\Wave\WaveOutUtils.cs" />
-    <Compile Include="Speech\Wave\WaveOutBuffer.cs" />
-    <Compile Include="Speech\SpeechProcessor.cs" />
-    <Compile Include="Utils\GiftCacheManager.cs" />
-    <Compile Include="UI\ComboSend.xaml.cs">
+    <Compile Include="Modules\DanmakuSpeech\DanmakuSpeechConfig.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\AuthClient.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Lang\LangDetection.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Lexicon\LexiconUtil.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\SsmlHelper.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Synthesizer.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\Filters\IWaveFilter.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\Filters\VolumeFilter.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\MmeInterop\MmException.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\MmeInterop\MmResult.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\MmeInterop\MmTime.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\MmeInterop\WaveHeader.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\MmeInterop\WaveHeaderFlags.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\MmeInterop\WaveInCapabilities.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\MmeInterop\WaveInterop.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\MmeInterop\WaveOutCapabilities.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\MmeInterop\WaveOutSupport.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\WaveFormat.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\PlaybackState.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\StoppedEventArgs.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\WaveOut.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\WaveOutUtils.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\Wave\WaveOutBuffer.cs" />
+    <Compile Include="Modules\DanmakuSpeech\Speech\SpeechProcessor.cs" />
+    <Compile Include="Common\GiftCacheManager.cs" />
+    <Compile Include="Modules\DanmakuShow\Controls\ComboSend.xaml.cs">
       <DependentUpon>ComboSend.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Danmaku.xaml.cs">
+    <Compile Include="Modules\DanmakuShow\Controls\Danmaku.xaml.cs">
       <DependentUpon>Danmaku.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Utils\FaceLoader.cs" />
-    <Compile Include="UI\Gift.xaml.cs">
+    <Compile Include="Common\FaceLoader.cs" />
+    <Compile Include="Modules\DanmakuShow\Controls\Gift.xaml.cs">
       <DependentUpon>Gift.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\GuardBuy.xaml.cs">
+    <Compile Include="Modules\DanmakuShow\Controls\GuardBuy.xaml.cs">
       <DependentUpon>GuardBuy.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\InteractWord.xaml.cs">
+    <Compile Include="Modules\DanmakuShow\Controls\InteractWord.xaml.cs">
       <DependentUpon>InteractWord.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\RoomBlock.xaml.cs">
+    <Compile Include="Modules\DanmakuShow\Controls\RoomBlock.xaml.cs">
       <DependentUpon>RoomBlock.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\SuperChat.xaml.cs">
+    <Compile Include="Modules\DanmakuShow\Controls\SuperChat.xaml.cs">
       <DependentUpon>SuperChat.xaml</DependentUpon>
     </Compile>
-    <Compile Include="UI\Welcome.xaml.cs">
+    <Compile Include="Modules\DanmakuShow\Controls\Welcome.xaml.cs">
       <DependentUpon>Welcome.xaml</DependentUpon>
     </Compile>
     <Page Include="ModuleBorder.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Modules\DisplayWindow.xaml">
+    <Page Include="Modules\DanmakuShow\DanmakuShowWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -231,43 +231,43 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="Modules\SpeechControl.xaml">
+    <Page Include="Modules\DanmakuSpeech\DanmakuSpeechControl.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Modules\DisplayControl.xaml">
+    <Page Include="Modules\DanmakuShow\DanmakuShowControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\ComboSend.xaml">
+    <Page Include="Modules\DanmakuShow\Controls\ComboSend.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\Danmaku.xaml">
+    <Page Include="Modules\DanmakuShow\Controls\Danmaku.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\Gift.xaml">
+    <Page Include="Modules\DanmakuShow\Controls\Gift.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\GuardBuy.xaml">
+    <Page Include="Modules\DanmakuShow\Controls\GuardBuy.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\InteractWord.xaml">
+    <Page Include="Modules\DanmakuShow\Controls\InteractWord.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\RoomBlock.xaml">
+    <Page Include="Modules\DanmakuShow\Controls\RoomBlock.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\SuperChat.xaml">
+    <Page Include="Modules\DanmakuShow\Controls\SuperChat.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="UI\Welcome.xaml">
+    <Page Include="Modules\DanmakuShow\Controls\Welcome.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -300,46 +300,46 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\Danmaku.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\Danmaku.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Lexicon\Lexicon.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Lexicon\Lexicon.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\SuperChat.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\SuperChat.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\Gift.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\Gift.xml" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Config\Speech.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\ja-JP\Danmaku.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\ja-JP\Danmaku.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\ja-JP\Gift.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\ja-JP\Gift.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\ja-JP\SuperChat.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\ja-JP\SuperChat.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\en-US\Danmaku.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\en-US\Danmaku.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\en-US\Gift.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\en-US\Gift.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\en-US\SuperChat.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\en-US\SuperChat.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\zh-CN\Danmaku.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\zh-CN\Danmaku.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\zh-CN\Gift.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\zh-CN\Gift.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Speech\Template\zh-CN\SuperChat.xml" />
+    <Resource Include="Modules\DanmakuSpeech\Speech\Template\zh-CN\SuperChat.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

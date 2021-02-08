@@ -5,10 +5,10 @@ namespace Microsoft.Xaml.Behaviors
     using System;
     using System.Collections.ObjectModel;
     using System.Collections.Specialized;
-    using System.Diagnostics;
-    using System.Windows;
     using System.ComponentModel;
+    using System.Diagnostics;
     using System.Globalization;
+    using System.Windows;
 
     /// <summary>
     /// Represents a collection of IAttachedObject with a shared AssociatedObject and provides change notifications to its contents when that AssociatedObject changes.
@@ -159,7 +159,7 @@ namespace Microsoft.Xaml.Behaviors
                     break;
             }
 #if DEBUG
-			this.VerifySnapshotIntegrity();
+            this.VerifySnapshotIntegrity();
 #endif
         }
 

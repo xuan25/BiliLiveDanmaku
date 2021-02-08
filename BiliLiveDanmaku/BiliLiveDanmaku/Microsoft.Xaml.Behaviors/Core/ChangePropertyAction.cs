@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Core
 {
+    using Microsoft.Xaml.Behaviors;
     using System;
     using System.ComponentModel;
     using System.Diagnostics;
@@ -11,7 +12,6 @@ namespace Microsoft.Xaml.Behaviors.Core
     using System.Windows;
     using System.Windows.Media;
     using System.Windows.Media.Animation;
-    using Microsoft.Xaml.Behaviors;
 
     /// <summary>
     /// An action that will change a specified property to a specified value when invoked.

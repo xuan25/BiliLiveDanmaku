@@ -2,6 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Layout
 {
+    using Microsoft.Xaml.Behaviors;
+    using Microsoft.Xaml.Behaviors.Core;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
@@ -11,8 +13,6 @@ namespace Microsoft.Xaml.Behaviors.Layout
     using System.Windows.Media;
     using System.Windows.Media.Animation;
     using System.Windows.Shapes;
-    using Microsoft.Xaml.Behaviors.Core;
-    using Microsoft.Xaml.Behaviors;
 
     /// <summary>
     /// This enumerated type indicates whether a FluidMoveBehavior applies to the element to which it is attached, or to the children of that element.

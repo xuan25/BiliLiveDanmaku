@@ -4,7 +4,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 
-namespace BiliLiveHelper.Bili
+namespace BiliLive
 {
     class BiliPackWriter
     {
@@ -44,7 +44,7 @@ namespace BiliLiveHelper.Bili
             BaseStream.Write(buffer.GetBuffer(), 0, dataLength);
             BaseStream.Flush();
 
-            if(BaseWebSocket != null)
+            if (BaseWebSocket != null)
             {
                 byte[] b = new byte[dataLength];
                 BaseStream.Position = 0;

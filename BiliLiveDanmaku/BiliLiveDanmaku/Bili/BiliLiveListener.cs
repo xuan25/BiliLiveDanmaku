@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace BiliLiveHelper.Bili
+namespace BiliLive
 {
     class BiliLiveListener
     {
@@ -210,7 +210,7 @@ namespace BiliLiveHelper.Bili
                 return false;
             }
         }
-        
+
         #endregion
 
         #region Room info
@@ -221,7 +221,7 @@ namespace BiliLiveHelper.Bili
             {
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.live.bilibili.com/room/v1/Room/room_init?id=" + roomId);
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                using(StreamReader streamReader = new StreamReader(response.GetResponseStream()))
+                using (StreamReader streamReader = new StreamReader(response.GetResponseStream()))
                 {
                     string result = streamReader.ReadToEnd();
                     Match match = Regex.Match(result, "\"room_id\":(?<RoomId>[0-9]+)");
@@ -229,7 +229,7 @@ namespace BiliLiveHelper.Bili
                         return uint.Parse(match.Groups["RoomId"].Value);
                     return 0;
                 }
-                
+
             }
             catch (WebException)
             {
@@ -359,7 +359,7 @@ namespace BiliLiveHelper.Bili
                                     Json.Value value = ((BiliPackReader.CommandPack)pack).Value;
                                     jsons.Add(value);
                                     BiliLiveJsonParser.IItem item = BiliLiveJsonParser.Parse(value);
-                                    if(item != null)
+                                    if (item != null)
                                         items.Add(item);
                                     break;
                                 case BiliPackReader.PackTypes.Heartbeat:
@@ -368,11 +368,11 @@ namespace BiliLiveHelper.Bili
                             }
                         }
 
-                        if(jsons.Count > 0)
+                        if (jsons.Count > 0)
                         {
                             JsonsRecieved?.Invoke(jsons.ToArray());
                         }
-                        if(items.Count > 0)
+                        if (items.Count > 0)
                         {
                             ItemsRecieved?.Invoke(items.ToArray());
                         }

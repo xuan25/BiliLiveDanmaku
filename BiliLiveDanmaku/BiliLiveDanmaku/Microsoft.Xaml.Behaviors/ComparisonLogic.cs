@@ -2,10 +2,10 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors
 {
+    using Microsoft.Xaml.Behaviors.Core;
     using System;
     using System.ComponentModel;
     using System.Globalization;
-    using Microsoft.Xaml.Behaviors.Core;
 
     internal static class ComparisonLogic
     {

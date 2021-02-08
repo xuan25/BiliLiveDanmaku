@@ -2,9 +2,9 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Core
 {
+    using Microsoft.Xaml.Behaviors;
     using System.Diagnostics;
     using System.Windows;
-    using Microsoft.Xaml.Behaviors;
 
     /// <summary>
     /// An action that will launch a process to open a file or Uri. For files, this action will launch the default program 

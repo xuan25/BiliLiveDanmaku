@@ -2,12 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Core
 {
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
-    using System.Reflection;
     using System.Windows;
-    using System.Windows.Data;
 
     /// <summary>
     /// Represents a trigger that performs actions when the bound data meets a specified condition.
@@ -62,7 +58,8 @@ namespace Microsoft.Xaml.Behaviors.Core
             try
             {
                 EvaluateBindingChange(e);
-            } finally
+            }
+            finally
             {
                 UnsubscribeElementLoadedEvent();
             }

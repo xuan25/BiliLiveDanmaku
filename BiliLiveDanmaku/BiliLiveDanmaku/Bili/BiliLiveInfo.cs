@@ -4,7 +4,7 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace BiliLiveHelper.Bili
+namespace BiliLive
 {
     class BiliLiveInfo
     {
@@ -105,13 +105,13 @@ namespace BiliLiveHelper.Bili
 
         public void StopInfoListener()
         {
-            if(InfoUpdate != null)
+            if (InfoUpdate != null)
             {
                 Delegate[] delegates = InfoUpdate.GetInvocationList();
                 foreach (Delegate d in delegates)
                     InfoUpdate -= (InfoUpdateDel)d;
             }
-            if(InfoListenerThread != null)
+            if (InfoListenerThread != null)
                 InfoListenerThread.Abort();
         }
     }

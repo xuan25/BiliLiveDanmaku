@@ -9,7 +9,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 
-namespace BiliLiveHelper.Bili
+namespace BiliLive
 {
     class BiliPackReader
     {

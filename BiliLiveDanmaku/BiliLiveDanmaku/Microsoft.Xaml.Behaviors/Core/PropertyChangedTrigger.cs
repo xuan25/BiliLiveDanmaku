@@ -2,9 +2,8 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information. 
 namespace Microsoft.Xaml.Behaviors.Core
 {
-    using System;
-    using System.Windows;
     using Microsoft.Xaml.Behaviors;
+    using System.Windows;
 
     /// <summary>
     /// Represents a trigger that performs actions when the bound data have changed. 

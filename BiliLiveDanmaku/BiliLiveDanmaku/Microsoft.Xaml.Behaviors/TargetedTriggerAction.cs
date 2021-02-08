@@ -4,8 +4,8 @@ namespace Microsoft.Xaml.Behaviors
 {
     using System;
     using System.ComponentModel;
-    using System.Windows;
     using System.Globalization;
+    using System.Windows;
 
     /// <summary>
     /// Represents an action that can be targeted to affect an object other than its AssociatedObject.

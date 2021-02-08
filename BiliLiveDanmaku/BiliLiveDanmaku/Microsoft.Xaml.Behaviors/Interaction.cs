@@ -3,10 +3,7 @@
 namespace Microsoft.Xaml.Behaviors
 {
     using System;
-    using System.Collections.Generic;
     using System.Windows;
-    using System.Windows.Media;
-    using System.Diagnostics;
 
     /// <summary>
     /// Static class that owns the Triggers and Behaviors attached properties. Handles propagation of AssociatedObject change notifications.

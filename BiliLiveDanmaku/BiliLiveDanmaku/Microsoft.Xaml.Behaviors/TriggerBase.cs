@@ -3,10 +3,10 @@
 namespace Microsoft.Xaml.Behaviors
 {
     using System;
+    using System.Globalization;
     using System.Windows;
     using System.Windows.Markup;
     using System.Windows.Media.Animation;
-    using System.Globalization;
 
     /// <summary>
     /// Represents an object that can invoke actions conditionally.
