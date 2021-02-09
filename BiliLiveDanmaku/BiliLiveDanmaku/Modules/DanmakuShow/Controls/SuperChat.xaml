@@ -40,7 +40,7 @@
                     </VisualBrush>
                 </Image.OpacityMask>
             </Image>
-            <TextBlock Grid.Column="1" FontSize="16" TextWrapping="Wrap" VerticalAlignment="Center">
+            <TextBlock Grid.Column="1" FontSize="14" TextWrapping="Wrap" VerticalAlignment="Center">
                 <Run x:Name="SenderBox" Text="Sender" Foreground="#FFFFFFFF"/>
                 <LineBreak/>
                 <Run Text="￥" Foreground="#FFFFFFFF"/>
@@ -49,10 +49,10 @@
         </Grid>
         <StackPanel x:Name="MessageStackPanel" Grid.Row="1" Background="#2A60B2">
             <Border Margin="16,0">
-                <TextBlock x:Name="MessageBox" Margin="0,8" Text="Message" FontSize="16" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="#FFFFFFFF" Cursor="Hand" MouseLeftButtonDown="MessageBox_MouseLeftButtonDown"/>
+                <TextBlock x:Name="MessageBox" Margin="0,8" Text="Message" FontSize="14" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="#FFFFFFFF" Cursor="Hand" MouseLeftButtonDown="MessageBox_MouseLeftButtonDown"/>
             </Border>
             <Border x:Name="MessageTransBorder" Margin="16,0" BorderBrush="{Binding ElementName=InfoGrid, Path=Background}" BorderThickness="0,1,0,0">
-                <TextBlock x:Name="MessageTransBox" Margin="0,8" Text="MessageTrans" FontSize="16" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="#FFFFFFFF" Cursor="Hand" MouseLeftButtonDown="MessageTransBox_MouseLeftButtonDown"/>
+                <TextBlock x:Name="MessageTransBox" Margin="0,8" Text="MessageTrans" FontSize="14" TextWrapping="Wrap" VerticalAlignment="Center" Foreground="#FFFFFFFF" Cursor="Hand" MouseLeftButtonDown="MessageTransBox_MouseLeftButtonDown"/>
             </Border>
         </StackPanel>
     </Grid>

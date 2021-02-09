@@ -29,7 +29,7 @@
                 </VisualBrush>
             </Image.OpacityMask>
         </Image>
-        <TextBlock Grid.Column="1" FontSize="16" TextWrapping="Wrap">
+        <TextBlock Grid.Column="1" FontSize="14" TextWrapping="Wrap">
             <Run x:Name="UserBox" Text="User" Foreground="#FF64D2F0"/>
             <Run x:Name="TitleBox" Text="Title" Foreground="#FF64D2F0"/>
             <Run x:Name="MessageBox" Text="进入直播间" Foreground="#FF818181"/>

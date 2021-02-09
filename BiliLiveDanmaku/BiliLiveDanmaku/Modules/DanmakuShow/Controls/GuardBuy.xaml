@@ -37,7 +37,7 @@
                     </VisualBrush>
                 </Image.OpacityMask>
             </Image>
-            <TextBlock Grid.Column="1" FontSize="16" TextWrapping="Wrap" VerticalAlignment="Center">
+            <TextBlock Grid.Column="1" FontSize="14" TextWrapping="Wrap" VerticalAlignment="Center">
                 <Run Text="恭喜" Foreground="#FFFFFFFF"/>
                 <Run x:Name="UserBox" Text="User" Foreground="#FFFFFFFF"/>
                 <Run Text="上任" Foreground="#FFFFFFFF"/>

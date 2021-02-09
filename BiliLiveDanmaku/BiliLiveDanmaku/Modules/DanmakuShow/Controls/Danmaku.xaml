@@ -29,7 +29,7 @@
                 </VisualBrush>
             </Image.OpacityMask>
         </Image>
-        <TextBlock Grid.Column="1" FontSize="16" TextWrapping="Wrap">
+        <TextBlock Grid.Column="1" FontSize="14" TextWrapping="Wrap">
             <Run x:Name="SenderBox" Text="Sender" Foreground="#FFADBCD9"/><Run Text=" : " Foreground="#FF818181"/><Run x:Name="MessageBox" Text="Message" Foreground="#FFFFFFFF" Cursor="Hand" MouseLeftButtonDown="MessageBox_MouseLeftButtonDown"/>
         </TextBlock>
     </Grid>

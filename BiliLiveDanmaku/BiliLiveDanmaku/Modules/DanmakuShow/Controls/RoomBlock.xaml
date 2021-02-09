@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="32" d:DesignWidth="300">
     <Grid Margin="4">
-        <TextBlock FontSize="16" TextWrapping="Wrap">
+        <TextBlock FontSize="14" TextWrapping="Wrap">
             <Run Text="用户" Foreground="#FFADBCD9"/>
             <Run x:Name="UserBox" Text="User" Foreground="#FF818181"/>
             <Run Text="已被管理员禁言" Foreground="#FFADBCD9"/>
