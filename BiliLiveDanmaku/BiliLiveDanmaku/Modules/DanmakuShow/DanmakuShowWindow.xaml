@@ -7,7 +7,7 @@
         xmlns:behaviors="clr-namespace:Microsoft.Xaml.Behaviors"
         xmlns:layout="clr-namespace:Microsoft.Xaml.Behaviors.Layout"
         mc:Ignorable="d"
-        Title="DisplayWindow" MinWidth="100" MinHeight="100" Height="1000" Width="500" Background="#00FFFFFF" WindowStyle="None" AllowsTransparency="True" Topmost="True" ShowInTaskbar="False">
+        Title="DanmakuShow" MinWidth="100" MinHeight="100" Height="1000" Width="500" Background="#00FFFFFF" WindowStyle="None" AllowsTransparency="True" Topmost="True" ShowInTaskbar="False">
     <Window.Effect>
         <DropShadowEffect ShadowDepth="1" BlurRadius="16" Direction="270" Opacity="0.5" Color="#FF211613"/>
     </Window.Effect>
