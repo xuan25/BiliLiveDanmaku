@@ -84,7 +84,7 @@
     <Compile Include="Bili\BiliPackWriter.cs" />
     <Compile Include="Common\Config.cs" />
     <Compile Include="Common\ModuleLoader.cs" />
-    <Compile Include="ModuleBorder.xaml.cs">
+    <Compile Include="Modules\ModuleBorder.xaml.cs">
       <DependentUpon>ModuleBorder.xaml</DependentUpon>
     </Compile>
     <Compile Include="Modules\DanmakuShow\DanmakuShowWindow.xaml.cs">
@@ -212,7 +212,7 @@
     <Compile Include="Modules\DanmakuShow\Controls\Welcome.xaml.cs">
       <DependentUpon>Welcome.xaml</DependentUpon>
     </Compile>
-    <Page Include="ModuleBorder.xaml">
+    <Page Include="Modules\ModuleBorder.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

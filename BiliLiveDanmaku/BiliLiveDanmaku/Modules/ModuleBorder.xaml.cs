@@ -3,7 +3,7 @@ using System;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace BiliLiveDanmaku
+namespace BiliLiveDanmaku.Modules
 {
     /// <summary>
     /// Interaction logic for ModuleBorder.xaml
