@@ -8,7 +8,7 @@ using System.Windows.Media.Imaging;
 
 namespace BiliLiveDanmaku.Modules
 {
-    public class DanmakuShowModule : IModule
+    public sealed class DanmakuShowModule : IModule
     {
         DanmakuShowWindow Window { get; set; }
         DanmakuShowControl Control { get; set; }
@@ -16,9 +16,16 @@ namespace BiliLiveDanmaku.Modules
 
         GiftCacheManager giftCacheManager;
 
+        public string Description => "弹幕显示面板";
+
         public DanmakuShowModule()
         {
 
+        }
+
+        public IModuleConfig CreateDefaultConfig()
+        {
+            return new DanmakuShowConfig();
         }
 
         public UIElement GetControl()

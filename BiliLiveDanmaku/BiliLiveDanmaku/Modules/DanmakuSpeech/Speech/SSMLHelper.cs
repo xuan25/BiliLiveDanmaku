@@ -16,18 +16,18 @@ namespace BiliLiveDanmaku.Speech
         {
             string speechMessage = LexiconUtil.MakeText(SecurityElement.Escape(message));
 
-            string templateUri = "/Speech/Template/Danmaku.xml";
+            string templateUri = "/Modules/DanmakuSpeech/Speech/Template/Danmaku.xml";
             LangDetection.Language language = LangDetection.Detect(speechMessage);
             switch (language)
             {
                 case LangDetection.Language.Japanese:
-                    templateUri = "/Speech/Template/ja-JP/Danmaku.xml";
+                    templateUri = "/Modules/DanmakuSpeech/Speech/Template/ja-JP/Danmaku.xml";
                     break;
                 case LangDetection.Language.Chinese:
-                    templateUri = "/Speech/Template/zh-CN/Danmaku.xml";
+                    templateUri = "/Modules/DanmakuSpeech/Speech/Template/zh-CN/Danmaku.xml";
                     break;
                 case LangDetection.Language.English:
-                    templateUri = "/Speech/Template/en-US/Danmaku.xml";
+                    templateUri = "/Modules/DanmakuSpeech/Speech/Template/en-US/Danmaku.xml";
                     break;
             }
 
@@ -40,18 +40,18 @@ namespace BiliLiveDanmaku.Speech
         {
             string speechMessage = LexiconUtil.MakeText(SecurityElement.Escape(message));
 
-            string templateUri = "/Speech/Template/SuperChat.xml";
+            string templateUri = "/Modules/DanmakuSpeech/Speech/Template/SuperChat.xml";
             LangDetection.Language language = LangDetection.Detect(speechMessage);
             switch (language)
             {
                 case LangDetection.Language.Japanese:
-                    templateUri = "/Speech/Template/ja-JP/SuperChat.xml";
+                    templateUri = "/Modules/DanmakuSpeech/Speech/Template/ja-JP/SuperChat.xml";
                     break;
                 case LangDetection.Language.Chinese:
-                    templateUri = "/Speech/Template/zh-CN/SuperChat.xml";
+                    templateUri = "/Modules/DanmakuSpeech/Speech/Template/zh-CN/SuperChat.xml";
                     break;
                 case LangDetection.Language.English:
-                    templateUri = "/Speech/Template/en-US/SuperChat.xml";
+                    templateUri = "/Modules/DanmakuSpeech/Speech/Template/en-US/SuperChat.xml";
                     break;
             }
 
@@ -62,7 +62,7 @@ namespace BiliLiveDanmaku.Speech
 
         public static string Gift(string user, uint count, string giftName, string action)
         {
-            string templateUri = "/Speech/Template/Gift.xml";
+            string templateUri = "/Modules/DanmakuSpeech/Speech/Template/Gift.xml";
             string template = GetTextFromResource(templateUri);
             string ssmlDoc = template.Replace("{User}", SecurityElement.Escape(user)).Replace("{Count}", count.ToString()).Replace("{Gift}", SecurityElement.Escape(giftName)).Replace("{Action}", SecurityElement.Escape(action));
             return ssmlDoc;

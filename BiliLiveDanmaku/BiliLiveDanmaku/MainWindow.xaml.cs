@@ -70,7 +70,28 @@ namespace BiliLiveDanmaku
                 AddModule(moduleConfig);
             }
 
+            ContextMenu appendModuleContextMenu = (ContextMenu)AddModuleBtn.Resources["AppendModuleContextMenu"];
+            ModuleLoader moduleLoader = new ModuleLoader();
+            List<IModule> modules = moduleLoader.LoadModules();
+            foreach(IModule module in modules)
+            {
+                IModuleConfig defaultModuleConfig = module.CreateDefaultConfig();
+                MenuItem menuItem = new MenuItem();
+                menuItem.Header = module.Description;
+                menuItem.Tag = defaultModuleConfig;
+                menuItem.Click += AppendModuleMenuItem_Click;
+                appendModuleContextMenu.Items.Add(menuItem);
+            }
+
+
             this.Closing += MainWindow_Closing;
+        }
+
+        private void AppendModuleMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            MenuItem item = (MenuItem)sender;
+            IModuleConfig defaultModuleConfig = (IModuleConfig)item.Tag;
+            AddModule(defaultModuleConfig);
         }
 
         private Config LoadConfig()
@@ -289,7 +310,7 @@ namespace BiliLiveDanmaku
 
         private void AddModuleBtn_Click(object sender, RoutedEventArgs e)
         {
-            ContextMenu contextMenu = (ContextMenu)AddModuleBtn.Resources["AddModuleMenu"];
+            ContextMenu contextMenu = (ContextMenu)AddModuleBtn.Resources["AppendModuleContextMenu"];
             contextMenu.PlacementTarget = sender as Button;
             contextMenu.IsOpen = true;
         }

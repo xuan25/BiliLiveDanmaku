@@ -21,9 +21,9 @@
                 <Button x:Name="DisconnectBtn" Margin="4" Content="断开" HorizontalAlignment="Left" VerticalAlignment="Center" Width="75" Click="DisconnectBtn_Click" IsEnabled="False"/>
                 <Button x:Name="AddModuleBtn" Margin="4" Content="＋" HorizontalAlignment="Left" VerticalAlignment="Center" Width="22" Click="AddModuleBtn_Click">
                     <Button.Resources>
-                        <ContextMenu x:Key="AddModuleMenu">
-                            <MenuItem x:Name="AddDisplayBtn" Header="添加显示面板" Click="AddDisplayBtn_Click"/>
-                            <MenuItem x:Name="AddSpeechBtn" Header="添加语音播报" Click="AddSpeechBtn_Click"/>
+                        <ContextMenu x:Key="AppendModuleContextMenu">
+                            <!--<MenuItem x:Name="AddDisplayBtn" Header="添加显示面板" Click="AddDisplayBtn_Click"/>
+                            <MenuItem x:Name="AddSpeechBtn" Header="添加语音播报" Click="AddSpeechBtn_Click"/>-->
                         </ContextMenu>
                     </Button.Resources>
                 </Button>

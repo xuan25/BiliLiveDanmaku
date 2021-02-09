@@ -83,6 +83,7 @@
     <Compile Include="Bili\BiliPackReader.cs" />
     <Compile Include="Bili\BiliPackWriter.cs" />
     <Compile Include="Common\Config.cs" />
+    <Compile Include="Common\ModuleLoader.cs" />
     <Compile Include="ModuleBorder.xaml.cs">
       <DependentUpon>ModuleBorder.xaml</DependentUpon>
     </Compile>

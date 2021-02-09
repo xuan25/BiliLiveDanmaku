@@ -5,6 +5,8 @@ namespace BiliLiveDanmaku.Modules
 {
     public interface IModule
     {
+        string Description { get; }
+        IModuleConfig CreateDefaultConfig();
         void Init(IModuleConfig config);
         IModuleConfig GetConfig();
         UIElement GetControl();

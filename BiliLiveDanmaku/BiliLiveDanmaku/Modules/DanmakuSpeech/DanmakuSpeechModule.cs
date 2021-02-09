@@ -10,7 +10,7 @@ using System.Xml;
 
 namespace BiliLiveDanmaku.Modules
 {
-    public class DanmakuSpeechModule : IModule
+    public sealed class DanmakuSpeechModule : IModule
     {
         DanmakuSpeechControl Control { get; set; }
         public Dictionary<DanmakuSpeechConfig.SpeechFilterOptions, bool> OptionDict { get; private set; }
@@ -32,9 +32,16 @@ namespace BiliLiveDanmaku.Modules
             speechProcessor.Volume = volume;
         }
 
+        public string Description => "弹幕语音播报";
+
         public DanmakuSpeechModule()
         {
 
+        }
+
+        public IModuleConfig CreateDefaultConfig()
+        {
+            return new DanmakuSpeechConfig();
         }
 
         public UIElement GetControl()
@@ -191,7 +198,5 @@ namespace BiliLiveDanmaku.Modules
                 speechProcessor.Speak(ssmlDoc);
             }
         }
-
-
     }
 }

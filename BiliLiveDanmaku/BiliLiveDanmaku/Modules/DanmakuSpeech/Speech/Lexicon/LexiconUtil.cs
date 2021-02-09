@@ -29,7 +29,7 @@ namespace Speech.Lexicon
         {
             Lexemes = new List<Lexeme>();
 
-            Uri uri = new Uri("/Speech/Lexicon/Lexicon.xml", UriKind.Relative);
+            Uri uri = new Uri("Modules/DanmakuSpeech/Speech/Lexicon/Lexicon.xml", UriKind.Relative);
             StreamResourceInfo info = Application.GetResourceStream(uri);
             XDocument xDocument = XDocument.Load(info.Stream);
             Alphabet = (string)xDocument.Root.Attribute("alphabet");
