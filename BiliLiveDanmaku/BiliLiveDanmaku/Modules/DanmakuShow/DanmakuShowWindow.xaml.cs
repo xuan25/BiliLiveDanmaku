@@ -63,7 +63,14 @@ namespace BiliLiveDanmaku.Modules
         {
             ResizeMode resizeMode = this.ResizeMode;
             this.ResizeMode = ResizeMode.NoResize;
-            this.DragMove();
+            try
+            {
+                this.DragMove();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
             this.ResizeMode = resizeMode;
         }
 
