@@ -206,13 +206,30 @@ namespace BiliLiveDanmaku
             try
             {
                 uint roomId = uint.Parse(RoomIdBox.Text);
-                LiveListener = new BiliLiveListener(roomId, BiliLiveListener.Protocols.Tcp);
+
+                BiliLiveListener.Protocols protocol = BiliLiveListener.Protocols.Tcp;
+                switch (ConnectionModeCombo.SelectedIndex)
+                {
+                    case 0:
+                        protocol = BiliLiveListener.Protocols.Tcp;
+                        break;
+                    case 1:
+                        protocol = BiliLiveListener.Protocols.Wss;
+                        break;
+                    case 2:
+                        protocol = BiliLiveListener.Protocols.Ws;
+                        break;
+                }
+
+                LiveListener = new BiliLiveListener(roomId, protocol);
                 LiveListener.ItemsRecieved += BiliLiveListener_ItemsRecieved;
                 LiveListener.PopularityRecieved += LiveListener_PopularityRecieved;
                 LiveListener.Connected += BiliLiveListener_Connected;
                 LiveListener.Disconnected += BiliLiveListener_Disconnected;
                 LiveListener.ConnectionFailed += LiveListener_ConnectionFailed;
                 LiveListener.Connect();
+
+                ConnectionModeCombo.IsEnabled = false;
                 ConnectBtn.IsEnabled = false;
             }
             catch (Exception ex)
@@ -260,6 +277,7 @@ namespace BiliLiveDanmaku
         private void BiliLiveListener_Disconnected()
         {
             ConnectBtn.IsEnabled = true;
+            ConnectionModeCombo.IsEnabled = true;
             IsConnected = false;
             Dispatcher.Invoke(() =>
             {
